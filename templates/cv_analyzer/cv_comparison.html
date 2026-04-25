@@ -1,99 +1,103 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Compare CVs - AI Career Assistant{% endblock %}
+{% block title %}Compare CVs — CareerAI{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h1><i class="fas fa-exchange-alt"></i> Compare CVs</h1>
+<div class="page-content">
+
+  <!-- Header -->
+  <div class="animate-on-scroll" style="margin-bottom:2.5rem;">
+    <span class="section-label" style="display:inline-block;margin-bottom:0.5rem;">CV Analyzer</span>
+    <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;color:var(--text-primary);">Compare CVs</h1>
+    <p style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text-muted);margin-top:0.5rem;">Select two analyses to see a side-by-side comparison.</p>
+  </div>
+
+  <!-- Select form -->
+  <div class="dash-card animate-on-scroll" style="margin-bottom:2rem;">
+    <form method="GET" style="display:grid;grid-template-columns:1fr 1fr auto;gap:16px;align-items:end;">
+      <div>
+        <label style="font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;">First CV</label>
+        {{ form.cv_analysis_1 }}
+      </div>
+      <div>
+        <label style="font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;">Second CV</label>
+        {{ form.cv_analysis_2 }}
+      </div>
+      <button type="submit" class="btn-primary" style="padding:11px 24px;font-size:0.9rem;">Compare</button>
+    </form>
+  </div>
+
+  <!-- Comparison Results -->
+  {% if comparison_data %}
+    <div class="animate-on-scroll">
+
+      <!-- Column Headers -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1px;background:var(--border);border-radius:var(--radius-card) var(--radius-card) 0 0;overflow:hidden;margin-bottom:2px;">
+        <div style="background:var(--bg-secondary);padding:14px 20px;">
+          <p style="font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;">Metric</p>
         </div>
-    </div>
-    
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-body">
-                    <form method="GET" class="row g-3">
-                        <div class="col-md-5">
-                            <label class="form-label">First CV</label>
-                            {{ form.cv_analysis_1 }}
-                        </div>
-                        <div class="col-md-5">
-                            <label class="form-label">Second CV</label>
-                            {{ form.cv_analysis_2 }}
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100">Compare</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <div style="background:var(--bg-secondary);padding:14px 20px;text-align:center;">
+          <p style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.82rem;color:var(--accent-indigo);">CV #{{ comparison_data.cv1.pk }}</p>
         </div>
-    </div>
-    
-    {% if comparison_data %}
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Comparison Results</h5>
-                        
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Metric</th>
-                                    <th class="text-center">CV 1</th>
-                                    <th class="text-center">CV 2</th>
-                                    <th class="text-center">Difference</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>Overall Score</strong></td>
-                                    <td class="text-center">{{ comparison_data.cv1.overall_score }}/100</td>
-                                    <td class="text-center">{{ comparison_data.cv2.overall_score }}/100</td>
-                                    <td class="text-center">
-                                        {% if comparison_data.overall_diff > 0 %}
-                                            <span class="badge bg-success">+{{ comparison_data.overall_diff }}</span>
-                                        {% elif comparison_data.overall_diff < 0 %}
-                                            <span class="badge bg-danger">{{ comparison_data.overall_diff }}</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">Same</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Format Score</td>
-                                    <td class="text-center">{{ comparison_data.cv1.format_score }}%</td>
-                                    <td class="text-center">{{ comparison_data.cv2.format_score }}%</td>
-                                    <td class="text-center">{{ comparison_data.format_diff }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Content Score</td>
-                                    <td class="text-center">{{ comparison_data.cv1.content_score }}%</td>
-                                    <td class="text-center">{{ comparison_data.cv2.content_score }}%</td>
-                                    <td class="text-center">{{ comparison_data.content_diff }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Keywords Score</td>
-                                    <td class="text-center">{{ comparison_data.cv1.keyword_score }}%</td>
-                                    <td class="text-center">{{ comparison_data.cv2.keyword_score }}%</td>
-                                    <td class="text-center">{{ comparison_data.keyword_diff }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Readability Score</td>
-                                    <td class="text-center">{{ comparison_data.cv1.readability_score }}%</td>
-                                    <td class="text-center">{{ comparison_data.cv2.readability_score }}%</td>
-                                    <td class="text-center">{{ comparison_data.readability_diff }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+        <div style="background:var(--bg-secondary);padding:14px 20px;text-align:center;">
+          <p style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.82rem;color:var(--accent-blue);">CV #{{ comparison_data.cv2.pk }}</p>
         </div>
-    {% endif %}
+        <div style="background:var(--bg-secondary);padding:14px 20px;text-align:center;">
+          <p style="font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;">Difference</p>
+        </div>
+      </div>
+
+      <!-- Overall Score Row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1px;background:var(--border);margin-bottom:2px;">
+        <div style="background:var(--bg-card);padding:14px 20px;"><p style="font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--text-primary);font-weight:500;">Overall Score</p></div>
+        <div style="background:var(--bg-card);padding:14px 20px;text-align:center;"><p style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;color:var(--accent-indigo);">{{ comparison_data.cv1.overall_score }}/100</p></div>
+        <div style="background:var(--bg-card);padding:14px 20px;text-align:center;"><p style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;color:var(--accent-blue);">{{ comparison_data.cv2.overall_score }}/100</p></div>
+        <div style="background:var(--bg-card);padding:14px 20px;text-align:center;">
+          {% if comparison_data.overall_diff > 0 %}
+            <span class="feature-tag tag-green" style="font-size:0.72rem;">+{{ comparison_data.overall_diff }}</span>
+          {% elif comparison_data.overall_diff < 0 %}
+            <span style="display:inline-block;background:rgba(239,68,68,0.1);color:#FCA5A5;border:1px solid rgba(239,68,68,0.2);font-size:0.72rem;font-family:'DM Sans',sans-serif;padding:3px 10px;border-radius:999px;">{{ comparison_data.overall_diff }}</span>
+          {% else %}
+            <span class="feature-tag tag-indigo" style="font-size:0.72rem;">Same</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Format Score Row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1px;background:var(--border);margin-bottom:2px;">
+        <div style="background:var(--bg-card);padding:14px 20px;"><p style="font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--text-primary);">Format Score</p></div>
+        <div style="background:var(--bg-card);padding:14px 20px;text-align:center;"><p style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;color:var(--accent-indigo);">{{ comparison_data.cv1.format_score }}%</p></div>
+        <div style="background:var(--bg-card);padding:14px 20px;text-align:center;"><p style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;color:var(--accent-blue);">{{ comparison_data.cv2.format_score }}%</p></div>
+        <div style="background:var(--bg-card);padding:14px 20px;text-align:center;"><p style="font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--text-muted);">{{ comparison_data.format_diff }}</p></div>
+      </div>
+
+      <!-- Content Score Row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1px;background:var(--border);margin-bottom:2px;">
+        <div style="background:var(--bg-card);padding:14px 20px;"><p style="font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--text-primary);">Content Score</p></div>
+        <div style="background:var(--bg-card);padding:14px 20px;text-align:center;"><p style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;color:var(--accent-indigo);">{{ comparison_data.cv1.content_score }}%</p></div>
+        <div style="background:var(--bg-card);padding:14px 20px;text-align:center;"><p style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;color:var(--accent-blue);">{{ comparison_data.cv2.content_score }}%</p></div>
+        <div style="background:var(--bg-card);padding:14px 20px;text-align:center;"><p style="font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--text-muted);">{{ comparison_data.content_diff }}</p></div>
+      </div>
+
+      <!-- Keywords Score Row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1px;background:var(--border);margin-bottom:2px;">
+        <div style="background:var(--bg-card);padding:14px 20px;"><p style="font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--text-primary);">Keywords Score</p></div>
+        <div style="background:var(--bg-card);padding:14px 20px;text-align:center;"><p style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;color:var(--accent-indigo);">{{ comparison_data.cv1.keyword_score }}%</p></div>
+        <div style="background:var(--bg-card);padding:14px 20px;text-align:center;"><p style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;color:var(--accent-blue);">{{ comparison_data.cv2.keyword_score }}%</p></div>
+        <div style="background:var(--bg-card);padding:14px 20px;text-align:center;"><p style="font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--text-muted);">{{ comparison_data.keyword_diff }}</p></div>
+      </div>
+
+      <!-- Readability Score Row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1px;background:var(--border);border-radius:0 0 var(--radius-card) var(--radius-card);overflow:hidden;">
+        <div style="background:var(--bg-card);padding:14px 20px;"><p style="font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--text-primary);">Readability Score</p></div>
+        <div style="background:var(--bg-card);padding:14px 20px;text-align:center;"><p style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;color:var(--accent-indigo);">{{ comparison_data.cv1.readability_score }}%</p></div>
+        <div style="background:var(--bg-card);padding:14px 20px;text-align:center;"><p style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;color:var(--accent-blue);">{{ comparison_data.cv2.readability_score }}%</p></div>
+        <div style="background:var(--bg-card);padding:14px 20px;text-align:center;"><p style="font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--text-muted);">{{ comparison_data.readability_diff }}</p></div>
+      </div>
+
+    </div><!-- /comparison results -->
+  {% endif %}
+
 </div>
 {% endblock %}

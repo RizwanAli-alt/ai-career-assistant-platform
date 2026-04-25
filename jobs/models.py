@@ -213,3 +213,66 @@ class JobMatchScore(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.job.title}: {self.overall_match}%"
+
+
+# ─── Auto-Apply Agent Models ───────────────────────────────────────────────────
+
+class AutoApplyPermission(models.Model):
+    """Controls whether and how auto-apply runs for a user."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='auto_apply_permission')
+    allowed = models.BooleanField(default=False)
+    daily_limit = models.IntegerField(default=10)
+    require_approval = models.BooleanField(default=True)
+    granted_at = models.DateTimeField(null=True, blank=True)
+    terms_accepted = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'jobs_auto_apply_permission'
+
+    def __str__(self):
+        return f"{self.user.username} – Auto-Apply {'On' if self.allowed else 'Off'}"
+
+
+class ApplicationQueue(models.Model):
+    """Queued job applications awaiting user approval or submission."""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('submitted', 'Submitted'),
+        ('failed', 'Failed'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='application_queue')
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='application_queue')
+    match_score = models.FloatField(default=0)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    cover_letter = models.TextField(blank=True)
+    queued_at = models.DateTimeField(auto_now_add=True)
+    applied_at = models.DateTimeField(null=True, blank=True)
+    failure_reason = models.TextField(blank=True)
+
+    class Meta:
+        db_table = 'jobs_application_queue'
+        ordering = ['-queued_at']
+        unique_together = ('user', 'job')
+
+    def __str__(self):
+        return f"{self.user.username} → {self.job.title} [{self.status}]"
+
+
+class AuditLog(models.Model):
+    """Immutable record of every auto-apply action."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='audit_logs')
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, null=True, blank=True, related_name='audit_logs')
+    action = models.CharField(max_length=100)
+    status = models.CharField(max_length=50)
+    detail = models.TextField(blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'jobs_audit_log'
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.user.username} – {self.action} [{self.status}]"

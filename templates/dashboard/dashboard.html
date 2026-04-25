@@ -1,240 +1,654 @@
 {% extends 'base.html' %}
-{% load static %}
 
-{% block title %}Dashboard - AI Career Assistant{% endblock %}
+{% block title %}Dashboard — CareerAI{% endblock %}
+
+{% block extra_head %}
+<style>
+  .futuristic-dashboard{
+    position:relative;
+    min-height:100vh;
+    z-index:10;
+  }
+  .dashboard-background{
+    position:fixed;
+    inset:0;
+    z-index:-10;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .dashboard-background::before{
+    content:'';
+    position:absolute;
+    inset:-10% -8% auto;
+    height:520px;
+    background:
+      radial-gradient(circle at 12% 20%, rgba(47,129,247,.24), transparent 38%),
+      radial-gradient(circle at 82% 12%, rgba(110,75,255,.26), transparent 36%),
+      radial-gradient(circle at 50% 76%, rgba(63,185,80,.14), transparent 40%);
+    filter:blur(12px);
+    animation:meshFloat 16s ease-in-out infinite alternate;
+    z-index:-2;
+  }
+  @keyframes meshFloat{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(0,-26px,0) scale(1.03)}}
+  .dashboard-particle-layer,.dashboard-grid-overlay,.dashboard-dot-matrix{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:-1;
+  }
+  .dashboard-grid-overlay{
+    background-image:linear-gradient(rgba(116,80,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(47,129,247,.05) 1px,transparent 1px);
+    background-size:58px 58px;
+    opacity:.34;
+    animation:gridPulse 7s ease-in-out infinite;
+  }
+  @keyframes gridPulse{0%,100%{opacity:.22}50%{opacity:.4}}
+  .dashboard-dot-matrix{
+    top:320px;
+    height:280px;
+    inset-inline:4%;
+    background-image:radial-gradient(circle,rgba(240,246,252,.2) 1px,transparent 1px);
+    background-size:24px 24px;
+    mask-image:linear-gradient(to bottom,transparent 0%,#000 20%,#000 70%,transparent 100%);
+    opacity:.18;
+    transition:transform .2s linear;
+  }
+  .dashboard-grid{
+    position:relative;
+    z-index:10;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    grid-template-rows:auto;
+    gap:14px;
+    max-width:1200px;
+    margin:0 auto;
+    padding:28px max(24px,4vw) 44px;
+  }
+  .widget{
+    position:relative;
+    overflow:hidden;
+    background:rgba(255,255,255,.05);
+    backdrop-filter:blur(22px);
+    -webkit-backdrop-filter:blur(22px);
+    border:1px solid rgba(240,246,252,.1);
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 18px 40px rgba(6,8,18,.38);
+    transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease,filter .25s ease;
+  }
+  .widget::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    background:linear-gradient(115deg,rgba(255,255,255,.12),transparent 44%,rgba(47,129,247,.14) 62%,transparent 84%);
+    opacity:0;
+    transform:translateX(-28%);
+    transition:transform .45s ease,opacity .35s ease;
+    pointer-events:none;
+  }
+  .widget:hover{transform:translate3d(0,-5px,0);border-color:rgba(116,80,255,.4);box-shadow:0 24px 48px rgba(3,8,20,.45),0 0 20px rgba(47,129,247,.22);filter:saturate(1.1)}
+  .widget:hover::before{opacity:1;transform:translateX(22%)}
+  .widget-full{grid-column:span 3}
+  .widget-half{grid-column:span 2}
+  .widget-third{grid-column:span 1}
+  .widget-2x2{grid-column:span 2;grid-row:span 2}
+  .widget-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .widget-title{font-size:.9rem;font-weight:600;color:var(--text-0)}
+  .widget-link{font-size:.78rem;color:var(--accent);text-decoration:none}
+  .widget-link:hover{text-decoration:underline}
+
+  .welcome-widget{
+    background:linear-gradient(130deg,rgba(255,255,255,.05),rgba(47,129,247,.12),rgba(110,75,255,.15));
+    padding:20px 24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .welcome-widget h1{font-size:1.5rem;font-weight:700;line-height:1.1}
+  .welcome-widget p{font-size:.8rem;color:var(--text-2);margin-top:4px}
+  .welcome-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .welcome-actions .btn-primary,.welcome-actions .btn-ghost{padding:7px 12px;font-size:.76rem}
+  .welcome-actions .btn-primary{box-shadow:0 0 20px rgba(47,129,247,.28)}
+
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .stat-widget{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px 20px;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;position:relative;overflow:hidden}
+  .stat-widget::after{content:'';position:absolute;inset:-35% auto auto -30%;width:65%;height:170%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.26),transparent);opacity:0;transform:translateX(-30%) rotate(16deg);transition:transform .55s ease,opacity .55s ease}
+  .stat-widget:hover{border-color:rgba(47,129,247,.5);transform:translate3d(0,-4px,0);box-shadow:0 0 0 1px rgba(47,129,247,.28),0 20px 32px rgba(3,8,20,.4)}
+  .stat-widget:hover::after{opacity:.35;transform:translateX(160%) rotate(16deg)}
+  .stat-widget.active-stat::before{content:'';position:absolute;inset:22% auto auto 20%;width:60%;height:60%;background:radial-gradient(circle,rgba(47,129,247,.42),transparent 70%);opacity:.22;filter:blur(16px);animation:activePulse 2.8s ease-in-out infinite}
+  @keyframes activePulse{0%,100%{opacity:.16;transform:scale(.94)}50%{opacity:.34;transform:scale(1.06)}}
+  .stat-top{display:flex;justify-content:space-between;align-items:center}
+  .stat-icon{width:20px;height:20px;color:var(--accent)}
+  .trend-badge{background:var(--green-dim);color:var(--green);font-size:.7rem;font-weight:600;border-radius:20px;padding:2px 8px}
+  .stat-number{font-size:2rem;font-weight:700;color:var(--text-0);margin-top:10px;line-height:1}
+  .stat-label{font-size:.75rem;color:var(--text-1)}
+
+  .score-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .score-main{display:flex;align-items:flex-end;gap:8px}
+  .score-main .score{font-size:2.8rem;font-weight:800;line-height:1}
+  .score-main .out-of{font-size:1rem;color:var(--text-2);padding-bottom:6px}
+  .score-good{color:var(--green)} .score-mid{color:var(--amber)} .score-low{color:var(--red)}
+  .ats-badge{font-size:.72rem;border-radius:20px;padding:3px 10px;font-weight:600}
+  .ats-ready{background:var(--green-dim);color:var(--green)}
+  .ats-needs{background:rgba(210,153,34,.15);color:var(--amber)}
+
+  .metric-bars{margin-top:14px;display:grid;gap:8px}
+  .metric-item{display:grid;gap:5px}
+  .metric-head{display:flex;justify-content:space-between;font-size:.75rem;color:var(--text-1)}
+  .metric-bar{height:4px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;position:relative}
+  .metric-fill{height:100%;display:block;background:linear-gradient(90deg,#2F81F7,#7b61ff,#3FB950);transform-origin:left center;transform:scaleX(0);will-change:transform}
+  .metric-fill::after{content:'';position:absolute;right:0;top:-4px;bottom:-4px;width:18px;background:radial-gradient(circle,rgba(255,255,255,.8),transparent 66%);opacity:.45;filter:blur(2px)}
+  .missing-skills{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+  .missing-pill{background:rgba(248,81,73,.1);color:var(--red);border:1px solid rgba(248,81,73,.2);border-radius:20px;padding:2px 10px;font-size:.7rem}
+  .footer-link{display:inline-block;margin-top:14px;font-size:.78rem;color:var(--accent)}
+  .upload-empty{
+    min-height:170px;
+    display:grid;
+    place-items:center;
+    text-align:center;
+    border:1px dashed var(--border-strong);
+    border-radius:10px;
+    color:var(--text-2);
+    font-size:.82rem;
+    padding:16px;
+  }
+
+  .widget-tall{grid-row:span 2}
+  .switch{position:relative;display:inline-block;width:44px;height:24px}
+  .switch input{opacity:0;width:0;height:0}
+  .switch-slider{position:absolute;inset:0;background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:999px;transition:background .28s ease,border-color .28s ease}
+  .switch-slider:before{content:'';position:absolute;width:18px;height:18px;left:2px;top:2px;background:var(--text-1);border-radius:50%;transition:transform .4s cubic-bezier(.22,1.5,.36,1),background .28s ease;box-shadow:0 3px 10px rgba(0,0,0,.35)}
+  .switch input:checked + .switch-slider{background:linear-gradient(90deg,#2F81F7,#7b61ff);border-color:rgba(116,80,255,.75)}
+  .switch input:checked + .switch-slider:before{transform:translateX(20px);background:#fff}
+  .status-pill{display:inline-flex;align-items:center;border-radius:20px;padding:3px 10px;font-size:.72rem;margin-top:2px;gap:6px}
+  .status-pill::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--text-2)}
+  .status-pill.active{background:var(--green-dim);color:var(--green);box-shadow:0 0 0 1px rgba(63,185,80,.2),0 0 14px rgba(63,185,80,.35)}
+  .status-pill.paused{background:var(--bg-3);color:var(--text-2)}
+  .status-pill.active::before{background:var(--green);box-shadow:0 0 0 0 rgba(63,185,80,.5);animation:statusPing 2.1s ease-out infinite}
+  @keyframes statusPing{70%{box-shadow:0 0 0 10px rgba(63,185,80,0)}100%{box-shadow:0 0 0 0 rgba(63,185,80,0)}}
+  .auto-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border-top:1px solid var(--border);margin-top:14px;padding-top:14px}
+  .auto-stats strong{font-size:1.3rem;line-height:1}
+  .auto-stats span{display:block;font-size:.7rem;color:var(--text-2)}
+  .auto-activity{margin-top:14px}
+  .auto-row{padding:8px 8px;border-bottom:1px solid var(--border);font-size:.75rem}
+  .auto-row strong{display:block;color:var(--text-0);font-size:.76rem}
+  .auto-row span{color:var(--text-1)}
+  .auto-row.submitted{border-left:4px solid var(--green)}
+  .auto-row.failed{border-left:4px solid var(--red)}
+  .auto-row.other{border-left:4px solid var(--accent)}
+
+  .progress-row{margin-bottom:12px}
+  .progress-head{display:flex;justify-content:space-between;font-size:.82rem}
+  .progress-head span{font-weight:600;color:var(--text-0)}
+  .tiny-bar{height:4px;border-radius:999px;background:rgba(255,255,255,.08);margin-top:6px;overflow:hidden}
+  .tiny-fill{display:block;height:100%;border-radius:inherit;transform-origin:left center;transform:scaleX(0);will-change:transform;position:relative}
+  .tiny-fill::after{content:'';position:absolute;right:-2px;top:-4px;bottom:-4px;width:20px;background:radial-gradient(circle,rgba(255,255,255,.65),transparent 68%);filter:blur(2px)}
+  .fill-accent{background:linear-gradient(90deg,#2F81F7,#7b61ff)}
+  .fill-green{background:linear-gradient(90deg,#3FB950,#2F81F7)}
+
+  .actions-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .action-tile{
+    position:relative;
+    overflow:hidden;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:12px;
+    padding:18px 14px;
+    text-align:center;
+    cursor:pointer;
+    transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease,background .2s ease;
+    display:block;
+  }
+  .action-tile:hover{background:rgba(255,255,255,.08);border-color:rgba(47,129,247,.45);transform:translate3d(0,-3px,0);box-shadow:0 12px 26px rgba(3,8,20,.42),0 0 16px rgba(47,129,247,.2)}
+  .action-tile:active{transform:translate3d(0,-1px,0) scale(.98)}
+  .action-tile svg{width:22px;height:22px;color:var(--accent);margin:0 auto 8px;display:block}
+  .action-tile span{font-size:.78rem;color:var(--text-1)}
+
+  .goals-list{display:grid;gap:10px}
+  .goal-title{display:flex;justify-content:space-between;font-size:.78rem;color:var(--text-0)}
+  .goal-empty{min-height:150px;display:grid;place-content:center;text-align:center;color:var(--text-2);gap:6px}
+  .goal-empty svg{width:32px;height:32px;color:var(--text-2);opacity:.4;margin:0 auto}
+
+  .profile-ring-wrap{display:flex;align-items:center;gap:12px}
+  .profile-ring{
+    --p:50;
+    width:74px;
+    height:74px;
+    transform:rotate(-90deg);
+    filter:drop-shadow(0 0 10px rgba(47,129,247,.3));
+  }
+  .profile-ring circle{fill:none;stroke-width:8}
+  .profile-ring .ring-bg{stroke:rgba(255,255,255,.12)}
+  .profile-ring .ring-progress{
+    stroke:url(#profileRingGradient);
+    stroke-linecap:round;
+    stroke-dasharray:201.06;
+    stroke-dashoffset:201.06;
+    transition:stroke-dashoffset 1.2s ease;
+  }
+  .profile-score{font-size:2rem;font-weight:800;color:var(--accent);line-height:1}
+  .profile-bar{height:5px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:10px}
+  .profile-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--green));transform-origin:left center;transform:scaleX(0)}
+  .profile-list{list-style:none;margin-top:14px;display:grid;gap:8px}
+  .profile-list li{font-size:.8rem}
+  .profile-list li.done{color:var(--text-0)}
+  .profile-list li.todo{color:var(--text-2)}
+  .profile-list .mark{display:inline-block;width:15px}
+  .profile-list li.done .mark{color:var(--green)}
+
+  .dashboard-grid > section{opacity:1;transform:none}
+
+  @media (max-width:1024px){
+    .widget-half,.widget-third,.widget-2x2,.widget-full{grid-column:span 3}
+    .stats-row{grid-template-columns:repeat(2,1fr)}
+    .widget-tall{grid-row:span 1}
+  }
+  @media (max-width:767px){
+    .dashboard-grid{grid-template-columns:1fr;padding:16px}
+    .widget-half,.widget-third,.widget-2x2,.widget-full{grid-column:span 1}
+    .stats-row{grid-template-columns:1fr}
+    .profile-ring-wrap{align-items:flex-start}
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h1><i class="fas fa-chart-line"></i> Your Dashboard</h1>
-            <p class="text-muted">Welcome back, {{ user.first_name|default:user.username }}!</p>
+<div class="futuristic-dashboard">
+  <div class="dashboard-background" aria-hidden="true">
+    <canvas class="dashboard-particle-layer" id="dashboardParticleLayer" aria-hidden="true"></canvas>
+    <div class="dashboard-grid-overlay" aria-hidden="true"></div>
+    <div class="dashboard-dot-matrix" id="dashboardDotMatrix" aria-hidden="true"></div>
+  </div>
+
+  <div class="dashboard-grid">
+    <section class="widget welcome-widget widget-full">
+      <div>
+        <h1>Good morning, {{ user.username }}</h1>
+        <p>{{ today_date|default:"Today" }}</p>
+      </div>
+      <div class="welcome-actions">
+        <a href="{% url 'upload_cv_analysis' %}" class="btn-primary ripple-target">Analyze CV</a>
+        <a href="{% url 'job_list' %}" class="btn-ghost ripple-target">Find Jobs</a>
+      </div>
+    </section>
+
+    <section class="widget widget-full">
+      <div class="stats-row">
+        <article class="stat-widget active-stat">
+          <div class="stat-top">
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none"><path d="M7 3h7l5 5v13H7z" stroke="currentColor" stroke-width="1.7"/><path d="M14 3v5h5" stroke="currentColor" stroke-width="1.7"/></svg>
+            <span class="trend-badge">+1</span>
+          </div>
+          <div class="stat-number count-up" data-count="{{ cv_analyses|default:'0' }}">0</div>
+          <div class="stat-label">CV Analyses</div>
+        </article>
+        <article class="stat-widget">
+          <div class="stat-top">
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none"><path d="M3 7h18v12H3z" stroke="currentColor" stroke-width="1.7"/><path d="M3 11h18" stroke="currentColor" stroke-width="1.7"/></svg>
+            <span class="trend-badge">+1</span>
+          </div>
+          <div class="stat-number count-up" data-count="{{ recent_applications|default:'0' }}">0</div>
+          <div class="stat-label">Applications</div>
+        </article>
+        <article class="stat-widget">
+          <div class="stat-top">
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none"><path d="m12 3 2.7 5.4 6 .9-4.3 4.2 1 5.9L12 16.6 6.6 19.4l1-5.9L3.3 9.3l6-.9z" stroke="currentColor" stroke-width="1.7"/></svg>
+            <span class="trend-badge">+1</span>
+          </div>
+          <div class="stat-number count-up" data-count="{{ saved_jobs|default:'0' }}">0</div>
+          <div class="stat-label">Saved Jobs</div>
+        </article>
+        <article class="stat-widget">
+          <div class="stat-top">
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none"><path d="M5 6h14v9H8l-3 3z" stroke="currentColor" stroke-width="1.7"/></svg>
+            <span class="trend-badge">+1</span>
+          </div>
+          <div class="stat-number count-up" data-count="{{ forum_posts|default:'0' }}">0</div>
+          <div class="stat-label">Forum Posts</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="widget widget-half">
+      <div class="widget-header">
+        <h2 class="widget-title">CV Summary</h2>
+        <a href="{% url 'upload_cv_analysis' %}" class="widget-link">View details</a>
+      </div>
+      {% if latest_cv_analysis %}
+        <div class="score-row">
+          <div class="score-main">
+            <span class="score {% if cv_score >= 80 %}score-good{% elif cv_score >= 60 %}score-mid{% else %}score-low{% endif %}">{{ cv_score|default:"0" }}</span>
+            <span class="out-of">/ 100</span>
+          </div>
+          <span class="ats-badge {% if cv_score >= 80 %}ats-ready{% else %}ats-needs{% endif %}">
+            {% if cv_score >= 80 %}ATS Ready{% else %}Needs Work{% endif %}
+          </span>
         </div>
-    </div>
-    
-    <!-- Quick Stats -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <i class="fas fa-file-pdf fa-2x text-primary mb-2"></i>
-                    <h5>CV Analyses</h5>
-                    <h3>{{ cv_analyses }}</h3>
-                    <a href="{% url 'cv_analysis_list' %}" class="btn btn-sm btn-primary mt-2">
-                        View
-                    </a>
-                </div>
-            </div>
+        <div class="metric-bars">
+          <div class="metric-item">
+            <div class="metric-head"><span>ATS Compat</span><span>{{ cv_metrics.ats_compat|default:"0" }}%</span></div>
+            <div class="metric-bar"><span class="metric-fill" data-progress="{{ cv_metrics.ats_compat|default:'0' }}" style="width:min({{ cv_metrics.ats_compat|default:'0' }}%, 100%);"></span></div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-head"><span>Keyword Match</span><span>{{ cv_metrics.keyword_match|default:"0" }}%</span></div>
+            <div class="metric-bar"><span class="metric-fill" data-progress="{{ cv_metrics.keyword_match|default:'0' }}" style="width:min({{ cv_metrics.keyword_match|default:'0' }}%, 100%);"></span></div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-head"><span>Completeness</span><span>{{ cv_metrics.completeness|default:"0" }}%</span></div>
+            <div class="metric-bar"><span class="metric-fill" data-progress="{{ cv_metrics.completeness|default:'0' }}" style="width:min({{ cv_metrics.completeness|default:'0' }}%, 100%);"></span></div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-head"><span>Formatting</span><span>{{ cv_metrics.formatting|default:"0" }}%</span></div>
+            <div class="metric-bar"><span class="metric-fill" data-progress="{{ cv_metrics.formatting|default:'0' }}" style="width:min({{ cv_metrics.formatting|default:'0' }}%, 100%);"></span></div>
+          </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <i class="fas fa-briefcase fa-2x text-success mb-2"></i>
-                    <h5>Applications</h5>
-                    <h3>{{ recent_applications }}</h3>
-                    <a href="{% url 'my_applications' %}" class="btn btn-sm btn-success mt-2">
-                        View
-                    </a>
-                </div>
-            </div>
+        <div class="missing-skills">
+          {% for skill in missing_skills|slice:":4" %}
+            <span class="missing-pill">{{ skill }}</span>
+          {% empty %}
+            <span class="missing-pill">No major skill gaps</span>
+          {% endfor %}
+          {% if missing_skills|length > 4 %}
+            <span class="missing-pill">+{{ missing_skills|length|add:-4 }} more</span>
+          {% endif %}
         </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <i class="fas fa-heart fa-2x text-danger mb-2"></i>
-                    <h5>Saved Jobs</h5>
-                    <h3>{{ saved_jobs }}</h3>
-                    <a href="{% url 'saved_jobs' %}" class="btn btn-sm btn-danger mt-2">
-                        View
-                    </a>
-                </div>
+        <a href="{% url 'job_list' %}" class="footer-link">Find matching jobs →</a>
+      {% else %}
+        <a href="{% url 'upload_cv_analysis' %}" class="upload-empty ripple-target">
+          <span>Upload your CV to get started</span>
+        </a>
+      {% endif %}
+    </section>
+
+    <section class="widget widget-third widget-tall">
+      <div class="widget-header">
+        <h2 class="widget-title">Auto-Apply</h2>
+        <label class="switch" aria-label="Auto-apply status (view only)">
+          <input type="checkbox" {% if auto_apply_allowed %}checked{% endif %} disabled>
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+      <span class="status-pill {% if auto_apply_allowed %}active{% else %}paused{% endif %}" role="status" aria-live="polite">
+        {% if auto_apply_allowed %}Active{% else %}Paused{% endif %}
+      </span>
+      <div class="auto-stats">
+        <div><strong class="count-up" data-count="{{ auto_apply_today|default:'0' }}">0</strong><span>Today</span></div>
+        <div><strong class="count-up" data-count="{{ auto_apply_week|default:'0' }}">0</strong><span>Week</span></div>
+        <div><strong class="count-up" data-count="{{ auto_apply_total|default:'0' }}">0</strong><span>Total</span></div>
+      </div>
+      <div class="auto-activity">
+        {% for item in recent_auto_apply %}
+          <div class="auto-row {% if item.status == 'submitted' %}submitted{% elif item.status == 'failed' %}failed{% else %}other{% endif %}">
+            <strong>{{ item.job.company.name|default:"Unknown Company" }}</strong>
+            <span>{{ item.job.title|default:"Application" }}</span>
+          </div>
+        {% empty %}
+          <div class="auto-row other"><span>No recent activity yet</span></div>
+        {% endfor %}
+      </div>
+      <a href="{% url 'auto_apply_settings' %}" class="footer-link">Manage →</a>
+    </section>
+
+    <section class="widget widget-third">
+      <div class="widget-header"><h2 class="widget-title">This Month</h2></div>
+      <div class="progress-row">
+        <div class="progress-head"><p>Applications</p><span>{{ this_month_applications|default:"0" }}/{{ stats.monthly_applications_goal|default:"10" }}</span></div>
+        <div class="tiny-bar"><span class="tiny-fill fill-accent" data-progress="{{ stats.get_applications_progress|default:'0' }}" style="width:min({{ stats.get_applications_progress|default:'0' }}%, 100%);"></span></div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-head"><p>CV Analyses</p><span>{{ cv_analyses|default:"0" }}/{{ cv_analyses_goal|default:"4" }}</span></div>
+        <div class="tiny-bar"><span class="tiny-fill fill-green" data-progress="{{ cv_analyses_progress|default:'0' }}" style="width:min({{ cv_analyses_progress|default:'0' }}%, 100%);"></span></div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-head"><p>Courses</p><span>0/3</span></div>
+        <div class="tiny-bar"><span class="tiny-fill fill-accent" data-progress="0" style="width:0%;"></span></div>
+      </div>
+    </section>
+
+    <section class="widget widget-third">
+      <div class="widget-header"><h2 class="widget-title">Quick Actions</h2></div>
+      <div class="actions-grid">
+        <a href="{% url 'upload_cv_analysis' %}" class="action-tile ripple-target">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M7 3h7l5 5v13H7z" stroke="currentColor" stroke-width="1.7"/><path d="M14 3v5h5" stroke="currentColor" stroke-width="1.7"/></svg>
+          <span>Analyze CV</span>
+        </a>
+        <a href="{% url 'job_list' %}" class="action-tile ripple-target">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.7"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.7"/></svg>
+          <span>Search Jobs</span>
+        </a>
+        <a href="{% url 'auto_apply_settings' %}" class="action-tile ripple-target">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h7l-1 8 10-13h-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+          <span>Auto-Apply</span>
+        </a>
+        <a href="{% url 'resource_hub' %}" class="action-tile ripple-target">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 5h7a4 4 0 0 1 4 4v10H8a4 4 0 0 0-4 4z" stroke="currentColor" stroke-width="1.7"/><path d="M20 5h-7a4 4 0 0 0-4 4v10h7a4 4 0 0 1 4 4z" stroke="currentColor" stroke-width="1.7"/></svg>
+          <span>Browse Courses</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="widget widget-third">
+      <div class="widget-header"><h2 class="widget-title">Goals</h2></div>
+      {% if active_goals %}
+        <div class="goals-list">
+          {% for goal in active_goals|slice:":4" %}
+            <div>
+              <div class="goal-title"><span>{{ goal.title }}</span><span>{{ goal.progress_percentage|default:"0" }}%</span></div>
+              <div class="tiny-bar"><span class="tiny-fill fill-accent" data-progress="{{ goal.progress_percentage|default:'0' }}" style="width:min({{ goal.progress_percentage|default:'0' }}%, 100%);"></span></div>
             </div>
+          {% endfor %}
         </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <i class="fas fa-comments fa-2x text-info mb-2"></i>
-                    <h5>Forum Posts</h5>
-                    <h3>{{ forum_posts }}</h3>
-                    <a href="{% url 'forum_home' %}" class="btn btn-sm btn-info mt-2">
-                        Visit
-                    </a>
-                </div>
-            </div>
+      {% else %}
+        <div class="goal-empty">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="1.6"/></svg>
+          <p>No active goals yet</p>
+          <a href="{% url 'goal_tracker' %}" class="widget-link">Add a goal →</a>
         </div>
-    </div>
-    
-    <div class="row">
-        <!-- Main Content -->
-        <div class="col-md-8">
-            <!-- This Month Progress -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5>This Month's Progress</h5>
-                </div>
-                <div class="card-body">
-                    <p class="mb-2">
-                        <strong>Job Applications:</strong> {{ this_month_applications }} / {{ stats.monthly_applications_goal }}
-                    </p>
-                    <div class="progress" style="height: 25px;">
-                        <div class="progress-bar" role="progressbar" 
-                            style="width: {{ stats.get_applications_progress }}%;" 
-                            aria-valuenow="{{ stats.get_applications_progress }}" 
-                            aria-valuemin="0" aria-valuemax="100">
-                            {{ stats.get_applications_progress }}%
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Quick Actions -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5>Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-2">
-                            <a href="{% url 'upload_cv_analysis' %}" class="btn btn-primary w-100">
-                                <i class="fas fa-file-upload"></i> Analyze CV
-                            </a>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <a href="{% url 'job_list' %}" class="btn btn-success w-100">
-                                <i class="fas fa-search"></i> Find Jobs
-                            </a>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <a href="{% url 'chat' %}" class="btn btn-info w-100">
-                                <i class="fas fa-comments"></i> Chat with AI
-                            </a>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <a href="{% url 'profile' %}" class="btn btn-secondary w-100">
-                                <i class="fas fa-user-edit"></i> Update Profile
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Recent Activity -->
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Recent Activity</h5>
-                    <a href="{% url 'activity_log' %}" class="btn btn-sm btn-outline-primary">
-                        View All
-                    </a>
-                </div>
-                <div class="card-body">
-                    {% if activities %}
-                        <ul class="list-unstyled">
-                            {% for activity in activities %}
-                                <li class="mb-3 pb-3 border-bottom">
-                                    <div>
-                                        <strong>{{ activity.get_activity_type_display }}</strong>
-                                        <small class="text-muted float-end">{{ activity.created_at|date:"M d, Y" }}</small>
-                                    </div>
-                                    <p class="small text-muted mb-0">{{ activity.description }}</p>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="text-muted">No activities yet.</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-        <!-- Sidebar -->
-        <div class="col-md-4">
-            <!-- Active Goals -->
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Active Goals</h5>
-                    <a href="{% url 'goal_tracker' %}" class="btn btn-sm btn-outline-primary">
-                        Manage
-                    </a>
-                </div>
-                <div class="card-body">
-                    {% if active_goals %}
-                        {% for goal in active_goals %}
-                            <div class="mb-3 pb-3 border-bottom">
-                                <h6>{{ goal.title }}</h6>
-                                <small class="text-muted d-block mb-2">
-                                    Target: {{ goal.target_date|date:"M d, Y" }}
-                                </small>
-                                <div class="progress" style="height: 20px;">
-                                    <div class="progress-bar" style="width: {{ goal.progress_percentage }}%;">
-                                        {{ goal.progress_percentage }}%
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-muted small">No active goals. 
-                            <a href="{% url 'goal_tracker' %}">Create one</a>
-                        </p>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- Profile Completion -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5>Profile Completion</h5>
-                </div>
-                <div class="card-body">
-                    {% with completion=user.profile.get_profile_completion|default:50 %}
-                        <div class="progress mb-3" style="height: 25px;">
-                            <div class="progress-bar" style="width: {{ completion }}%;">
-                                {{ completion }}%
-                            </div>
-                        </div>
-                    {% endwith %}
-                    
-                    <small class="text-muted">
-                        {% if user.profile.bio %}
-                            <p><i class="fas fa-check-circle text-success"></i> Bio Added</p>
-                        {% else %}
-                            <p><i class="fas fa-times-circle text-danger"></i> Add Bio</p>
-                        {% endif %}
-                        
-                        {% if user.profile.skills %}
-                            <p><i class="fas fa-check-circle text-success"></i> Skills Added</p>
-                        {% else %}
-                            <p><i class="fas fa-times-circle text-danger"></i> Add Skills</p>
-                        {% endif %}
-                        
-                        {% if user.profile.cv %}
-                            <p><i class="fas fa-check-circle text-success"></i> CV Uploaded</p>
-                        {% else %}
-                            <p><i class="fas fa-times-circle text-danger"></i> Upload CV</p>
-                        {% endif %}
-                    </small>
-                    
-                    <a href="{% url 'profile' %}" class="btn btn-sm btn-primary w-100 mt-3">
-                        Complete Profile
-                    </a>
-                </div>
-            </div>
-            
-            <!-- Tips -->
-            <div class="card">
-                <div class="card-header">
-                    <h5>Career Tip</h5>
-                </div>
-                <div class="card-body">
-                    <blockquote class="blockquote">
-                        <p>"Customize your resume for each job application. Highlight skills and experiences that match the job description."</p>
-                        <footer class="blockquote-footer">Career Expert</footer>
-                    </blockquote>
-                    <a href="{% url 'career_tips' %}" class="btn btn-sm btn-outline-primary w-100">
-                        More Tips
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+      {% endif %}
+    </section>
+
+    <section class="widget widget-third">
+      <div class="widget-header">
+        <h2 class="widget-title">Profile</h2>
+        <a href="{% url 'profile' %}" class="widget-link">Edit →</a>
+      </div>
+      <div class="profile-ring-wrap">
+        <svg class="profile-ring" viewBox="0 0 80 80" aria-hidden="true">
+          <defs>
+            <linearGradient id="profileRingGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#2F81F7"></stop>
+              <stop offset="100%" stop-color="#3FB950"></stop>
+            </linearGradient>
+          </defs>
+          <circle class="ring-bg" cx="40" cy="40" r="32"></circle>
+          <circle class="ring-progress" cx="40" cy="40" r="32" data-progress="{{ profile_completion|default:'50' }}"></circle>
+        </svg>
+        <div class="profile-score">{{ profile_completion|default:"50" }}%</div>
+      </div>
+      <div class="profile-bar"><span data-progress="{{ profile_completion|default:'50' }}" style="width:min({{ profile_completion|default:'50' }}%, 100%);"></span></div>
+      <ul class="profile-list">
+        <li class="{% if profile and profile.bio %}done{% else %}todo{% endif %}"><span class="mark">{% if profile and profile.bio %}✓{% else %}○{% endif %}</span> Bio</li>
+        <li class="{% if user.email %}done{% else %}todo{% endif %}"><span class="mark">{% if user.email %}✓{% else %}○{% endif %}</span> Email</li>
+        <li class="{% if profile and profile.skills %}done{% else %}todo{% endif %}"><span class="mark">{% if profile and profile.skills %}✓{% else %}○{% endif %}</span> Skills</li>
+        <li class="{% if profile and profile.cv %}done{% else %}todo{% endif %}"><span class="mark">{% if profile and profile.cv %}✓{% else %}○{% endif %}</span> CV Uploaded</li>
+      </ul>
+    </section>
+  </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const runDashboardCountUp = () => {
+      document.querySelectorAll('.dashboard-grid .count-up').forEach((el) => {
+        const target = parseInt(el.dataset.count || '0', 10);
+        if (isNaN(target) || target < 0) return;
+        if (typeof gsap !== 'undefined') {
+          const counter = { value: 0 };
+          gsap.to(counter, {
+            value: target,
+            duration: 1.1,
+            ease: 'power2.out',
+            onUpdate() { el.textContent = Math.round(counter.value); }
+          });
+          return;
+        }
+        let n = 0;
+        const step = Math.max(1, Math.ceil(target / 32));
+        const timer = setInterval(() => {
+          n += step;
+          if (n >= target) { n = target; clearInterval(timer); }
+          el.textContent = n;
+        }, 24);
+      });
+    };
+
+    const animateBars = () => {
+      const animateFill = (el, index) => {
+        const target = Math.max(0, Math.min(parseFloat(el.dataset.progress || '0'), 100));
+        const scale = target / 100;
+        if (prefersReducedMotion) {
+          el.style.transform = `scaleX(${scale})`;
+          return;
+        }
+        if (typeof gsap !== 'undefined') {
+          gsap.to(el, { scaleX: scale, duration: 1.05, ease: 'power2.out', delay: index * 0.04 });
+          return;
+        }
+        requestAnimationFrame(() => { el.style.transform = `scaleX(${scale})`; });
+      };
+      document.querySelectorAll('.metric-fill, .tiny-fill, .profile-bar span').forEach(animateFill);
+    };
+
+    const animateProfileRing = () => {
+      const ring = document.querySelector('.profile-ring .ring-progress');
+      if (!ring) return;
+      const value = Math.max(0, Math.min(parseFloat(ring.dataset.progress || '0'), 100));
+      const circumference = 2 * Math.PI * 32;
+      const offset = circumference * (1 - value / 100);
+      if (prefersReducedMotion) {
+        ring.style.strokeDashoffset = offset.toFixed(2);
+        return;
+      }
+      if (typeof gsap !== 'undefined') {
+        gsap.to(ring, { strokeDashoffset: offset, duration: 1.2, ease: 'power2.out', delay: 0.2 });
+        return;
+      }
+      ring.style.strokeDashoffset = offset.toFixed(2);
+    };
+
+    const initDotMatrixParallax = () => {
+      const dotMatrix = document.getElementById('dashboardDotMatrix');
+      if (!dotMatrix || prefersReducedMotion) return;
+      const onScroll = () => {
+        const offset = Math.min(window.scrollY * 0.08, 30);
+        dotMatrix.style.transform = `translate3d(0,${offset}px,0)`;
+      };
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
+    };
+
+    const initParticles = () => {
+      const canvas = document.getElementById('dashboardParticleLayer');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const dpr = window.devicePixelRatio || 1;
+      let rafId = null;
+      let width = 0;
+      let height = 0;
+      const particles = [];
+      const total = prefersReducedMotion ? 12 : 28;
+
+      const resize = () => {
+        width = window.innerWidth;
+        height = Math.max(document.documentElement.clientHeight, 680);
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      };
+
+      const createParticle = () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        r: Math.random() * 1.8 + 0.6,
+        vx: (Math.random() - 0.5) * 0.08,
+        vy: (Math.random() - 0.5) * 0.08,
+        a: Math.random() * 0.25 + 0.08,
+      });
+
+      const draw = () => {
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach((p) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < -6) p.x = width + 6;
+          if (p.x > width + 6) p.x = -6;
+          if (p.y < -6) p.y = height + 6;
+          if (p.y > height + 6) p.y = -6;
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(180, 202, 255, ${p.a})`;
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        rafId = window.requestAnimationFrame(draw);
+      };
+
+      resize();
+      particles.length = 0;
+      for (let i = 0; i < total; i += 1) particles.push(createParticle());
+      draw();
+      window.addEventListener('resize', resize, { passive: true });
+      window.addEventListener('beforeunload', () => { if (rafId) window.cancelAnimationFrame(rafId); }, { once: true });
+    };
+
+    const animateWidgets = () => {
+      if (prefersReducedMotion) {
+        document.querySelectorAll('.dashboard-grid > *').forEach((el) => {
+          el.style.opacity = '1';
+          el.style.transform = 'none';
+        });
+        return;
+      }
+      if (typeof gsap === 'undefined') return;
+      gsap.fromTo('.dashboard-grid > *',
+        { y: 16 },
+        { y: 0, duration: 0.5, ease: 'power2.out', stagger: 0.06, delay: 0.1 });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        animateWidgets();
+        animateBars();
+        animateProfileRing();
+        runDashboardCountUp();
+        initDotMatrixParallax();
+        if ('requestIdleCallback' in window) {
+          window.requestIdleCallback(initParticles, { timeout: 900 });
+        } else {
+          window.setTimeout(initParticles, 220);
+        }
+      });
+    } else {
+      animateWidgets();
+      animateBars();
+      animateProfileRing();
+      runDashboardCountUp();
+      initDotMatrixParallax();
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(initParticles, { timeout: 900 });
+      } else {
+        window.setTimeout(initParticles, 220);
+      }
+    }
+  })();
+</script>
 {% endblock %}

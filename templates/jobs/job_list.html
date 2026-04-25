@@ -1,143 +1,141 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Jobs - AI Career Assistant{% endblock %}
+{% block title %}Jobs — CareerAI{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h1><i class="fas fa-briefcase"></i> Find Your Next Job</h1>
-            <p class="text-muted">{{ total_jobs }} jobs available</p>
-        </div>
-    </div>
-    
-    <div class="row">
-        <!-- Sidebar Filters -->
-        <div class="col-md-3 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Filters</h5>
-                </div>
-                <div class="card-body">
-                    <form method="GET">
-                        <div class="mb-3">
-                            <label class="form-label">Keyword</label>
-                            {{ form.keyword }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Location</label>
-                            {{ form.location }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Job Type</label>
-                            <div>{{ form.job_type }}</div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Experience Level</label>
-                            <div>{{ form.experience_level }}</div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Salary Range</label>
-                            {{ form.salary_min }}
-                            {{ form.salary_max }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Sort By</label>
-                            {{ form.sort_by }}
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
-                        <a href="{% url 'job_list' %}" class="btn btn-outline-secondary w-100 mt-2">Clear</a>
-                    </form>
-                </div>
+<div class="page-content">
+  <div class="jobs-page-shell">
+    <div class="jobs-bg-grid"></div>
+    <div class="jobs-bg-glow jobs-bg-glow-blue"></div>
+    <div class="jobs-bg-glow jobs-bg-glow-purple"></div>
+
+    <div class="jobs-shell-content">
+      <div class="jobs-header-block">
+        <span class="section-label">Opportunities</span>
+        <h1 class="jobs-title">Find Your Next Job</h1>
+        <p class="jobs-subtitle">{{ total_jobs }} jobs available</p>
+      </div>
+
+      <div class="jobs-layout">
+
+        <aside class="jobs-sidebar-panel animate-in-left">
+          <p class="jobs-panel-title">Filters</p>
+          <form method="GET" class="jobs-filter-form space-y-6">
+            <div class="jobs-filter-group">
+              <label class="jobs-filter-label" for="{{ form.keyword.id_for_label }}">Keyword</label>
+              {{ form.keyword }}
             </div>
-        </div>
-        
-        <!-- Job List -->
-        <div class="col-md-9">
-            {% if jobs %}
-                {% for job in jobs %}
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <h5 class="card-title">
-                                        <a href="{% url 'job_detail' job.pk %}" class="text-decoration-none">
-                                            {{ job.title }}
-                                        </a>
-                                    </h5>
-                                    <p class="card-text text-muted">
-                                        <i class="fas fa-building"></i> {{ job.company.name }} |
-                                        <i class="fas fa-map-marker-alt"></i> {{ job.location }}
-                                    </p>
-                                    <p class="card-text small">
-                                        {{ job.description|truncatewords:30 }}
-                                    </p>
-                                    <div class="mb-2">
-                                        <span class="badge bg-primary">{{ job.job_type }}</span>
-                                        <span class="badge bg-secondary">{{ job.experience_level }}</span>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-end">
-                                    {% if job.salary_min and job.salary_max %}
-                                        <h6 class="text-success">${{ job.salary_min|floatformat:0 }} - ${{ job.salary_max|floatformat:0 }}</h6>
-                                    {% endif %}
-                                    <p class="small text-muted">{{ job.days_until_deadline }} days left</p>
-                                    <a href="{% url 'job_detail' job.pk %}" class="btn btn-sm btn-primary">
-                                        View Details
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="jobs-filter-group">
+              <label class="jobs-filter-label" for="{{ form.location.id_for_label }}">Location</label>
+              {{ form.location }}
+            </div>
+            <div class="jobs-filter-group space-y-2">
+              <p class="jobs-filter-label" id="job-type-group-label">Job Type</p>
+              <div class="jobs-checkbox-group space-y-2" role="group" aria-labelledby="job-type-group-label">
+                {% for checkbox in form.job_type %}
+                  <label class="jobs-checkbox-row flex items-center gap-2">
+                    {{ checkbox.tag }}
+                    <span>{{ checkbox.choice_label }}</span>
+                  </label>
                 {% endfor %}
-                
-                <!-- Pagination -->
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center">
-                        {% if jobs.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page=1">First</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ jobs.previous_page_number }}">Previous</a>
-                            </li>
+              </div>
+            </div>
+            <div class="jobs-filter-group space-y-2">
+              <p class="jobs-filter-label" id="experience-level-group-label">Experience Level</p>
+              <div class="jobs-checkbox-group space-y-2" role="group" aria-labelledby="experience-level-group-label">
+                {% for checkbox in form.experience_level %}
+                  <label class="jobs-checkbox-row flex items-center gap-2">
+                    {{ checkbox.tag }}
+                    <span>{{ checkbox.choice_label }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="jobs-filter-group">
+              <label class="jobs-filter-label" for="{{ form.salary_min.id_for_label }}">Salary Range</label>
+              <div class="jobs-salary-grid">
+                {{ form.salary_min }}
+                {{ form.salary_max }}
+              </div>
+            </div>
+            <div class="jobs-filter-group">
+              <label class="jobs-filter-label" for="{{ form.sort_by.id_for_label }}">Sort By</label>
+              {{ form.sort_by }}
+            </div>
+            <button type="submit" class="job-btn-primary ripple-target">Apply Filters</button>
+            <a href="{% url 'job_list' %}" class="job-btn-secondary">Clear filters</a>
+          </form>
+        </aside>
+
+        <section class="jobs-results-panel animate-in-up">
+          {% if jobs %}
+            <div class="jobs-cards-list stagger-children">
+              {% for job in jobs %}
+                <article class="job-glass-card">
+                  <div class="job-card-content">
+                    <div class="job-card-main">
+                      <p class="job-company">{{ job.company.name }}</p>
+                      <h3 class="job-role">
+                        <a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a>
+                      </h3>
+                      <p class="job-meta">{{ job.location }} | {{ job.experience_level|title }}</p>
+                      <p class="job-description">{{ job.description|truncatewords:25 }}</p>
+                      <div class="job-tags">
+                        <span class="job-tag">{{ job.job_type|title }}</span>
+                      </div>
+                    </div>
+                    <div class="job-card-side">
+                      {% if job.salary_min and job.salary_max %}
+                        <p class="job-salary">${{ job.salary_min|floatformat:0 }}–${{ job.salary_max|floatformat:0 }}</p>
+                      {% endif %}
+                      <p class="job-deadline">
+                        {% if job.days_until_deadline is not None %}
+                          {{ job.days_until_deadline }} days left
+                        {% else %}
+                          Open until filled
                         {% endif %}
-                        
-                        {% for num in jobs.paginator.page_range %}
-                            {% if jobs.number == num %}
-                                <li class="page-item active">
-                                    <span class="page-link">{{ num }}</span>
-                                </li>
-                            {% else %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                        
-                        {% if jobs.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ jobs.next_page_number }}">Next</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ jobs.paginator.num_pages }}">Last</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            {% else %}
-                <div class="alert alert-info">
-                    <i class="fas fa-search"></i> No jobs found matching your criteria.
-                </div>
+                      </p>
+                      <a href="{% url 'job_detail' job.pk %}" class="job-card-apply ripple-target">Apply</a>
+                    </div>
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+
+            {% if jobs.has_other_pages %}
+              <nav aria-label="Page navigation" class="jobs-pagination">
+                {% if jobs.has_previous %}
+                  <a href="?page=1">First</a>
+                  <a href="?page={{ jobs.previous_page_number }}">← Prev</a>
+                {% endif %}
+                {% for num in jobs.paginator.page_range %}
+                  {% if jobs.number == num %}
+                    <span class="active">{{ num }}</span>
+                  {% elif num > jobs.number|add:'-3' and num < jobs.number|add:'3' %}
+                    <a href="?page={{ num }}">{{ num }}</a>
+                  {% endif %}
+                {% endfor %}
+                {% if jobs.has_next %}
+                  <a href="?page={{ jobs.next_page_number }}">Next →</a>
+                  <a href="?page={{ jobs.paginator.num_pages }}">Last</a>
+                {% endif %}
+              </nav>
             {% endif %}
-        </div>
+          {% else %}
+            <div class="jobs-empty-state animate-in-up">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M9 6V4a3 3 0 0 1 3-3h0a3 3 0 0 1 3 3v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M3.5 8.5h17a1 1 0 0 1 1 1V20a3 3 0 0 1-3 3h-13a3 3 0 0 1-3-3V9.5a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M10 13h4M9 16h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+              <p class="jobs-empty-title">No jobs found</p>
+              <p class="jobs-empty-subtitle">Try adjusting filters to discover more opportunities.</p>
+            </div>
+          {% endif %}
+        </section>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}

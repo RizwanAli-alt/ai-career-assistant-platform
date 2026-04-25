@@ -1,89 +1,96 @@
 {% extends 'base.html' %}
-{% load static %}
 
-{% block title %}Register - AI Career Assistant{% endblock %}
+{% block title %}Create Account — CareerAI{% endblock %}
+{% block navbar %}{% endblock navbar %}
+{% block footer %}{% endblock footer %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-lg">
-                <div class="card-body p-5">
-                    <h2 class="text-center mb-4">Create Account</h2>
-                    
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                    
-                    <form method="POST" novalidate>
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
-                            {{ form.username }}
-                            {% if form.username.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.username.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
-                            {{ form.email }}
-                            {% if form.email.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.email.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
-                                    {{ form.first_name }}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
-                                    {{ form.last_name }}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="{{ form.role.id_for_label }}" class="form-label">I am a:</label>
-                            {{ form.role }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
-                            {{ form.password1 }}
-                            <small class="form-text text-muted">
-                                • At least 8 characters<br>
-                                • Mix of letters and numbers
-                            </small>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
-                            {{ form.password2 }}
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary w-100 mb-3">Register</button>
-                    </form>
-                    
-                    <p class="text-center">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
-                </div>
-            </div>
-        </div>
+<div class="auth-shell">
+  <aside class="auth-left-panel animate-in" aria-hidden="true">
+    <div class="hero-grid-texture"></div>
+    <div class="hero-orb auth-orb"></div>
+    <a href="{% url 'home' %}" class="navbar-logo auth-brand">Career<span class="logo-accent">AI</span></a>
+    <div class="auth-copy">
+      <span class="section-label">AI-Powered Career Platform</span>
+      <h2>Build a career you actually want.</h2>
+      <ul>
+        <li>CV analysis with ATS scoring</li>
+        <li>Job-fit benchmarking</li>
+        <li>Personalized learning recommendations</li>
+      </ul>
     </div>
+    <p class="auth-trust">Trusted by 500+ students</p>
+  </aside>
+
+  <section class="auth-right-panel animate-in">
+    <div class="auth-form-box">
+      <h1>Create account</h1>
+      <p>Start your AI-powered journey in minutes.</p>
+
+      {% if messages %}
+      <div class="messages-container">
+        {% for message in messages %}<div class="message-item {{ message.tags }}">{{ message }}</div>{% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="POST" class="auth-form-fields" novalidate>
+        {% csrf_token %}
+
+        <div class="form-field">
+          <label for="{{ form.username.id_for_label }}">Username</label>
+          <div class="field-wrapper">{{ form.username }}</div>
+          {% if form.username.errors %}<span class="field-error">{{ form.username.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="form-field">
+          <label for="{{ form.email.id_for_label }}">Email</label>
+          <div class="field-wrapper">{{ form.email }}</div>
+          {% if form.email.errors %}<span class="field-error">{{ form.email.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="form-field">
+          <label for="{{ form.role.id_for_label }}">I am a:</label>
+          <div class="field-wrapper">{{ form.role }}</div>
+          {% if form.role.errors %}<span class="field-error">{{ form.role.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="split-two">
+          <div class="form-field">
+            <label for="{{ form.first_name.id_for_label }}">First Name</label>
+            <div class="field-wrapper">{{ form.first_name }}</div>
+            {% if form.first_name.errors %}<span class="field-error">{{ form.first_name.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-field">
+            <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+            <div class="field-wrapper">{{ form.last_name }}</div>
+            {% if form.last_name.errors %}<span class="field-error">{{ form.last_name.errors.0 }}</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="{{ form.password1.id_for_label }}">Password</label>
+          <div class="field-wrapper">
+            {{ form.password1 }}
+            <button type="button" class="field-toggle" aria-label="Toggle password visibility">Show</button>
+          </div>
+          <span class="field-help">At least 8 characters · Mix of letters and numbers</span>
+          {% if form.password1.errors %}<span class="field-error">{{ form.password1.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="form-field">
+          <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+          <div class="field-wrapper">
+            {{ form.password2 }}
+            <button type="button" class="field-toggle" aria-label="Toggle password visibility">Show</button>
+          </div>
+          {% if form.password2.errors %}<span class="field-error">{{ form.password2.errors.0 }}</span>{% endif %}
+        </div>
+
+        <button type="submit" class="btn-primary auth-submit">Create account</button>
+      </form>
+
+      <p class="auth-switch-link">Already have an account? <a href="{% url 'login' %}">Sign in</a></p>
+    </div>
+  </section>
 </div>
 {% endblock %}

@@ -1,4 +1,24 @@
-hihi/
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+hihi/
+venv/
+
+# Django
+db.sqlite3
+media/
+staticfiles/
+
+# Logs
+logs/
+
+# Environment variables
 .env
+
+# OS
+.DS_Store
+Thumbs.db

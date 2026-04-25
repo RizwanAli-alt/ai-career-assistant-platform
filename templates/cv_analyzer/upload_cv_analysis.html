@@ -1,117 +1,102 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Analyze Your CV - AI Career Assistant{% endblock %}
+{% block title %}Analyze Your CV — CareerAI{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg">
-                <div class="card-body p-5">
-                    <h2 class="mb-4 text-center"><i class="fas fa-file-upload"></i> Analyze Your CV</h2>
-                    
-                    <p class="text-center text-muted mb-4">
-                        Upload your CV and get instant AI-powered feedback on formatting, content, keywords, and readability.
-                    </p>
-                    
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                    
-                    <div class="alert alert-info" role="alert">
-                        <strong><i class="fas fa-info-circle"></i> Supported Formats:</strong><br>
-                        PDF, DOC, DOCX (Max size: 5MB)
-                    </div>
-                    
-                    <form method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        
-                        <div class="mb-4">
-                            <label for="{{ form.cv_file.id_for_label }}" class="form-label">
-                                <i class="fas fa-cloud-upload-alt"></i> Choose Your CV File
-                            </label>
-                            <div class="input-group mb-3">
-                                {{ form.cv_file }}
-                            </div>
-                            {% if form.cv_file.errors %}
-                                <div class="text-danger mt-2">
-                                    {% for error in form.cv_file.errors %}
-                                        <i class="fas fa-exclamation-circle"></i> {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary btn-lg w-100">
-                            <i class="fas fa-analysis"></i> Analyze CV
-                        </button>
-                    </form>
-                    
-                    <hr class="my-4">
-                    
-                    <h5 class="mb-3">What We Analyze:</h5>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="feature-item">
-                                <i class="fas fa-paint-brush text-primary"></i>
-                                <strong>Format & Structure</strong>
-                                <p class="small">Check layout, organization, and presentation</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="feature-item">
-                                <i class="fas fa-align-left text-success"></i>
-                                <strong>Content Quality</strong>
-                                <p class="small">Analyze achievements and descriptions</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="feature-item">
-                                <i class="fas fa-key text-warning"></i>
-                                <strong>Keywords</strong>
-                                <p class="small">Match industry-relevant keywords</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="feature-item">
-                                <i class="fas fa-book text-info"></i>
-                                <strong>Readability</strong>
-                                <p class="small">Ensure easy reading and flow</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <a href="{% url 'cv_analysis_list' %}" class="btn btn-outline-secondary mt-4">
-                <i class="fas fa-history"></i> View Previous Analyses
-            </a>
-        </div>
-    </div>
-</div>
+<div class="cv-page">
+  <div class="cv-page-header animate-on-scroll">
+    <h1 class="cv-page-headline">Analyze your CV with AI</h1>
+    <p class="cv-page-sub">Upload your CV and get instant feedback on formatting, content quality, ATS keywords, and readability with actionable improvement suggestions.</p>
+    <span class="supported-pill">PDF / DOCX · Max size 5MB</span>
+  </div>
 
-<style>
-    .feature-item {
-        text-align: center;
-        padding: 15px;
-        border-radius: 8px;
-        background: #f8f9fa;
-    }
-    
-    .feature-item i {
-        font-size: 2rem;
-        margin-bottom: 10px;
-    }
-    
-    .feature-item strong {
-        display: block;
-        margin: 10px 0;
-    }
-</style>
+  {% if messages %}
+    <div class="messages-container">
+      {% for message in messages %}
+        <div class="message-item {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="upload-zone animate-on-scroll" id="uploadZone" role="button" tabindex="0" aria-label="Upload CV file">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17,8 12,3 7,8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      <h3>Drop your CV here or click to upload</h3>
+      <p>PDF / DOCX · Max size 5MB</p>
+      <span class="upload-file-label" id="fileName"></span>
+      {{ form.cv_file }}
+    </div>
+
+    {% if form.cv_file.errors %}
+      <div class="auth-error" style="margin-top:12px;">
+        {% for error in form.cv_file.errors %}{{ error }}{% endfor %}
+      </div>
+    {% endif %}
+
+    <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-top:1.5rem;font-size:1rem;padding:16px 28px;border-radius:8px;">
+      Analyze my CV →
+    </button>
+  </form>
+
+  <div style="text-align:center;margin-top:2.5rem;">
+    <a href="{% url 'cv_analysis_list' %}" style="font-size:0.85rem;color:var(--accent);text-decoration:none;">
+      ← View previous analyses
+    </a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  var uploadZone = document.getElementById('uploadZone');
+  var fileInput = uploadZone ? uploadZone.querySelector('input[type="file"]') : null;
+  var fileName = document.getElementById('fileName');
+
+  if (uploadZone && fileInput) {
+    uploadZone.addEventListener('click', function () {
+      fileInput.click();
+    });
+
+    uploadZone.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        fileInput.click();
+      }
+    });
+
+    ['dragenter', 'dragover'].forEach(function (eventName) {
+      uploadZone.addEventListener(eventName, function (e) {
+        e.preventDefault();
+        uploadZone.classList.add('drag-active');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(function (eventName) {
+      uploadZone.addEventListener(eventName, function (e) {
+        e.preventDefault();
+        uploadZone.classList.remove('drag-active');
+      });
+    });
+
+    uploadZone.addEventListener('drop', function (e) {
+      e.preventDefault();
+      var droppedFiles = e.dataTransfer && e.dataTransfer.files ? e.dataTransfer.files : null;
+      if (!droppedFiles || !droppedFiles.length) return;
+      fileInput.files = droppedFiles;
+      fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    fileInput.addEventListener('change', function() {
+      var file = fileInput.files && fileInput.files[0];
+      if (fileName) fileName.textContent = file ? file.name : '';
+    });
+  }
+</script>
 {% endblock %}

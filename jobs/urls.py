@@ -4,18 +4,18 @@ from . import views
 urlpatterns = [
     # Job listings
     path('', views.job_list, name='job_list'),
-    path('jobs/<int:pk>/', views.job_detail, name='job_detail'),
+    path('<int:pk>/', views.job_detail, name='job_detail'),  # ✅ FIXED: removed 'jobs/'
     path('recommended/', views.recommended_jobs, name='recommended_jobs'),
     
     # Applications
-    path('jobs/<int:pk>/apply/', views.apply_job, name='apply_job'),
+    path('<int:pk>/apply/', views.apply_job, name='apply_job'),  # ✅ FIXED: removed 'jobs/'
     path('my-applications/', views.my_applications, name='my_applications'),
     path('applications/<int:pk>/', views.application_detail, name='application_detail'),
     
     # Saved jobs
     path('saved/', views.saved_jobs, name='saved_jobs'),
-    path('jobs/<int:pk>/save/', views.save_job, name='save_job'),
-    path('jobs/<int:pk>/unsave/', views.unsave_job, name='unsave_job'),
+    path('<int:pk>/save/', views.save_job, name='save_job'),  # ✅ FIXED: removed 'jobs/'
+    path('<int:pk>/unsave/', views.unsave_job, name='unsave_job'),  # ✅ FIXED: removed 'jobs/'
     
     # Job alerts
     path('alerts/create/', views.create_job_alert, name='create_job_alert'),
@@ -25,4 +25,12 @@ urlpatterns = [
     # Companies
     path('companies/', views.companies, name='companies'),
     path('companies/<int:pk>/', views.company_detail, name='company_detail'),
+
+    # ✅ NEW: Job Search with Scraper & Smart Matching
+    path('search/', views.job_search_with_scraper, name='job_search_with_scraper'),
+
+    # ─── Auto-Apply Agent ───────────────────────────────────────────────────
+    path('auto-apply/', views.auto_apply_settings, name='auto_apply_settings'),
+    path('auto-apply/approve/<int:pk>/', views.approve_job, name='approve_job'),
+    path('auto-apply/reject/<int:pk>/', views.reject_job, name='reject_job'),
 ]

@@ -1,0 +1,162 @@
+# ==========================================
+# CORE DJANGO
+# ==========================================
+Django==4.2.11
+python-decouple==3.8
+sqlparse==0.4.4
+
+# ==========================================
+# WEB FRAMEWORK & SERVING
+# ==========================================
+gunicorn==21.2.0
+whitenoise==6.6.0
+
+# ==========================================
+# DATABASE & ORM
+# ==========================================
+psycopg2-binary==2.9.9  # PostgreSQL support (optional)
+
+# ==========================================
+# CV ANALYZER DEPENDENCIES
+# ==========================================
+PyPDF2==3.0.1
+python-docx==0.8.11
+pdfplumber==0.10.3
+pdfminer.six==20221105
+
+# ==========================================
+# NLP & SKILL EXTRACTION
+# ==========================================
+spacy==3.7.2
+spacy-legacy==3.0.12
+spacy-loggers==1.0.5
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl#sha256=86cc141f63942d4b2c5fcee06630fd6f904788d2f0ab005cce45aadb8fb73889
+
+# ==========================================
+# SEMANTIC SIMILARITY & ML
+# ==========================================
+sentence-transformers==2.2.2
+transformers==4.57.6
+torch==2.1.2
+scikit-learn==1.3.0
+scipy==1.15.3
+
+# ==========================================
+# NLP UTILITIES
+# ==========================================
+nltk==3.9.4
+langcodes==3.5.1
+regex==2026.4.4
+tokenizers==0.22.2
+sentencepiece==0.2.1
+
+# ==========================================
+# JOB SCRAPER DEPENDENCIES
+# ==========================================
+beautifulsoup4==4.12.2
+requests==2.31.0
+lxml==6.0.2
+
+# ==========================================
+# DATA PROCESSING
+# ==========================================
+numpy==1.24.3
+pandas==2.0.3
+joblib==1.5.3
+
+# ==========================================
+# PLOTTING & VISUALIZATION (optional - for reports)
+# ==========================================
+matplotlib==3.7.2
+contourpy==1.3.2
+kiwisolver==1.5.0
+cycler==0.12.1
+
+# ==========================================
+# SERIALIZATION & ENCODING
+# ==========================================
+Pillow==10.4.0
+PyYAML==6.0.3
+protobuf==4.25.9
+safetensors==0.7.0
+
+# ==========================================
+# ASYNC & NETWORKING
+# ==========================================
+aiofiles==23.2.1
+httpx==0.25.0
+
+# ==========================================
+# UTILITIES & HELPERS
+# ==========================================
+python-dateutil==2.9.0.post0
+pytz==2026.1.post1
+python-dotenv==1.0.0
+tqdm==4.67.3
+tenacity==8.5.0
+packaging==23.2
+charset-normalizer==3.4.7
+certifi==2026.2.25
+idna==3.11
+urllib3==2.6.3
+requests-toolbelt==0.9.1
+
+# ==========================================
+# CACHING & PERFORMANCE
+# ==========================================
+cachetools==5.5.2
+filelock==3.25.2
+
+# ==========================================
+# TESTING (OPTIONAL)
+# ==========================================
+pytest==7.4.0
+pytest-django==4.7.0
+pytest-cov==4.1.0
+factory-boy==3.3.0
+
+# ==========================================
+# CODE QUALITY (OPTIONAL - for development)
+# ==========================================
+black==23.9.1
+flake8==6.1.0
+isort==5.13.0
+pylint==3.0.0
+
+# ==========================================
+# BACKGROUND TASKS (OPTIONAL - for auto-apply)
+# ==========================================
+celery==5.3.4
+redis==5.0.1
+django-celery-beat==2.5.0
+django-redis==5.4.0
+
+# ==========================================
+# MONITORING & LOGGING (OPTIONAL)
+# ==========================================
+python-json-logger==2.0.7
+
+# ==========================================
+# SECURITY & VALIDATION
+# ==========================================
+cryptography==41.0.7
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+pydantic==2.12.5
+pydantic_core==2.41.5
+
+# ==========================================
+# GIT & VERSION CONTROL (OPTIONAL)
+# ==========================================
+GitPython==3.1.46
+gitdb==4.0.12
+smmap==5.0.3
+
+# ==========================================
+# MISC DEPENDENCIES
+# ==========================================
+attrs==26.1.0
+click==8.3.2
+colorama==0.4.6
+rich==13.9.4
+smart-open==6.4.0

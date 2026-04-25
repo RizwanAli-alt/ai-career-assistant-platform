@@ -1,58 +1,71 @@
 {% extends 'base.html' %}
-{% load static %}
 
-{% block title %}Login - AI Career Assistant{% endblock %}
+{% block title %}Sign In — CareerAI{% endblock %}
+{% block navbar %}{% endblock navbar %}
+{% block footer %}{% endblock footer %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card shadow-lg">
-                <div class="card-body p-5">
-                    <h2 class="text-center mb-4">Welcome Back</h2>
-                    
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                    
-                    <form method="POST" novalidate>
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label for="{{ form.username_or_email.id_for_label }}" class="form-label">Username or Email</label>
-                            {{ form.username_or_email }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
-                            {{ form.password }}
-                        </div>
-                        
-                        <div class="mb-3 form-check">
-                            {{ form.remember_me }}
-                            <label class="form-check-label" for="{{ form.remember_me.id_for_label }}">
-                                Remember me for 30 days
-                            </label>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
-                    </form>
-                    
-                    <p class="text-center">
-                        <a href="{% url 'password_reset_request' %}">Forgot Password?</a>
-                    </p>
-                    
-                    <hr>
-                    
-                    <p class="text-center">Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
-                </div>
-            </div>
-        </div>
+<div class="auth-shell">
+  <aside class="auth-left-panel animate-in" aria-hidden="true">
+    <div class="hero-grid-texture"></div>
+    <div class="hero-orb auth-orb"></div>
+    <a href="{% url 'home' %}" class="navbar-logo auth-brand">Career<span class="logo-accent">AI</span></a>
+    <div class="auth-copy">
+      <span class="section-label">AI-Powered Career Platform</span>
+      <h2>Your next opportunity starts here.</h2>
+      <ul>
+        <li>AI-powered CV analysis</li>
+        <li>Smart job matching</li>
+        <li>One-click auto-apply workflows</li>
+      </ul>
     </div>
+    <p class="auth-trust">Trusted by 500+ students</p>
+  </aside>
+
+  <section class="auth-right-panel animate-in">
+    <div class="auth-form-box">
+      <h1>Sign in</h1>
+      <p>Access your dashboard and continue your progress.</p>
+
+      {% if messages %}
+      <div class="messages-container">
+        {% for message in messages %}<div class="message-item {{ message.tags }}">{{ message }}</div>{% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="POST" class="auth-form-fields" novalidate>
+        {% csrf_token %}
+        <div class="form-field">
+          <label for="{{ form.username_or_email.id_for_label }}">Email or Username</label>
+          <div class="field-wrapper">{{ form.username_or_email }}</div>
+          {% if form.username_or_email.errors %}<span class="field-error">{{ form.username_or_email.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="form-field">
+          <label for="{{ form.password.id_for_label }}">Password</label>
+          <div class="field-wrapper">
+            {{ form.password }}
+            <button type="button" class="field-toggle" aria-label="Toggle password visibility">Show</button>
+          </div>
+          {% if form.password.errors %}<span class="field-error">{{ form.password.errors.0 }}</span>{% endif %}
+        </div>
+
+        {% if form.remember_me %}
+        <label class="remember-me-row">
+          {{ form.remember_me }}
+          <span>Remember me for 30 days</span>
+        </label>
+        {% endif %}
+
+        <div class="auth-links-row">
+          <a href="{% url 'password_reset_request' %}">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-primary auth-submit">Sign in</button>
+      </form>
+
+      <p class="auth-switch-link">Don’t have an account? <a href="{% url 'register' %}">Create one</a></p>
+    </div>
+  </section>
 </div>
 {% endblock %}

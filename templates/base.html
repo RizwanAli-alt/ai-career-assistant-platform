@@ -1,687 +1,111 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}AI Career Assistant{% endblock %}</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Custom CSS -->
-    <style>
-        :root {
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --info-color: #17a2b8;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        html, body {
-            height: 100%;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        main {
-            flex: 1;
-        }
-        
-        /* Navbar Styles */
-        .navbar {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 1rem 0;
-        }
-        
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .navbar-brand i {
-            font-size: 2rem;
-        }
-        
-        .nav-link {
-            margin: 0 0.5rem;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        .nav-link:hover {
-            color: #fff !important;
-            transform: translateY(-2px);
-        }
-        
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: #fff;
-            border-radius: 2px;
-        }
-        
-        .dropdown-menu {
-            border: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            border-radius: 8px;
-        }
-        
-        .dropdown-item {
-            transition: all 0.3s ease;
-        }
-        
-        .dropdown-item:hover {
-            background-color: #f0f0f0;
-            padding-left: 1.5rem;
-        }
-        
-        /* Badge Style */
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -10px;
-            background-color: #dc3545;
-            color: white;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        
-        /* Card Styles */
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-        }
-        
-        .card:hover {
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-            transform: translateY(-5px);
-        }
-        
-        .card-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-            border-radius: 10px 10px 0 0;
-            padding: 1.5rem;
-        }
-        
-        .card-header h5 {
-            margin: 0;
-            font-weight: 600;
-        }
-        
-        /* Button Styles */
-        .btn {
-            border-radius: 8px;
-            font-weight: 500;
-            padding: 0.625rem 1.25rem;
-            transition: all 0.3s ease;
-            border: none;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-        }
-        
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #0056b3 0%, #003d82 100%);
-        }
-        
-        .btn-success {
-            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
-        }
-        
-        .btn-success:hover {
-            background: linear-gradient(135deg, #1e7e34 0%, #155724 100%);
-        }
-        
-        /* Form Styles */
-        .form-control, .form-select {
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-            padding: 0.75rem 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-        }
-        
-        .form-label {
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-        
-        /* Alert Styles */
-        .alert {
-            border-radius: 8px;
-            border: none;
-            margin-bottom: 20px;
-        }
-        
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        
-        .alert-error, .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        
-        .alert-info {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
-        
-        .alert-warning {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        
-        /* Badge Styles */
-        .badge {
-            border-radius: 20px;
-            padding: 0.5rem 1rem;
-            font-weight: 500;
-        }
-        
-        /* Progress Styles */
-        .progress {
-            background-color: #e9ecef;
-            border-radius: 8px;
-            height: 10px;
-        }
-        
-        .progress-bar {
-            border-radius: 8px;
-            transition: width 0.6s ease;
-        }
-        
-        /* List Group Styles */
-        .list-group-item {
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            transition: all 0.3s ease;
-        }
-        
-        .list-group-item:hover {
-            background-color: #f8f9fa;
-            border-color: #007bff;
-        }
-        
-        .list-group-item.active {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            border-color: #0056b3;
-        }
-        
-        /* Footer Styles */
-        footer {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: #ecf0f1;
-            padding: 3rem 0 1rem 0;
-            margin-top: 3rem;
-            border-top: 1px solid #34495e;
-        }
-        
-        footer h5 {
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-        
-        footer a {
-            color: #bdc3c7;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-        
-        footer a:hover {
-            color: #ecf0f1;
-        }
-        
-        footer hr {
-            border-color: #34495e;
-        }
-        
-        footer p {
-            margin: 0.5rem 0;
-            font-size: 0.9rem;
-        }
-        
-        /* Main Content */
-        main {
-            padding: 2rem 0;
-        }
-        
-        /* Hero Section */
-        .hero-section {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            color: white;
-            padding: 5rem 0;
-            text-align: center;
-            border-radius: 10px;
-            margin-bottom: 3rem;
-        }
-        
-        .hero-section h1 {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
-        
-        .hero-section p {
-            font-size: 1.25rem;
-            margin-bottom: 2rem;
-        }
-        
-        /* Feature Cards */
-        .feature-card {
-            text-align: center;
-            padding: 2rem;
-            border-radius: 10px;
-            background: white;
-            transition: all 0.3s ease;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-        }
-        
-        .feature-card i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: #007bff;
-        }
-        
-        .feature-card h5 {
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .navbar-brand {
-                font-size: 1.25rem;
-            }
-            
-            .hero-section h1 {
-                font-size: 2rem;
-            }
-            
-            .hero-section p {
-                font-size: 1rem;
-            }
-            
-            .feature-card {
-                margin-bottom: 1rem;
-            }
-        }
-        
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #007bff;
-            border-radius: 5px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #0056b3;
-        }
-    </style>
-    
-    {% block extra_css %}{% endblock %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}CareerAI — AI Career Assistant{% endblock %}</title>
+  <meta name="description" content="AI-powered CV analysis, skill gap detection, and smart job matching for Pakistani graduates.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { corePlugins: { preflight: false }, theme: { extend: {} } };
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" integrity="sha384-Z3REaz79l2IaAZqJsSABtTbhjgOUYyV3p90XNnAPCSHg3EMTz1fouunq9WZRtj3d" crossorigin="anonymous" defer></script>
+
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-        <div class="container-fluid">
-            <!-- Logo -->
-            <a class="navbar-brand" href="{% url 'home' %}">
-                <i class="fas fa-robot"></i>
-                <span>CareerAI</span>
-            </a>
-            
-            <!-- Toggle Button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <!-- Navigation Items -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <!-- Public Links -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">
-                            <i class="fas fa-home"></i> Home
-                        </a>
-                    </li>
-                    
-                    {% if user.is_authenticated %}
-                        <!-- Authenticated Links -->
-                        
-                        <!-- Jobs Dropdown -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="jobsDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-briefcase"></i> Jobs
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="jobsDropdown">
-                                <li><a class="dropdown-item" href="{% url 'job_list' %}">
-                                    <i class="fas fa-search"></i> Find Jobs
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'recommended_jobs' %}">
-                                    <i class="fas fa-star"></i> Recommended
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'my_applications' %}">
-                                    <i class="fas fa-file-alt"></i> My Applications
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'saved_jobs' %}">
-                                    <i class="fas fa-heart"></i> Saved Jobs
-                                </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'my_job_alerts' %}">
-                                    <i class="fas fa-bell"></i> Job Alerts
-                                </a></li>
-                            </ul>
-                        </li>
-                        
-                        <!-- Career Dropdown -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="careerDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-chart-line"></i> Career
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="careerDropdown">
-                                <li><a class="dropdown-item" href="{% url 'upload_cv_analysis' %}">
-                                    <i class="fas fa-file-pdf"></i> Analyze CV
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'cv_analysis_list' %}">
-                                    <i class="fas fa-history"></i> My Analyses
-                                </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'interview_home' %}">
-                                    <i class="fas fa-microphone"></i> Mock Interviews
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'career_tips' %}">
-                                    <i class="fas fa-lightbulb"></i> Career Tips
-                                </a></li>
-                            </ul>
-                        </li>
-                        
-                        <!-- Learning Dropdown -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="learningDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-book"></i> Learn
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="learningDropdown">
-                                <li><a class="dropdown-item" href="{% url 'resource_hub' %}">
-                                    <i class="fas fa-book"></i> Resources
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'browse_resources' %}">
-                                    <i class="fas fa-search"></i> Browse All
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'skill_paths' %}">
-                                    <i class="fas fa-road"></i> Learning Paths
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'my_learning' %}">
-                                    <i class="fas fa-chart-bar"></i> My Progress
-                                </a></li>
-                            </ul>
-                        </li>
-                        
-                        <!-- Community Dropdown -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-users"></i> Community
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="communityDropdown">
-                                <li><a class="dropdown-item" href="{% url 'forum_home' %}">
-                                    <i class="fas fa-comments"></i> Forum
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'chat' %}">
-                                    <i class="fas fa-robot"></i> Chat AI
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'faq' %}">
-                                    <i class="fas fa-question-circle"></i> FAQ
-                                </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'companies' %}">
-                                    <i class="fas fa-building"></i> Companies
-                                </a></li>
-                            </ul>
-                        </li>
-                        
-                        <!-- Dashboard Link -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'dashboard' %}">
-                                <i class="fas fa-chart-bar"></i> Dashboard
-                            </a>
-                        </li>
-                        
-                        <!-- Notifications -->
-                        <li class="nav-item">
-                            <a class="nav-link position-relative" href="{% url 'notifications' %}">
-                                <i class="fas fa-bell"></i>
-                                {% if unread_notifications %}
-                                    <span class="notification-badge">{{ unread_notifications }}</span>
-                                {% endif %}
-                            </a>
-                        </li>
-                        
-                        <!-- User Dropdown -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user-circle"></i>
-                                {{ user.username }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item" href="{% url 'profile' %}">
-                                    <i class="fas fa-user"></i> My Profile
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'chat_list' %}">
-                                    <i class="fas fa-history"></i> Chat History
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'activity_log' %}">
-                                    <i class="fas fa-history"></i> Activity Log
-                                </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'change_password' %}">
-                                    <i class="fas fa-key"></i> Change Password
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'notification_preferences' %}">
-                                    <i class="fas fa-cog"></i> Notification Settings
-                                </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'logout' %}">
-                                    <i class="fas fa-sign-out-alt"></i> Logout
-                                </a></li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <!-- Guest Links -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">
-                                <i class="fas fa-sign-in-alt"></i> Login
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'register' %}">
-                                <i class="fas fa-user-plus"></i> Register
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
-    
-    <!-- Messages -->
-    <div class="container mt-4">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show fade-in" role="alert">
-                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
+<div class="flex flex-col min-h-screen">
+{% block navbar %}
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <a href="{% url 'home' %}" class="navbar-logo" aria-label="CareerAI home">
+    <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M4 16C4 10.477 8.477 6 14 6C16.768 6 19.273 7.124 21.084 8.94" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M16 2L13 8H17L14 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>Career<span class="logo-accent">AI</span></span>
+  </a>
+
+  <ul class="navbar-links" role="list">
+    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li><a href="{% url 'upload_cv_analysis' %}">CV Analyzer</a></li>
+    <li><a href="{% url 'job_list' %}">Jobs</a></li>
+    <li><a href="{% url 'resource_hub' %}">Courses</a></li>
+    <li><a href="{% url 'forum_home' %}">Forum</a></li>
+  </ul>
+
+  <div class="navbar-actions">
+    {% if user.is_authenticated %}
+      <span class="navbar-user">{{ user.username }}</span>
+      <a href="{% url 'logout' %}" class="btn-ghost btn-sm">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}" class="btn-ghost btn-sm">Sign in</a>
+      <a href="{% url 'register' %}" class="btn-primary btn-sm">Get Started</a>
+    {% endif %}
+
+    <button class="hamburger" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="mobileMenu" type="button">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu" role="menu" aria-label="Mobile navigation">
+  <button class="mobile-menu-close" type="button" aria-label="Close menu">×</button>
+  <div class="mobile-menu-links">
+    <a href="{% url 'dashboard' %}">Dashboard</a>
+    <a href="{% url 'upload_cv_analysis' %}">CV Analyzer</a>
+    <a href="{% url 'job_list' %}">Jobs</a>
+    <a href="{% url 'resource_hub' %}">Courses</a>
+    <a href="{% url 'forum_home' %}">Forum</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'logout' %}">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}">Sign in</a>
+      <a href="{% url 'register' %}">Get Started</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock navbar %}
+
+<main class="flex-grow">
+  {% block content %}{% endblock %}
+</main>
+
+{% block footer %}
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-row">
+      <a href="{% url 'home' %}" class="navbar-logo">
+        <svg class="logo-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M4 16C4 10.477 8.477 6 14 6C16.768 6 19.273 7.124 21.084 8.94" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M16 2L13 8H17L14 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Career<span class="logo-accent">AI</span></span>
+      </a>
+      <ul class="footer-nav" role="list">
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'upload_cv_analysis' %}">CV Analyzer</a></li>
+        <li><a href="{% url 'job_list' %}">Jobs</a></li>
+        <li><a href="{% url 'resource_hub' %}">Courses</a></li>
+        <li><a href="{% url 'forum_home' %}">Forum</a></li>
+      </ul>
     </div>
-    
-    <!-- Main Content -->
-    <main>
-        {% block content %}{% endblock %}
-    </main>
-    
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="row">
-                <div class="col-md-3 mb-4">
-                    <h5><i class="fas fa-robot"></i> CareerAI</h5>
-                    <p>Your intelligent career guidance platform powered by AI.</p>
-                    <div class="mt-3">
-                        <a href="#" class="me-3"><i class="fab fa-facebook fa-lg"></i></a>
-                        <a href="#" class="me-3"><i class="fab fa-twitter fa-lg"></i></a>
-                        <a href="#" class="me-3"><i class="fab fa-linkedin fa-lg"></i></a>
-                        <a href="#"><i class="fab fa-github fa-lg"></i></a>
-                    </div>
-                </div>
-                
-                <div class="col-md-3 mb-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{% url 'job_list' %}">Find Jobs</a></li>
-                        <li><a href="{% url 'upload_cv_analysis' %}">Analyze CV</a></li>
-                        <li><a href="{% url 'forum_home' %}">Community</a></li>
-                        <li><a href="{% url 'career_tips' %}">Career Tips</a></li>
-                        <li><a href="{% url 'resource_hub' %}">Learning Resources</a></li>
-                    </ul>
-                </div>
-                
-                <div class="col-md-3 mb-4">
-                    <h5>Resources</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{% url 'faq' %}">FAQ</a></li>
-                        <li><a href="{% url 'interview_home' %}">Mock Interviews</a></li>
-                        <li><a href="{% url 'skill_paths' %}">Skill Paths</a></li>
-                        <li><a href="{% url 'chat' %}">AI Assistant</a></li>
-                        <li><a href="#">Blog</a></li>
-                    </ul>
-                </div>
-                
-                <div class="col-md-3 mb-4">
-                    <h5>Connect</h5>
-                    <p>
-                        <i class="fas fa-envelope"></i><br>
-                        support@careerai.com
-                    </p>
-                    <p>
-                        <i class="fas fa-phone"></i><br>
-                        +1-800-CAREER-AI
-                    </p>
-                </div>
-            </div>
-            
-            <hr>
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <p>&copy; 2026 CareerAI. All rights reserved.</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <a href="#">Privacy Policy</a> | 
-                    <a href="#">Terms of Service</a> | 
-                    <a href="#">Cookie Policy</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-    
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom Scripts -->
-    <script>
-        // Close navbar when link is clicked
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', () => {
-                const navbar = document.querySelector('.navbar-collapse');
-                if (navbar.classList.contains('show')) {
-                    new bootstrap.Collapse(navbar, { toggle: true });
-                }
-            });
-        });
-        
-        // Add active class to current page
-        document.querySelectorAll('.nav-link').forEach(link => {
-            if (link.href === window.location.href) {
-                link.classList.add('active');
-            }
-        });
-    </script>
-    
-    {% block extra_js %}{% endblock %}
+    <p class="footer-copy">© 2026 CareerAI · Built for Pakistani graduates</p>
+  </div>
+</footer>
+{% endblock footer %}
+
+</div>
+
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_scripts %}{% endblock %}
 </body>
 </html>

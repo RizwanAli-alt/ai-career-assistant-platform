@@ -13,7 +13,7 @@ class JobSearchForm(forms.Form):
     keyword = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
+            'class': 'job-filter-input',
             'placeholder': 'Job title, keywords...',
             'autocomplete': 'off'
         })
@@ -22,7 +22,7 @@ class JobSearchForm(forms.Form):
     location = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
+            'class': 'job-filter-input',
             'placeholder': 'City or country',
             'autocomplete': 'off'
         })
@@ -37,7 +37,9 @@ class JobSearchForm(forms.Form):
             ('freelance', 'Freelance'),
             ('internship', 'Internship'),
         ],
-        widget=forms.CheckboxSelectMultiple()
+        widget=forms.CheckboxSelectMultiple(attrs={
+            'class': 'job-filter-checkbox'
+        })
     )
     
     experience_level = forms.MultipleChoiceField(
@@ -48,13 +50,15 @@ class JobSearchForm(forms.Form):
             ('senior', 'Senior'),
             ('executive', 'Executive'),
         ],
-        widget=forms.CheckboxSelectMultiple()
+        widget=forms.CheckboxSelectMultiple(attrs={
+            'class': 'job-filter-checkbox'
+        })
     )
     
     salary_min = forms.IntegerField(
         required=False,
         widget=forms.NumberInput(attrs={
-            'class': 'form-control',
+            'class': 'job-filter-input',
             'placeholder': 'Min Salary'
         })
     )
@@ -62,7 +66,7 @@ class JobSearchForm(forms.Form):
     salary_max = forms.IntegerField(
         required=False,
         widget=forms.NumberInput(attrs={
-            'class': 'form-control',
+            'class': 'job-filter-input',
             'placeholder': 'Max Salary'
         })
     )
@@ -71,7 +75,7 @@ class JobSearchForm(forms.Form):
         required=False,
         choices=SORT_CHOICES,
         widget=forms.Select(attrs={
-            'class': 'form-control'
+            'class': 'job-filter-input'
         })
     )
 
