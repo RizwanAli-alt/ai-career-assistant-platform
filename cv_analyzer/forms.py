@@ -42,7 +42,7 @@ class CVUploadForm(forms.ModelForm):
         }
     
     def clean_cv_file(self):
-        """Validate CV file - extension, size, and integrity"""
+        """Validate CV file - extension and max size only"""
         file = self.cleaned_data.get('cv_file')
         if file:
             allowed_extensions = ['pdf', 'doc', 'docx']
@@ -54,18 +54,16 @@ class CVUploadForm(forms.ModelForm):
                     f'Please upload a PDF or DOCX file.'
                 )
             
-            if file.size > 5 * 1024 * 1024:  # 5MB
+            if file.size > 5 * 1024 * 1024:  # 5MB max
                 file_size_mb = round(file.size / (1024 * 1024), 2)
                 raise forms.ValidationError(
                     f'❌ File is too large ({file_size_mb}MB). '
                     f'Maximum allowed size is 5MB.'
                 )
             
-            # Check for minimum file size (at least 10KB)
-            if file.size < 10 * 1024:
-                raise forms.ValidationError(
-                    '❌ File is too small. Please upload a valid CV file.'
-                )
+            # FIX #9: Removed minimum file size check
+            # Small compressed PDFs (3-4 KB) are valid if they extract text
+            # Text extraction validation happens in views.py
         
         return file
     

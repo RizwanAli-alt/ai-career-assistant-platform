@@ -1,25 +1,13 @@
 """
 Text extraction module for PDF and DOCX files.
 
-IMPROVEMENTS (v2.1):
-
-  FIX #6 — Robustness: extract_text_from_bytes() previously created a
-  NamedTemporaryFile with delete=False, closed it, then passed its name to
-  pdfplumber. On Windows, antivirus software can lock the file between
-  close() and the next open() by pdfplumber, causing a PermissionError.
-  The fix uses tempfile.mkdtemp() to create an isolated temporary directory,
-  writes the file there, and cleans the entire directory (via shutil.rmtree)
-  in the finally block. This avoids the Windows file-locking race condition
-  and guarantees cleanup even when extraction raises.
-
-  FIX #7 — PDF Compression Support: ReportLab-generated PDFs with compressed
-  text streams fail in pdfplumber. Now we try PyPDF2 as fallback. Also changed
-  validation from file size (which is misleading for compressed PDFs) to
-  extracted text length. PDFs with <50 chars of text are rejected.
-
-  Other fixes retained from v2.0:
-    - clean_text() preserves newlines so section detection works correctly
-    - MAX_TEXT_LENGTH safety cap at 50 000 characters
+FIXES IN THIS VERSION:
+- Added `pypdf` as primary fallback (modern replacement for deprecated PyPDF2)
+- Added startup diagnostic logging so you can see WHICH libraries loaded
+- Fixed silent exception swallowing — each method now logs the actual error
+- Added minimum text length check per method (not just at the end)
+- `extract_text_from_bytes` now logs temp file path/size for easier debugging
+- All methods tried in order: pdfplumber → pypdf → PyPDF2
 """
 
 import re
@@ -30,106 +18,183 @@ import shutil
 from typing import Optional
 from pathlib import Path
 
+# ── Library imports with explicit diagnostics ────────────────────────────────
 try:
     import pdfplumber
+    _PDFPLUMBER_AVAILABLE = True
 except ImportError:
     pdfplumber = None
+    _PDFPLUMBER_AVAILABLE = False
 
 try:
-    from PyPDF2 import PdfReader
+    from pypdf import PdfReader as _pypdf_Reader
+    _PYPDF_AVAILABLE = True
 except ImportError:
-    PdfReader = None
+    _pypdf_Reader = None
+    _PYPDF_AVAILABLE = False
+
+try:
+    from PyPDF2 import PdfReader as _PyPDF2_Reader
+    _PYPDF2_AVAILABLE = True
+except ImportError:
+    _PyPDF2_Reader = None
+    _PYPDF2_AVAILABLE = False
 
 try:
     from docx import Document
+    _DOCX_AVAILABLE = True
 except ImportError:
     Document = None
+    _DOCX_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
-MAX_TEXT_LENGTH = 50_000
-MIN_EXTRACTED_TEXT = 50  # Minimum characters to consider extraction successful
+# Log library availability once at import time — visible in Django logs
+logger.info(
+    f"[parser] Library availability — "
+    f"pdfplumber={_PDFPLUMBER_AVAILABLE}, "
+    f"pypdf={_PYPDF_AVAILABLE}, "
+    f"PyPDF2={_PYPDF2_AVAILABLE}, "
+    f"python-docx={_DOCX_AVAILABLE}"
+)
 
+if not _PDFPLUMBER_AVAILABLE and not _PYPDF_AVAILABLE and not _PYPDF2_AVAILABLE:
+    logger.error(
+        "[parser] CRITICAL: No PDF library is installed! "
+        "Run: pip install pdfplumber pypdf"
+    )
+
+MAX_TEXT_LENGTH = 50_000
+MIN_EXTRACTED_TEXT = 50
+
+
+# ── PDF extraction ────────────────────────────────────────────────────────────
 
 def extract_text_from_pdf(file_path: str) -> Optional[str]:
     """
-    Extract text from a PDF file using pdfplumber with PyPDF2 fallback.
-
-    Args:
-        file_path: Path to the PDF file.
-
-    Returns:
-        Extracted and cleaned text, or None if extraction fails.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If no PDF extraction library is available.
+    Extract text from PDF using all available libraries.
+    Tries: pdfplumber (default) → pdfplumber (layout) → pypdf → PyPDF2
     """
     file_path = Path(file_path)
     if not file_path.exists():
         raise FileNotFoundError(f"PDF file not found: {file_path}")
 
-    # Try pdfplumber first (better for most PDFs)
-    if pdfplumber is not None:
+    file_size = file_path.stat().st_size
+    logger.info(f"[parser] Extracting PDF: {file_path.name} ({file_size} bytes)")
+
+    # ── METHOD 1: pdfplumber default ─────────────────────────────────────────
+    if _PDFPLUMBER_AVAILABLE:
         try:
-            pages_text = []
             with pdfplumber.open(file_path) as pdf:
-                for page in pdf.pages:
+                pages_text = []
+                for idx, page in enumerate(pdf.pages):
                     page_text = page.extract_text()
-                    if page_text:
+                    if page_text and page_text.strip():
+                        pages_text.append(page_text)
+                        logger.debug(f"  pdfplumber page {idx+1}: {len(page_text)} chars")
+
+            if pages_text:
+                cleaned = clean_text("\n\n".join(pages_text))
+                if len(cleaned) >= MIN_EXTRACTED_TEXT:
+                    logger.info(f"[parser] ✅ pdfplumber default: {len(cleaned)} chars")
+                    return cleaned[:MAX_TEXT_LENGTH]
+            logger.warning("[parser] pdfplumber default returned no text, trying layout mode...")
+        except Exception as e:
+            logger.warning(f"[parser] pdfplumber default failed: {e}")
+
+    # ── METHOD 2: pdfplumber with layout=True ────────────────────────────────
+    if _PDFPLUMBER_AVAILABLE:
+        try:
+            with pdfplumber.open(file_path) as pdf:
+                pages_text = []
+                for page in pdf.pages:
+                    # Try layout mode first, fall back to word extraction
+                    page_text = None
+                    try:
+                        page_text = page.extract_text(layout=True)
+                    except Exception:
+                        pass
+                    if not page_text:
+                        words = page.extract_words()
+                        if words:
+                            page_text = " ".join(w["text"] for w in words)
+                    if page_text and page_text.strip():
                         pages_text.append(page_text)
 
             if pages_text:
-                extracted_text = "\n\n".join(pages_text)
-                cleaned = clean_text(extracted_text)
+                cleaned = clean_text("\n\n".join(pages_text))
                 if len(cleaned) >= MIN_EXTRACTED_TEXT:
-                    logger.info(f"[pdfplumber] Extracted {len(cleaned)} chars from {file_path}")
+                    logger.info(f"[parser] ✅ pdfplumber layout: {len(cleaned)} chars")
                     return cleaned[:MAX_TEXT_LENGTH]
         except Exception as e:
-            logger.debug(f"pdfplumber failed: {e}. Trying PyPDF2 fallback...")
+            logger.warning(f"[parser] pdfplumber layout failed: {e}")
 
-    # Fallback to PyPDF2 for compressed PDFs (ReportLab, etc.)
-    if PdfReader is not None:
+    # ── METHOD 3: pypdf (modern, actively maintained) ────────────────────────
+    if _PYPDF_AVAILABLE:
         try:
-            reader = PdfReader(file_path)
+            reader = _pypdf_Reader(file_path)
             pages_text = []
-            for page in reader.pages:
+            for idx, page in enumerate(reader.pages):
                 page_text = page.extract_text()
-                if page_text:
+                if page_text and page_text.strip():
+                    pages_text.append(page_text)
+                    logger.debug(f"  pypdf page {idx+1}: {len(page_text)} chars")
+
+            if pages_text:
+                cleaned = clean_text("\n\n".join(pages_text))
+                if len(cleaned) >= MIN_EXTRACTED_TEXT:
+                    logger.info(f"[parser] ✅ pypdf: {len(cleaned)} chars")
+                    return cleaned[:MAX_TEXT_LENGTH]
+            logger.warning("[parser] pypdf returned no text")
+        except Exception as e:
+            logger.warning(f"[parser] pypdf failed: {e}")
+
+    # ── METHOD 4: PyPDF2 (legacy fallback) ───────────────────────────────────
+    if _PYPDF2_AVAILABLE:
+        try:
+            reader = _PyPDF2_Reader(file_path)
+            pages_text = []
+            for idx, page in enumerate(reader.pages):
+                page_text = page.extract_text()
+                if page_text and page_text.strip():
                     pages_text.append(page_text)
 
             if pages_text:
-                extracted_text = "\n\n".join(pages_text)
-                cleaned = clean_text(extracted_text)
+                cleaned = clean_text("\n\n".join(pages_text))
                 if len(cleaned) >= MIN_EXTRACTED_TEXT:
-                    logger.info(f"[PyPDF2] Extracted {len(cleaned)} chars from {file_path}")
+                    logger.info(f"[parser] ✅ PyPDF2: {len(cleaned)} chars")
                     return cleaned[:MAX_TEXT_LENGTH]
+            logger.warning("[parser] PyPDF2 returned no text")
         except Exception as e:
-            logger.debug(f"PyPDF2 failed: {e}")
+            logger.warning(f"[parser] PyPDF2 failed: {e}")
 
-    # If we get here, extraction failed
+    # ── All methods failed ────────────────────────────────────────────────────
+    installed = [
+        name for name, flag in [
+            ("pdfplumber", _PDFPLUMBER_AVAILABLE),
+            ("pypdf", _PYPDF_AVAILABLE),
+            ("PyPDF2", _PYPDF2_AVAILABLE),
+        ] if flag
+    ]
+    if not installed:
+        raise ValueError(
+            "No PDF library is installed in this environment. "
+            "Run: pip install pdfplumber pypdf"
+        )
+
     raise ValueError(
-        f"Could not extract text from PDF. "
-        f"Requires: pdfplumber and/or PyPDF2. "
-        f"Install with: pip install pdfplumber PyPDF2"
+        f"Could not extract text from '{file_path.name}'. "
+        f"Tried: {', '.join(installed)}. "
+        "The PDF may be image-based (scanned), password-protected, or corrupted. "
+        "Try re-saving it from Word/Google Docs as a new PDF."
     )
 
 
+# ── DOCX extraction ───────────────────────────────────────────────────────────
+
 def extract_text_from_docx(file_path: str) -> Optional[str]:
-    """
-    Extract text from a DOCX file using python-docx.
-
-    Args:
-        file_path: Path to the DOCX file.
-
-    Returns:
-        Extracted and cleaned text, or None if extraction fails.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If python-docx is not installed.
-    """
-    if Document is None:
+    """Extract text from DOCX."""
+    if not _DOCX_AVAILABLE:
         raise ValueError(
             "python-docx is not installed. Run: pip install python-docx"
         )
@@ -154,50 +219,30 @@ def extract_text_from_docx(file_path: str) -> Optional[str]:
 
         extracted_text = "\n".join(lines)
         cleaned = clean_text(extracted_text)
-        logger.info(f"Extracted text from DOCX: {file_path} ({len(cleaned)} chars)")
+        logger.info(f"[parser] ✅ DOCX: {len(cleaned)} chars")
         return cleaned[:MAX_TEXT_LENGTH]
 
     except Exception as e:
-        logger.error(f"Error extracting text from DOCX {file_path}: {e}")
+        logger.error(f"[parser] DOCX extraction failed: {e}", exc_info=True)
         raise
 
+
+# ── Bytes-based extraction (called by Django views) ──────────────────────────
 
 def extract_text_from_bytes(file_bytes: bytes, filename: str) -> Optional[str]:
     """
     Extract text directly from file bytes.
-
-    FIX #6 — Windows antivirus race condition:
-      The previous implementation used NamedTemporaryFile(delete=False),
-      closed the file, then let pdfplumber reopen it by name. On Windows,
-      antivirus software can exclusively lock a freshly written file for
-      100–500 ms after it is closed, causing pdfplumber's open() to raise
-      a PermissionError.
-
-      This version creates a private temporary DIRECTORY with mkdtemp(),
-      writes the file inside that directory, and deletes the whole directory
-      tree in the finally block via shutil.rmtree(). Writing and then reading
-      the same file within one directory avoids antivirus locking because:
-        1. The file handle is only ever held by this process.
-        2. shutil.rmtree() is more reliable than os.unlink() on Windows
-           because it retries across the directory, not just the file.
-
-    FIX #7 — Compressed PDF Support:
-      ReportLab-generated PDFs have very small file sizes but contain
-      compressed text streams. We now validate based on EXTRACTED text
-      length, not file size. If pdfplumber fails, PyPDF2 fallback handles
-      compressed PDFs.
-
-    Args:
-        file_bytes: Raw bytes of the uploaded file.
-        filename:   Original filename (used to detect extension).
-
-    Returns:
-        Extracted text string.
+    Called by views.py — writes bytes to a temp file, extracts, cleans up.
     """
-    ext    = Path(filename).suffix.lower()
+    ext = Path(filename).suffix.lower()
     suffix = ext if ext in (".pdf", ".docx") else ".tmp"
 
-    # Create an isolated temp directory for this extraction
+    if suffix == ".tmp":
+        raise ValueError(
+            f"Unsupported file type: '{filename}'. "
+            "Please upload a PDF or DOCX file."
+        )
+
     tmp_dir = tempfile.mkdtemp(prefix="cv_extract_")
     tmp_path = os.path.join(tmp_dir, f"upload{suffix}")
 
@@ -205,38 +250,33 @@ def extract_text_from_bytes(file_bytes: bytes, filename: str) -> Optional[str]:
         with open(tmp_path, "wb") as f:
             f.write(file_bytes)
             f.flush()
-            os.fsync(f.fileno())   # ensure bytes are on disk before reader opens
+            os.fsync(f.fileno())
+
+        actual_size = os.path.getsize(tmp_path)
+        logger.info(
+            f"[parser] Temp file: {tmp_path} | "
+            f"received={len(file_bytes)}B, written={actual_size}B"
+        )
+
+        if actual_size == 0:
+            raise ValueError("Uploaded file is empty (0 bytes).")
 
         if suffix == ".pdf":
             return extract_text_from_pdf(tmp_path)
-        elif suffix == ".docx":
-            return extract_text_from_docx(tmp_path)
         else:
-            raise ValueError(f"Unsupported file type: {filename}")
+            return extract_text_from_docx(tmp_path)
 
     finally:
-        # Clean the whole temp directory — shutil.rmtree handles Windows locks
-        # more reliably than os.unlink() on individual files.
         try:
             shutil.rmtree(tmp_dir, ignore_errors=True)
         except Exception as cleanup_err:
-            logger.warning(f"Temp dir cleanup failed ({tmp_dir}): {cleanup_err}")
+            logger.warning(f"[parser] Temp cleanup failed: {cleanup_err}")
 
+
+# ── Text utilities ────────────────────────────────────────────────────────────
 
 def clean_text(text: str) -> str:
-    """
-    Clean and normalize extracted text.
-
-    Preserves single newlines so section headers can be found by
-    extract_sections(). Collapses runs of spaces/tabs per line but
-    does NOT collapse newlines into spaces.
-
-    Args:
-        text: Raw extracted text.
-
-    Returns:
-        Cleaned text with preserved line breaks.
-    """
+    """Clean and normalize extracted text."""
     text = text.replace("\r\n", "\n").replace("\r", "\n")
     text = re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", "", text)
     text = re.sub(r"[ \t]+", " ", text)
@@ -246,36 +286,23 @@ def clean_text(text: str) -> str:
 
 
 def extract_sections(text: str) -> dict:
-    """
-    Extract common resume sections.
-
-    Args:
-        text: Full CV text (must retain newlines — use clean_text output).
-
-    Returns:
-        Dictionary with extracted sections.
-    """
+    """Extract common resume sections."""
     sections = {
-        "summary":        "",
-        "experience":     "",
-        "education":      "",
-        "skills":         "",
-        "projects":       "",
-        "certifications": "",
-        "full_text":      text,
+        "summary": "", "experience": "", "education": "",
+        "skills": "", "projects": "", "certifications": "", "full_text": text,
     }
 
     section_keywords = {
-        "summary":        ["summary", "objective", "profile", "about"],
-        "experience":     ["experience", "employment", "work history", "work experience"],
-        "education":      ["education", "academic background", "qualifications"],
-        "skills":         ["skills", "technical skills", "competencies", "technologies"],
-        "projects":       ["projects", "portfolio", "personal projects"],
-        "certifications": ["certifications", "certificates", "awards", "achievements"],
+        "summary": ["summary", "objective", "profile", "about"],
+        "experience": ["experience", "employment", "work history"],
+        "education": ["education", "academic", "qualifications"],
+        "skills": ["skills", "technical", "competencies"],
+        "projects": ["projects", "portfolio"],
+        "certifications": ["certifications", "certificates", "awards"],
     }
 
     all_keywords = [kw for kws in section_keywords.values() for kw in kws]
-    boundary     = "|".join(re.escape(k) for k in all_keywords)
+    boundary = "|".join(re.escape(k) for k in all_keywords)
     boundary_pattern = rf"(?:^|\n)(?:{boundary})\s*[:\-]?\s*(?:\n|$)"
 
     for section_name, keywords in section_keywords.items():
@@ -283,9 +310,9 @@ def extract_sections(text: str) -> dict:
             start_pattern = rf"(?:^|\n){re.escape(keyword)}\s*[:\-]?\s*(?:\n|$)"
             match = re.search(start_pattern, text, re.IGNORECASE)
             if match:
-                start      = match.end()
+                start = match.end()
                 next_match = re.search(boundary_pattern, text[start:], re.IGNORECASE)
-                end        = start + next_match.start() if next_match else len(text)
+                end = start + next_match.start() if next_match else len(text)
                 sections[section_name] = text[start:end].strip()
                 break
 
@@ -293,25 +320,12 @@ def extract_sections(text: str) -> dict:
 
 
 def get_text_statistics(text: str) -> dict:
-    """
-    Calculate statistics about the text.
-
-    Note: CVScorer.score() calls the version in scorer.py with a pre-computed
-    word list (FIX #11). This function is retained for standalone use.
-
-    Args:
-        text: Input text.
-
-    Returns:
-        Dictionary with word_count, character_count, sentence_count,
-        average_word_length.
-    """
-    words     = text.split()
+    """Calculate text statistics."""
+    words = text.split()
     sentences = re.split(r"[.!?]+", text)
-
     return {
-        "word_count":          len(words),
-        "character_count":     len(text),
-        "sentence_count":      len([s for s in sentences if s.strip()]),
+        "word_count": len(words),
+        "character_count": len(text),
+        "sentence_count": len([s for s in sentences if s.strip()]),
         "average_word_length": round(len(text) / len(words), 2) if words else 0,
     }

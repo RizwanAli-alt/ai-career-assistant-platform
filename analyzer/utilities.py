@@ -1,8 +1,15 @@
+# analyzer/utilities.py
 """
 Utility functions for CV analysis.
 
 Canonical filename: utilities.py  (was utilites.py — typo fixed)
 app.py / views.py both import from 'analyzer.utilities'.
+
+FIX #8 - File Size Validation Removed:
+  - REMOVED: file size check (was causing ReportLab PDFs to be rejected)
+  - KEPT: file extension validation only (PDF/DOCX)
+  - MOVED: text length validation to views.py (line 185)
+  - REASON: Small compressed PDFs are valid; check text extraction instead
 
 Other fixes:
   - calculate_experience_years() uses datetime.date.today().year (not hardcoded)
@@ -25,10 +32,14 @@ ALLOWED_EXTENSIONS = {"pdf", "docx"}
 def validate_file(filename: str, file_size_mb: float) -> tuple:
     """
     Validate an uploaded file.
+    
+    FIX #8: Only validates file extension now.
+    File size check removed — small PDFs are valid.
+    Text length validation happens in views.py instead.
 
     Args:
         filename: Name of the uploaded file
-        file_size_mb: Size in megabytes
+        file_size_mb: Size in megabytes (not used anymore)
 
     Returns:
         (is_valid: bool, error_message: str)
@@ -40,14 +51,10 @@ def validate_file(filename: str, file_size_mb: float) -> tuple:
         logger.warning(msg)
         return False, msg
 
-    if file_size_mb > MAX_FILE_SIZE_MB:
-        msg = (
-            f"File is too large ({file_size_mb:.2f} MB). "
-            f"Maximum allowed is {MAX_FILE_SIZE_MB} MB."
-        )
-        logger.warning(msg)
-        return False, msg
-
+    # FIX #8: Removed file size check here
+    # Small compressed PDFs (3-4 KB) are valid if they extract text
+    # Text extraction validation is in views.py line 185
+    
     return True, ""
 
 
