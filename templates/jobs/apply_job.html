@@ -4,37 +4,47 @@
 {% block title %}Apply for {{ job.title }} - AI Career Assistant{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg">
-                <div class="card-body p-5">
-                    <h2 class="mb-4">Apply for {{ job.title }}</h2>
-                    <p class="text-muted mb-4">{{ job.company.name }} | {{ job.location }}</p>
-                    
-                    <form method="POST">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label for="{{ form.cover_letter.id_for_label }}" class="form-label">
-                                Cover Letter
-                            </label>
-                            {{ form.cover_letter }}
-                            <small class="form-text text-muted">
-                                Tell the employer why you're interested in this position
-                            </small>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary btn-lg w-100">
-                            <i class="fas fa-paper-plane"></i> Submit Application
-                        </button>
-                        <a href="{% url 'job_detail' job.pk %}" class="btn btn-outline-secondary btn-lg w-100 mt-2">
-                            Cancel
-                        </a>
-                    </form>
-                </div>
-            </div>
+<div class="page-content">
+  <div class="jobs-page-shell">
+    <div class="jobs-bg-grid"></div>
+    <div class="jobs-bg-glow jobs-bg-glow-blue"></div>
+    <div class="jobs-bg-glow jobs-bg-glow-purple"></div>
+
+    <div class="jobs-shell-content">
+      <header class="jobs-header-block">
+        <div>
+          <span class="section-label">Application</span>
+          <h1 class="jobs-title">Apply for {{ job.title }}</h1>
+          <p class="jobs-subtitle">{{ job.company.name }} &nbsp;·&nbsp; {{ job.location }}</p>
         </div>
+      </header>
+
+      <div style="max-width:640px;margin:0 auto;">
+        <div class="dark-ui-card" style="padding:2rem;">
+          <form method="POST" class="dark-ui-form">
+            {% csrf_token %}
+            <div class="goal-form-grid">
+              <div>
+                <label class="form-label">Cover Letter</label>
+                {{ form.cover_letter }}
+                <span style="display:block;margin-top:6px;font-size:.78rem;color:rgba(148,163,184,.8);">
+                  Tell the employer why you're interested in this position
+                </span>
+              </div>
+            </div>
+            <div class="goal-form-actions" style="margin-top:1.5rem;">
+              <button type="submit" class="job-btn-primary" style="width:auto;min-width:200px;">
+                Submit Application
+              </button>
+              <a href="{% url 'job_detail' job.pk %}" class="btn-ghost" style="display:inline-flex;align-items:center;justify-content:center;padding:10px 20px;border-radius:8px;border:1px solid rgba(240,246,252,0.08);color:#f0f6fc;font-size:.875rem;font-weight:500;">
+                Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
+  </div>
 </div>
 {% endblock %}

@@ -4,150 +4,128 @@
 {% block title %}Goal Tracker - AI Career Assistant{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1><i class="fas fa-target"></i> Career Goals</h1>
-        </div>
-        <div class="col-md-4 text-end">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newGoalModal">
-                <i class="fas fa-plus"></i> New Goal
-            </button>
-        </div>
-    </div>
-    
-    <!-- Active Goals -->
-    <div class="row mb-5">
-        <div class="col-md-12">
-            <h3>Active Goals</h3>
-            {% for goal in goals %}
-                {% if goal.status == 'active' %}
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-6">
-                                    <h5>{{ goal.title }}</h5>
-                                    <p class="text-muted small">{{ goal.description }}</p>
-                                    <small>Target: {{ goal.target_date|date:"M d, Y" }}</small>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="progress" style="height: 25px;">
-                                        <div class="progress-bar" style="width: {{ goal.progress_percentage }}%;">
-                                            {{ goal.progress_percentage }}%
-                                        </div>
+<div class="page-content">
+    <div class="jobs-page-shell goals-page-shell">
+        <div class="jobs-bg-grid"></div>
+        <div class="jobs-bg-glow jobs-bg-glow-blue"></div>
+        <div class="jobs-bg-glow jobs-bg-glow-purple"></div>
+
+        <div class="jobs-shell-content">
+            <header class="jobs-header-block goals-header-block">
+                <div>
+                    <span class="section-label">Career Goals</span>
+                    <h1 class="jobs-title">Your Career Goals</h1>
+                    <p class="jobs-subtitle">Set and track your milestones with a focused goal workflow.</p>
+                </div>
+                <button type="button" class="job-btn-primary new-goal-btn">Create New Goal</button>
+            </header>
+
+            <div class="goal-modal-overlay" aria-hidden="true"></div>
+            <section class="goal-modal goal-form-panel dark-ui-card" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="goal-modal-title">
+                <div class="goal-form-head">
+                    <h2 id="goal-modal-title">Create New Goal</h2>
+                    <button type="button" class="goal-form-close cancel-goal-btn" aria-label="Close goal form">×</button>
+                </div>
+                <form method="POST" class="dark-ui-form">
+                    {% csrf_token %}
+                    <div class="goal-form-grid">
+                        <div>
+                            <label for="goal-title" class="form-label">Goal Title</label>
+                            <input id="goal-title" type="text" name="title" class="form-input dark-ui-input" placeholder="e.g. Land a Django Developer role" required>
+                        </div>
+                        <div>
+                            <label for="goal-description" class="form-label">Description</label>
+                            <textarea id="goal-description" name="description" class="form-input dark-ui-input dark-ui-textarea" rows="4" placeholder="Describe your goal and what success looks like"></textarea>
+                        </div>
+                        <div>
+                            <label for="goal-target-date" class="form-label">Target Date</label>
+                            <input id="goal-target-date" type="date" name="target_date" class="form-input dark-ui-input dark-ui-date-input" required>
+                        </div>
+                    </div>
+                    <div class="goal-form-actions">
+                        <button type="submit" class="job-btn-primary">Create Goal</button>
+                        <button type="button" class="btn-ghost cancel-goal-btn">Cancel</button>
+                    </div>
+                </form>
+            </section>
+
+            <div class="goals-theme-layout">
+                <section class="jobs-results-panel goals-results-panel">
+                    <h2 class="goals-section-title">Active Goals</h2>
+                    {% if goals %}
+                        <div class="goals-grid">
+                            {% for goal in goals %}
+                                <article class="job-glass-card goal-item-card">
+                                    <div class="goal-item-head">
+                                        <h3>{{ goal.title }}</h3>
+                                        {% if goal.status == 'completed' %}
+                                            <span class="goal-status-badge completed">● Completed</span>
+                                        {% else %}
+                                            <span class="goal-status-badge active">● Active</span>
+                                        {% endif %}
                                     </div>
-                                </div>
-                                <div class="col-md-2 text-end">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" 
-                                            data-bs-target="#updateGoalModal{{ goal.id }}">
-                                            Update
-                                        </button>
-                                        <form method="POST" action="{% url 'delete_goal' goal.id %}" style="display: inline;">
+                                    <p class="goal-item-description">{{ goal.description|default:"No description provided yet." }}</p>
+                                    <div class="goal-target-row">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M7 2v3M17 2v3M3.5 9.5h17M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19V7A1.5 1.5 0 0 1 5 5.5Z"></path>
+                                        </svg>
+                                        <span>Target: {{ goal.target_date|date:"M d, Y" }}</span>
+                                    </div>
+                                    <div class="goal-item-actions">
+                                        {% if goal.status != 'completed' %}
+                                            <form method="POST" action="{% url 'update_goal_progress' goal.id %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="progress" value="100">
+                                                <button type="submit" class="btn-ghost btn-sm">Mark Complete</button>
+                                            </form>
+                                        {% endif %}
+                                        <form method="POST" action="{% url 'delete_goal' goal.id %}">
                                             {% csrf_token %}
-                                            <button type="submit" class="btn btn-outline-danger" 
-                                                onclick="return confirm('Delete this goal?')">
-                                                Delete
-                                            </button>
+                                            <button type="submit" class="btn-danger btn-sm" onclick="return confirm('Delete this goal?')">Delete</button>
                                         </form>
                                     </div>
-                                </div>
-                            </div>
+                                </article>
+                            {% endfor %}
                         </div>
-                    </div>
-                    
-                    <!-- Update Modal -->
-                    <div class="modal fade" id="updateGoalModal{{ goal.id }}" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Update Progress</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <form method="POST" action="{% url 'update_goal_progress' goal.id %}">
-                                    {% csrf_token %}
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label class="form-label">Progress (%)</label>
-                                            <input type="number" name="progress" class="form-control" 
-                                                value="{{ goal.progress_percentage }}" min="0" max="100">
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                            Close
-                                        </button>
-                                        <button type="submit" class="btn btn-primary">
-                                            Update Progress
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
+                    {% else %}
+                        <article class="jobs-empty-state goals-empty-state">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M4.5 12.5 10 18l9.5-9.5M12 3.5A8.5 8.5 0 1 0 20.5 12 8.5 8.5 0 0 0 12 3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <h3 class="jobs-empty-title">No active goals yet</h3>
+                            <p class="jobs-empty-subtitle">Set your first career goal to start tracking your progress.</p>
+                            <button type="button" class="job-btn-primary add-goal-link">Add your first goal</button>
+                        </article>
+                    {% endif %}
+                </section>
+            </div>
         </div>
     </div>
-    
-    <!-- Completed Goals -->
-    {% with completed_goals=goals|dictsort:"status" %}
-        {% if completed_goals %}
-            <div class="row">
-                <div class="col-md-12">
-                    <h3>Completed Goals</h3>
-                    {% for goal in goals %}
-                        {% if goal.status == 'completed' %}
-                            <div class="card mb-3 bg-light">
-                                <div class="card-body">
-                                    <h5>
-                                        <i class="fas fa-check-circle text-success"></i> {{ goal.title }}
-                                    </h5>
-                                    <small>Completed on {{ goal.updated_at|date:"M d, Y" }}</small>
-                                </div>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
-    {% endwith %}
 </div>
+<script>
+const overlay = document.querySelector('.goal-modal-overlay');
+const modal = document.querySelector('.goal-modal');
 
-<!-- New Goal Modal -->
-<div class="modal fade" id="newGoalModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Create New Goal</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Goal Title</label>
-                        <input type="text" name="title" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Target Date</label>
-                        <input type="date" name="target_date" class="form-control" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Close
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        Create Goal
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+function openGoalModal() {
+  overlay.classList.add('is-open');
+  modal.classList.add('is-open');
+  document.body.classList.add('modal-open');
+}
+
+function closeGoalModal() {
+  overlay.classList.remove('is-open');
+  modal.classList.remove('is-open');
+  document.body.classList.remove('modal-open');
+}
+
+document.querySelectorAll('.new-goal-btn, .add-goal-link').forEach(btn => {
+  btn.addEventListener('click', openGoalModal);
+});
+
+document.querySelectorAll('.cancel-goal-btn, .goal-form-close').forEach(btn => {
+  btn.addEventListener('click', closeGoalModal);
+});
+
+overlay.addEventListener('click', closeGoalModal);
+</script>
 {% endblock %}

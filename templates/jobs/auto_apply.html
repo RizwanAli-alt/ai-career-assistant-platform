@@ -144,9 +144,17 @@
     width: 80px;
     text-align: center;
   }
-  .aa-number-input:focus {
+ .aa-number-input:focus {
     outline: none;
     border-color: var(--accent-indigo);
+  }
+  .aa-number-input::-webkit-inner-spin-button,
+  .aa-number-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .aa-number-input[type=number] {
+    -moz-appearance: textfield;
   }
 
   /* Warning badge */
@@ -427,273 +435,244 @@
 {% endblock %}
 
 {% block content %}
-<div class="aa-page">
+<div class="page-content">
+  <div class="jobs-page-shell">
+    <div class="jobs-bg-grid"></div>
+    <div class="jobs-bg-glow jobs-bg-glow-blue"></div>
+    <div class="jobs-bg-glow jobs-bg-glow-purple"></div>
 
-  <!-- Page header -->
-  <div style="margin-bottom:2rem;">
-    <span class="section-label" style="display:inline-block;margin-bottom:0.5rem;">Automation</span>
-    <div class="aa-heading">
-      Auto-Apply Agent
-      {% if permission.allowed %}
-        <span class="aa-badge-active">● Active</span>
-      {% else %}
-        <span class="aa-badge-paused">● Paused</span>
-      {% endif %}
-    </div>
-    <p style="font-family:'DM Sans',sans-serif;font-size:0.88rem;color:var(--text-muted);margin-top:6px;">
-      Let CareerAI automatically fill and submit job applications on your behalf.
-    </p>
-  </div>
+    <div class="jobs-shell-content">
+      <div class="aa-page">
 
-  <!-- Django messages -->
-  {% if messages %}
-    {% for msg in messages %}
-      <div style="padding:12px 16px;border-radius:8px;margin-bottom:14px;font-family:'DM Sans',sans-serif;font-size:0.85rem;
-        {% if msg.tags == 'error' %}background:rgba(239,68,68,0.12);color:#FCA5A5;border:1px solid rgba(239,68,68,0.25);
-        {% elif msg.tags == 'warning' %}background:rgba(251,191,36,0.1);color:#FCD34D;border:1px solid rgba(251,191,36,0.25);
-        {% else %}background:rgba(74,222,128,0.1);color:var(--accent-green);border:1px solid rgba(74,222,128,0.25);{% endif %}">
-        {{ msg }}
-      </div>
-    {% endfor %}
-  {% endif %}
-
-  <!-- ═══════════════════════════════════════════════════
-       SECTION 1 — MASTER CONTROL CARD
-       ═══════════════════════════════════════════════════ -->
-  <div class="aa-card" style="max-width:600px;margin:0 auto 24px;">
-    <form method="POST" action="{% url 'auto_apply_settings' %}" id="aa-settings-form">
-      {% csrf_token %}
-
-      <!-- Consent -->
-      <div class="aa-consent">
-        <input type="checkbox" name="terms_accepted" id="terms_accepted"
-               {% if permission.terms_accepted %}checked{% endif %}>
-        <label for="terms_accepted">
-          I authorise CareerAI to submit applications on my behalf
-        </label>
-      </div>
-
-      <!-- Agent status toggle -->
-      <div class="aa-row">
-        <div>
-          <div class="aa-label">Agent Status</div>
-          <div class="aa-sublabel">Enable automatic job application submission</div>
-        </div>
-        <label class="toggle-wrap">
-          <input type="checkbox" name="allowed" id="aa-allowed"
-                 {% if permission.allowed %}checked{% endif %}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <!-- Require approval toggle -->
-      <div class="aa-row">
-        <div>
-          <div class="aa-label">Require Approval</div>
-          <div class="aa-sublabel" id="approval-sublabel">
-            {% if permission.require_approval %}
-              Approve each job before applying <em>(Recommended)</em>
+        <!-- Page header -->
+        <div style="margin-bottom:2rem;">
+          <span class="section-label" style="display:inline-block;margin-bottom:0.5rem;">Automation</span>
+          <div class="aa-heading">
+            Auto-Apply Agent
+            {% if permission.allowed %}
+              <span class="aa-badge-active">● Active</span>
             {% else %}
-              <span class="aa-warning">⚠ Applications sent automatically</span>
+              <span class="aa-badge-paused">● Paused</span>
             {% endif %}
           </div>
+          <p style="font-family:'DM Sans',sans-serif;font-size:0.88rem;color:var(--text-muted);margin-top:6px;">
+            Let CareerAI automatically fill and submit job applications on your behalf.
+          </p>
         </div>
-        <label class="toggle-wrap">
-          <input type="checkbox" name="require_approval" id="aa-require-approval"
-                 {% if permission.require_approval %}checked{% endif %}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
 
-      <!-- Daily limit -->
-      <div class="aa-row">
-        <div>
-          <div class="aa-label">Max applications per day</div>
-          <div class="aa-sublabel">Applied today: {{ applied_today }} / {{ permission.daily_limit }}</div>
-        </div>
-        <input type="number" name="daily_limit" class="aa-number-input"
-               min="1" max="50" value="{{ permission.daily_limit }}">
-      </div>
-
-      <!-- Save + Run buttons -->
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;">
-        <button type="submit" class="btn-primary" style="padding:10px 28px;font-size:0.85rem;">
-          Save Settings
-        </button>
-      </div>
-    </form>
-
-    <!-- Manual trigger (separate POST form) -->
-    <form method="POST" action="{% url 'run_apply' %}" style="margin-top:10px;">
-      {% csrf_token %}
-      <button type="submit" class="btn-run"
-              {% if not permission.allowed %}disabled title="Enable agent first" style="opacity:0.45;cursor:not-allowed;"{% endif %}>
-        ▶ Run Agent Now
-      </button>
-    </form>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════
-       SECTION 2 — STATS ROW
-       ═══════════════════════════════════════════════════ -->
-  <div class="aa-stats" style="max-width:600px;margin:0 auto 24px;">
-    <div class="aa-stat">
-      <span class="aa-stat-num">{{ applied_today }}</span>
-      <span class="aa-stat-label">Applied Today</span>
-    </div>
-    <div class="aa-stat">
-      <span class="aa-stat-num">{{ pending_count }}</span>
-      <span class="aa-stat-label">Pending Approval</span>
-    </div>
-    <div class="aa-stat">
-      <span class="aa-stat-num">{{ total_applied }}</span>
-      <span class="aa-stat-label">Total Applied</span>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════
-       SECTION 3 — APPROVAL QUEUE
-       ═══════════════════════════════════════════════════ -->
-  <div style="max-width:860px;margin:0 auto 24px;">
-    <p style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:var(--text-primary);margin-bottom:14px;">
-      Pending Your Approval ({{ queue_items|length }})
-    </p>
-
-    {% if queue_items %}
-      {% for item in queue_items %}
-        <div class="aa-queue-card">
-          <!-- Left: job info -->
-          <div class="aa-queue-left">
-            <div class="aa-job-title">{{ item.job.title }}</div>
-            <div class="aa-job-meta">{{ item.job.company.name }} · {{ item.job.location }}</div>
-            <div class="aa-pills">
-              <span class="aa-pill-score">{{ item.match_score|floatformat:0 }}% match</span>
-              {% if item.job.salary_min and item.job.salary_max %}
-                <span class="aa-pill-salary">${{ item.job.salary_min|floatformat:0 }}–${{ item.job.salary_max|floatformat:0 }}</span>
-              {% endif %}
-              {% for skill in item.job.get_required_skills_list|slice:":3" %}
-                <span class="aa-pill-skill">{{ skill }}</span>
-              {% endfor %}
+        <!-- Django messages -->
+        {% if messages %}
+          {% for msg in messages %}
+            <div style="padding:12px 16px;border-radius:8px;margin-bottom:14px;font-family:'DM Sans',sans-serif;font-size:0.85rem;
+              {% if msg.tags == 'error' %}background:rgba(239,68,68,0.12);color:#FCA5A5;border:1px solid rgba(239,68,68,0.25);
+              {% elif msg.tags == 'warning' %}background:rgba(251,191,36,0.1);color:#FCD34D;border:1px solid rgba(251,191,36,0.25);
+              {% else %}background:rgba(74,222,128,0.1);color:var(--accent-green);border:1px solid rgba(74,222,128,0.25);{% endif %}">
+              {{ msg }}
             </div>
-            {% if item.cover_letter %}
-              <div class="aa-cl-preview">{{ item.cover_letter|truncatechars:180 }}</div>
-            {% endif %}
-          </div>
+          {% endfor %}
+        {% endif %}
 
-          <!-- Right: approve / reject -->
-          <div class="aa-queue-right">
-            <form method="POST" action="{% url 'approve_job' item.pk %}">
-              {% csrf_token %}
-              <button type="submit" class="btn-approve">✓ Approve</button>
-            </form>
-            <form method="POST" action="{% url 'reject_job' item.pk %}">
-              {% csrf_token %}
-              <button type="submit" class="btn-reject">✗ Reject</button>
-            </form>
+        <!-- SECTION 1 — MASTER CONTROL CARD -->
+        <div class="aa-card dark-ui-card" style="max-width:600px;margin:0 auto 24px;padding:32px;">
+          <form method="POST" action="{% url 'auto_apply_settings' %}" id="aa-settings-form">
+            {% csrf_token %}
+            <div class="aa-consent">
+              <input type="checkbox" name="terms_accepted" id="terms_accepted"
+                     {% if permission.terms_accepted %}checked{% endif %}>
+              <label for="terms_accepted">
+                I authorise CareerAI to submit applications on my behalf
+              </label>
+            </div>
+            <div class="aa-row">
+              <div>
+                <div class="aa-label">Agent Status</div>
+                <div class="aa-sublabel">Enable automatic job application submission</div>
+              </div>
+              <label class="toggle-wrap">
+                <input type="checkbox" name="allowed" id="aa-allowed"
+                       {% if permission.allowed %}checked{% endif %}>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="aa-row">
+              <div>
+                <div class="aa-label">Require Approval</div>
+                <div class="aa-sublabel" id="approval-sublabel">
+                  {% if permission.require_approval %}
+                    Approve each job before applying <em>(Recommended)</em>
+                  {% else %}
+                    <span class="aa-warning">⚠ Applications sent automatically</span>
+                  {% endif %}
+                </div>
+              </div>
+              <label class="toggle-wrap">
+                <input type="checkbox" name="require_approval" id="aa-require-approval"
+                       {% if permission.require_approval %}checked{% endif %}>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="aa-row">
+              <div>
+                <div class="aa-label">Max applications per day</div>
+                <div class="aa-sublabel">Applied today: {{ applied_today }} / {{ permission.daily_limit }}</div>
+              </div>
+              <input type="number" name="daily_limit" class="aa-number-input dark-ui-input"
+       min="1" max="50" value="{{ permission.daily_limit }}" style="width:80px;text-align:center;border-radius:12px;background:#1C2128;">
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;">
+              <button type="submit" class="job-btn-primary" style="width:auto;min-width:160px;">
+                Save Settings
+              </button>
+            </div>
+          </form>
+          <form method="POST" action="{% url 'run_apply' %}" style="margin-top:10px;">
+            {% csrf_token %}
+            <button type="submit" class="btn-ghost"
+                    {% if not permission.allowed %}disabled style="opacity:0.45;cursor:not-allowed;"{% endif %}>
+              ▶ Run Agent Now
+            </button>
+          </form>
+        </div>
+
+        <!-- SECTION 2 — STATS ROW -->
+        <div class="aa-stats" style="max-width:600px;margin:0 auto 24px;">
+          <div class="aa-stat job-glass-card" style="padding:20px;text-align:center;">
+            <span class="aa-stat-num">{{ applied_today }}</span>
+            <span class="aa-stat-label">Applied Today</span>
+          </div>
+          <div class="aa-stat job-glass-card" style="padding:20px;text-align:center;">
+            <span class="aa-stat-num">{{ pending_count }}</span>
+            <span class="aa-stat-label">Pending Approval</span>
+          </div>
+          <div class="aa-stat job-glass-card" style="padding:20px;text-align:center;">
+            <span class="aa-stat-num">{{ total_applied }}</span>
+            <span class="aa-stat-label">Total Applied</span>
           </div>
         </div>
-      {% endfor %}
 
-    {% else %}
-      <div class="aa-card aa-empty">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)"
-             stroke-width="1.5" style="margin:0 auto 12px;" aria-hidden="true">
-          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
-          <rect x="9" y="3" width="6" height="4" rx="1" ry="1"/>
-        </svg>
-        <p>No jobs pending. Run the scraper to find matches for your CV.</p>
-        <a href="{% url 'job_list' %}" class="btn-primary" style="font-size:0.82rem;padding:9px 20px;display:inline-flex;">
-          Browse Jobs →
-        </a>
-      </div>
-    {% endif %}
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════
-       SECTION 4 — APPLICATION HISTORY
-       ═══════════════════════════════════════════════════ -->
-  <div style="max-width:860px;margin:0 auto;">
-    <p style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:var(--text-primary);margin-bottom:14px;">
-      Application History
-    </p>
-
-    {% if history %}
-      <div class="aa-card" style="padding:0;overflow:hidden;">
-        <table class="aa-table">
-          <thead>
-            <tr>
-              <th>Job Title</th>
-              <th>Company</th>
-              <th>Status</th>
-              <th>Applied At</th>
-              <th>Detail</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in history %}
-              <tr {% if item.status == 'failed' %}class="aa-failed-row"{% endif %}>
-                <td style="font-weight:500;">{{ item.job.title }}</td>
-                <td style="color:var(--text-muted);">{{ item.job.company.name }}</td>
-                <td>
-                  {% if item.status == 'submitted' %}
-                    <span class="badge-submitted">✓ Submitted</span>
-                  {% elif item.status == 'failed' %}
-                    <span class="badge-failed">✗ Failed</span>
-                  {% elif item.status == 'rejected' %}
-                    <span class="badge-rejected">— Rejected</span>
-                  {% else %}
-                    <span class="badge-pending">⏳ {{ item.status|capfirst }}</span>
+        <!-- SECTION 3 — APPROVAL QUEUE -->
+        <div style="max-width:860px;margin:0 auto 24px;">
+          <p style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:var(--text-primary);margin-bottom:14px;">
+            Pending Your Approval ({{ queue_items|length }})
+          </p>
+          {% if queue_items %}
+            {% for item in queue_items %}
+              <div class="aa-queue-card job-glass-card">
+                <div class="aa-queue-left">
+                  <div class="aa-job-title">{{ item.job.title }}</div>
+                  <div class="aa-job-meta">{{ item.job.company.name }} · {{ item.job.location }}</div>
+                  <div class="aa-pills">
+                    <span class="aa-pill-score">{{ item.match_score|floatformat:0 }}% match</span>
+                    {% if item.job.salary_min and item.job.salary_max %}
+                      <span class="aa-pill-salary">${{ item.job.salary_min|floatformat:0 }}–${{ item.job.salary_max|floatformat:0 }}</span>
+                    {% endif %}
+                    {% for skill in item.job.get_required_skills_list|slice:":3" %}
+                      <span class="aa-pill-skill">{{ skill }}</span>
+                    {% endfor %}
+                  </div>
+                  {% if item.cover_letter %}
+                    <div class="aa-cl-preview">{{ item.cover_letter|truncatechars:180 }}</div>
                   {% endif %}
-                </td>
-                <td style="color:var(--text-muted);font-size:0.78rem;white-space:nowrap;">
-                  {% if item.applied_at %}{{ item.applied_at|date:"M d, Y" }}{% else %}—{% endif %}
-                </td>
-                <td>
-                  {% if item.status == 'failed' and item.failure_reason %}
-                    <button class="aa-failure-toggle" onclick="this.nextElementSibling.style.display='block';this.style.display='none';">
-                      Why failed?
-                    </button>
-                    <div class="aa-failure-detail">{{ item.failure_reason }}</div>
-                  {% else %}
-                    <span style="color:var(--text-muted);font-size:0.78rem;">—</span>
-                  {% endif %}
-                </td>
-              </tr>
+                </div>
+                <div class="aa-queue-right">
+                  <form method="POST" action="{% url 'approve_job' item.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-approve">✓ Approve</button>
+                  </form>
+                  <form method="POST" action="{% url 'reject_job' item.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-reject">✗ Reject</button>
+                  </form>
+                </div>
+              </div>
             {% endfor %}
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Pagination -->
-      {% if history.has_other_pages %}
-        <nav aria-label="History pagination" style="display:flex;justify-content:center;gap:8px;margin-top:1.5rem;flex-wrap:wrap;">
-          {% if history.has_previous %}
-            <a href="?page={{ history.previous_page_number }}"
-               style="font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--text-muted);padding:7px 14px;border:1px solid var(--border);border-radius:var(--radius-btn);text-decoration:none;transition:all 0.2s;">← Prev</a>
+          {% else %}
+            <div class="dark-ui-card aa-empty">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(148,163,184,0.8)"
+                   stroke-width="1.5" style="margin:0 auto 12px;" aria-hidden="true">
+                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                <rect x="9" y="3" width="6" height="4" rx="1" ry="1"/>
+              </svg>
+              <p>No jobs pending. Run the scraper to find matches for your CV.</p>
+              <a href="{% url 'job_list' %}" class="job-btn-primary" style="width:auto;display:inline-flex;font-size:0.82rem;padding:9px 20px;">
+                Browse Jobs →
+              </a>
+            </div>
           {% endif %}
-          {% for num in history.paginator.page_range %}
-            {% if history.number == num %}
-              <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.82rem;color:#fff;background:var(--accent-indigo);padding:7px 14px;border-radius:var(--radius-btn);">{{ num }}</span>
-            {% elif num > history.number|add:'-3' and num < history.number|add:'3' %}
-              <a href="?page={{ num }}"
-                 style="font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--text-muted);padding:7px 14px;border:1px solid var(--border);border-radius:var(--radius-btn);text-decoration:none;transition:all 0.2s;">{{ num }}</a>
+        </div>
+
+        <!-- SECTION 4 — APPLICATION HISTORY -->
+        <div style="max-width:860px;margin:0 auto;">
+          <p style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:var(--text-primary);margin-bottom:14px;">
+            Application History
+          </p>
+          {% if history %}
+            <div class="dark-ui-card" style="padding:0;overflow:hidden;">
+              <table class="aa-table">
+                <thead>
+                  <tr>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Status</th>
+                    <th>Applied At</th>
+                    <th>Detail</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in history %}
+                    <tr {% if item.status == 'failed' %}class="aa-failed-row"{% endif %}>
+                      <td style="font-weight:500;">{{ item.job.title }}</td>
+                      <td style="color:var(--text-muted);">{{ item.job.company.name }}</td>
+                      <td>
+                        {% if item.status == 'submitted' %}<span class="badge-submitted">✓ Submitted</span>
+                        {% elif item.status == 'failed' %}<span class="badge-failed">✗ Failed</span>
+                        {% elif item.status == 'rejected' %}<span class="badge-rejected">— Rejected</span>
+                        {% else %}<span class="badge-pending">⏳ {{ item.status|capfirst }}</span>{% endif %}
+                      </td>
+                      <td style="color:var(--text-muted);font-size:0.78rem;white-space:nowrap;">
+                        {% if item.applied_at %}{{ item.applied_at|date:"M d, Y" }}{% else %}—{% endif %}
+                      </td>
+                      <td>
+                        {% if item.status == 'failed' and item.failure_reason %}
+                          <button class="aa-failure-toggle" onclick="this.nextElementSibling.style.display='block';this.style.display='none';">Why failed?</button>
+                          <div class="aa-failure-detail">{{ item.failure_reason }}</div>
+                        {% else %}
+                          <span style="color:var(--text-muted);font-size:0.78rem;">—</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% if history.has_other_pages %}
+              <nav style="display:flex;justify-content:center;gap:8px;margin-top:1.5rem;flex-wrap:wrap;">
+                {% if history.has_previous %}
+                  <a href="?page={{ history.previous_page_number }}" class="btn-ghost" style="font-size:0.82rem;padding:7px 14px;">← Prev</a>
+                {% endif %}
+                {% for num in history.paginator.page_range %}
+                  {% if history.number == num %}
+                    <span class="job-btn-primary" style="width:auto;font-size:0.82rem;padding:7px 14px;">{{ num }}</span>
+                  {% elif num > history.number|add:'-3' and num < history.number|add:'3' %}
+                    <a href="?page={{ num }}" class="btn-ghost" style="font-size:0.82rem;padding:7px 14px;">{{ num }}</a>
+                  {% endif %}
+                {% endfor %}
+                {% if history.has_next %}
+                  <a href="?page={{ history.next_page_number }}" class="btn-ghost" style="font-size:0.82rem;padding:7px 14px;">Next →</a>
+                {% endif %}
+              </nav>
             {% endif %}
-          {% endfor %}
-          {% if history.has_next %}
-            <a href="?page={{ history.next_page_number }}"
-               style="font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--text-muted);padding:7px 14px;border:1px solid var(--border);border-radius:var(--radius-btn);text-decoration:none;transition:all 0.2s;">Next →</a>
+          {% else %}
+            <div class="dark-ui-card aa-empty">
+              <p>No application history yet. Approve jobs in the queue above and run the agent.</p>
+            </div>
           {% endif %}
-        </nav>
-      {% endif %}
+        </div>
 
-    {% else %}
-      <div class="aa-card aa-empty">
-        <p>No application history yet. Approve jobs in the queue above and run the agent.</p>
-      </div>
-    {% endif %}
-  </div>
-
-</div><!-- /aa-page -->
+      </div><!-- /aa-page -->
+    </div><!-- /jobs-shell-content -->
+  </div><!-- /jobs-page-shell -->
+</div><!-- /page-content -->
 {% endblock %}
 
 {% block extra_scripts %}
@@ -726,5 +705,6 @@
     });
   }
 })();
+
 </script>
 {% endblock %}

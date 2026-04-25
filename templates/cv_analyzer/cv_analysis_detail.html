@@ -1,243 +1,102 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}CV Analysis - {{ analysis.overall_score }}/100{% endblock %}
+{% block title %}CV Analysis Results — CareerAI{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-5">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h1>📊 CV Analysis Results</h1>
-            <p class="text-muted">Analyzed on {{ analysis.created_at|date:"M d, Y" }} • {{ analysis.analysis_time_taken }}s</p>
-        </div>
+<div class="page-content">
+  <div class="animate-on-scroll" style="margin-bottom:2rem;">
+    <h1 style="font-size:1.6rem;color:var(--text-0);margin-bottom:0.5rem;">Analysis Results</h1>
+    <p style="font-size:0.875rem;color:var(--text-1);">Analyzed on {{ analysis.created_at|date:"M d, Y · H:i" }}</p>
+  </div>
+
+  <div class="result-card animate-on-scroll {% if analysis.overall_score >= 80 %}green-border{% elif analysis.overall_score >= 60 %}amber-border{% else %}red-border{% endif %}">
+    <h2 class="result-heading">ATS Summary</h2>
+    <div class="ats-score-wrap">
+      <div class="ats-score-value" style="color:{% if analysis.overall_score >= 80 %}var(--green){% elif analysis.overall_score >= 60 %}var(--amber){% else %}var(--red){% endif %};">
+        {{ analysis.overall_score }}
+      </div>
+      <div class="ats-score-label">ATS Score</div>
     </div>
+  </div>
 
-    <!-- ── OVERALL SCORE ─────────────────────────────────────────── -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h5 class="card-title">Overall Score</h5>
-                    <div class="display-4 font-weight-bold">{{ analysis.overall_score }}<small>/100</small></div>
-                    <div class="progress mt-3">
-                        <div class="progress-bar {% if analysis.overall_score >= 80 %}bg-success{% elif analysis.overall_score >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
-                             style="width: {{ analysis.overall_score }}%"></div>
-                    </div>
-                    <p class="mt-3">
-                        {% if score_rating == 'excellent' %}
-                        <span class="badge badge-success">🟢 Excellent</span>
-                        {% elif score_rating == 'good' %}
-                        <span class="badge badge-info">🟡 Good</span>
-                        {% elif score_rating == 'average' %}
-                        <span class="badge badge-warning">🟠 Average</span>
-                        {% else %}
-                        <span class="badge badge-danger">🔴 Poor</span>
-                        {% endif %}
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ── SCORE BREAKDOWN ────────────────────────────────────── -->
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">SRS Scoring Breakdown (CV-FR-02)</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex justify-content-between">
-                                <strong>Keywords & ATS (30%)</strong>
-                                <span class="badge badge-primary">{{ breakdown.keywords_score }}/100</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar" style="width: {{ breakdown.keywords_score }}%"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex justify-content-between">
-                                <strong>Completeness (25%)</strong>
-                                <span class="badge badge-primary">{{ breakdown.completeness_score }}/100</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar" style="width: {{ breakdown.completeness_score }}%"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex justify-content-between">
-                                <strong>Skill Density (25%)</strong>
-                                <span class="badge badge-primary">{{ breakdown.skill_density_score }}/100</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar" style="width: {{ breakdown.skill_density_score }}%"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex justify-content-between">
-                                <strong>Formatting (20%)</strong>
-                                <span class="badge badge-primary">{{ breakdown.formatting_score }}/100</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar" style="width: {{ breakdown.formatting_score }}%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="result-card animate-on-scroll {% if analysis.format_score >= 75 %}green-border{% elif analysis.format_score >= 50 %}amber-border{% else %}red-border{% endif %}">
+    <h2 class="result-heading">Format & Structure</h2>
+    <div class="progress-row">
+      <span class="progress-label">Format score</span>
+      <span class="progress-value">{{ analysis.format_score }}%</span>
     </div>
-
-    <!-- ── SECTION COMPLETENESS ─────────────────────────────────── -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">📋 Section Completeness</h5>
-                </div>
-                <div class="card-body">
-                    <div class="progress mb-2">
-                        <div class="progress-bar" style="width: {{ completeness }}%"></div>
-                    </div>
-                    <p><strong>{{ completeness }}%</strong> Complete</p>
-                    <div class="row mt-3">
-                        {% for section_name, is_present in sections.items %}
-                        <div class="col-6 mb-2">
-                            {% if is_present %}
-                            <span class="badge badge-success">✅ {{ section_name|title }}</span>
-                            {% else %}
-                            <span class="badge badge-light">❌ {{ section_name|title }}</span>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ── EXTRACTED SKILLS ──────────────────────────────────── -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">🎯 Extracted Skills</h5>
-                </div>
-                <div class="card-body">
-                    <h6>Technical Skills ({{ skills.technical|length }})</h6>
-                    <div class="mb-3">
-                        {% for skill in skills.technical %}
-                        <span class="badge badge-info">{{ skill }}</span>
-                        {% empty %}
-                        <em class="text-muted">No technical skills detected</em>
-                        {% endfor %}
-                    </div>
-
-                    <h6>Soft Skills ({{ skills.soft|length }})</h6>
-                    <div>
-                        {% for skill in skills.soft %}
-                        <span class="badge badge-secondary">{{ skill }}</span>
-                        {% empty %}
-                        <em class="text-muted">No soft skills detected</em>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="metric-bar">
+      <div class="metric-bar-fill {% if analysis.format_score >= 75 %}green{% elif analysis.format_score >= 50 %}amber{% else %}red{% endif %}" style="width:{{ analysis.format_score }}%;"></div>
     </div>
+    <p style="margin-top:12px;font-size:0.85rem;color:var(--text-1);">{{ analysis.format_feedback }}</p>
+  </div>
 
-    <!-- ── SUGGESTIONS ───────────────────────────────────────────── -->
-    {% if suggestions.High or suggestions.Medium or suggestions.Low %}
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">💡 Improvement Suggestions</h5>
-                </div>
-                <div class="card-body">
-                    {% if suggestions.High %}
-                    <h6 class="text-danger">🔴 High Priority</h6>
-                    {% for suggestion in suggestions.High %}
-                    <div class="alert alert-danger" role="alert">
-                        <strong>[{{ suggestion.category }}]</strong> {{ suggestion.message }}
-                    </div>
-                    {% endfor %}
-                    {% endif %}
-
-                    {% if suggestions.Medium %}
-                    <h6 class="text-warning mt-3">🟡 Medium Priority</h6>
-                    {% for suggestion in suggestions.Medium %}
-                    <div class="alert alert-warning" role="alert">
-                        <strong>[{{ suggestion.category }}]</strong> {{ suggestion.message }}
-                    </div>
-                    {% endfor %}
-                    {% endif %}
-
-                    {% if suggestions.Low %}
-                    <h6 class="text-info mt-3">🟢 Low Priority</h6>
-                    {% for suggestion in suggestions.Low %}
-                    <div class="alert alert-info" role="alert">
-                        <strong>[{{ suggestion.category }}]</strong> {{ suggestion.message }}
-                    </div>
-                    {% endfor %}
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+  <div class="result-card animate-on-scroll {% if analysis.content_score >= 75 %}green-border{% elif analysis.content_score >= 50 %}amber-border{% else %}red-border{% endif %}">
+    <h2 class="result-heading">Content Quality</h2>
+    <div class="progress-row">
+      <span class="progress-label">Content score</span>
+      <span class="progress-value">{{ analysis.content_score }}%</span>
     </div>
-    {% endif %}
-
-    <!-- ── SKILL GAPS ────────────────────────────────────────────── -->
-    {% if gaps %}
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">⚠️ Skill Gaps</h5>
-                </div>
-                <div class="card-body">
-                    <p><strong>Market Coverage:</strong> {{ gaps.coverage_percentage }}%</p>
-                    <div class="progress mb-3">
-                        <div class="progress-bar bg-success" style="width: {{ gaps.coverage_percentage }}%"></div>
-                    </div>
-
-                    <h6>High-Demand Missing ({{ gaps.high_priority_skills|length }})</h6>
-                    <ul class="list-unstyled">
-                        {% for skill in gaps.high_priority_skills|slice:":5" %}
-                        <li><span class="badge badge-danger">{{ skill }}</span></li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">🚀 Emerging Skills</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled">
-                        {% for skill in gaps.emerging_missing_skills|slice:":5" %}
-                        <li><span class="badge badge-warning">{{ skill }}</span></li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
+    <div class="metric-bar">
+      <div class="metric-bar-fill {% if analysis.content_score >= 75 %}green{% elif analysis.content_score >= 50 %}amber{% else %}red{% endif %}" style="width:{{ analysis.content_score }}%;"></div>
     </div>
-    {% endif %}
+    <p style="margin-top:12px;font-size:0.85rem;color:var(--text-1);">{{ analysis.content_feedback }}</p>
+  </div>
 
-    <!-- ── ACTIONS ───────────────────────────────────────────────── -->
-    <div class="row">
-        <div class="col-md-12">
-            <a href="{% url 'cv_analysis_list' %}" class="btn btn-secondary">← Back to Analyses</a>
-            <a href="{% url 'job_search_with_scraper' %}" class="btn btn-primary">🔍 Find Matching Jobs</a>
-            <a href="{% url 'upload_cv_analysis' %}" class="btn btn-success">+ Upload Another CV</a>
-            <button type="button" class="btn btn-info" onclick="window.print()">🖨️ Print Report</button>
-            <form method="POST" action="{% url 'delete_cv_analysis' pk=analysis.pk %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this analysis?');">🗑️ Delete</button>
-            </form>
-        </div>
+  <div class="result-card animate-on-scroll {% if analysis.keyword_score >= 75 %}green-border{% elif analysis.keyword_score >= 50 %}amber-border{% else %}red-border{% endif %}">
+    <h2 class="result-heading">ATS Keywords</h2>
+    <div class="progress-row">
+      <span class="progress-label">Keyword match</span>
+      <span class="progress-value">{{ analysis.keyword_score }}%</span>
     </div>
+    <div class="metric-bar">
+      <div class="metric-bar-fill {% if analysis.keyword_score >= 75 %}green{% elif analysis.keyword_score >= 50 %}amber{% else %}red{% endif %}" style="width:{{ analysis.keyword_score }}%;"></div>
+    </div>
+    <p style="margin-top:12px;font-size:0.85rem;color:var(--text-1);">{{ analysis.keyword_feedback }}</p>
+    <div class="keyword-tags" style="margin-top:12px;">
+      {% if analysis.keyword_score >= 75 %}
+        <span class="keyword-tag present">Strong keyword coverage</span>
+      {% elif analysis.keyword_score >= 50 %}
+        <span class="keyword-tag present">Some relevant keywords</span>
+        <span class="keyword-tag missing">Add role-specific ATS terms</span>
+      {% else %}
+        <span class="keyword-tag missing">Missing key ATS keywords</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="result-card animate-on-scroll {% if analysis.readability_score >= 75 %}green-border{% elif analysis.readability_score >= 50 %}amber-border{% else %}red-border{% endif %}">
+    <h2 class="result-heading">Readability</h2>
+    <div class="progress-row">
+      <span class="progress-label">Readability score</span>
+      <span class="progress-value">{{ analysis.readability_score }}%</span>
+    </div>
+    <div class="metric-bar">
+      <div class="metric-bar-fill {% if analysis.readability_score >= 75 %}green{% elif analysis.readability_score >= 50 %}amber{% else %}red{% endif %}" style="width:{{ analysis.readability_score }}%;"></div>
+    </div>
+    <p style="margin-top:12px;font-size:0.85rem;color:var(--text-1);">{{ analysis.readability_feedback }}</p>
+  </div>
+
+  {% if analysis.overall_feedback %}
+    <div class="result-card animate-on-scroll {% if analysis.overall_score >= 80 %}green-border{% elif analysis.overall_score >= 60 %}amber-border{% else %}red-border{% endif %}">
+      <h2 class="result-heading">Overall Feedback</h2>
+      <p style="font-size:0.9rem;color:var(--text-1);line-height:1.7;">{{ analysis.overall_feedback }}</p>
+    </div>
+  {% endif %}
+
+  <div class="animate-on-scroll" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+    <a href="{% url 'upload_cv_analysis' %}" class="btn-primary">Analyze Another CV</a>
+    <a href="{% url 'cv_analysis_list' %}" class="btn-ghost">View All Analyses</a>
+    <a href="{% url 'cv_comparison' %}?cv1={{ analysis.pk }}" class="btn-ghost">Compare CVs</a>
+    <form method="POST" action="{% url 'delete_cv_analysis' analysis.pk %}" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" onclick="return confirm('Delete this analysis?')"
+        style="background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.25);color:var(--red);font-size:0.82rem;padding:10px 18px;border-radius:999px;cursor:pointer;">
+        Delete
+      </button>
+    </form>
+  </div>
+
 </div>
 {% endblock %}

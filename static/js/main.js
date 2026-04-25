@@ -135,6 +135,80 @@
     }
   }
 
+  const newGoalBtn = document.querySelector('.new-goal-btn');
+  const goalForm = document.querySelector('.goal-form-panel');
+  const goalModalOverlay = document.querySelector('.goal-modal-overlay');
+  const cancelGoalButtons = document.querySelectorAll('.cancel-goal-btn');
+  const addGoalLink = document.querySelector('.add-goal-link');
+  if (newGoalBtn && goalForm) {
+    const trapGoalModalFocus = (e) => {
+      if (e.key !== 'Tab' || !goalForm.classList.contains('is-open')) return;
+      const focusableSelectors = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      const focusableElements = Array.from(goalForm.querySelectorAll(focusableSelectors))
+        .filter((el) => el.offsetParent !== null);
+      if (!focusableElements.length) return;
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    };
+    const handleGoalModalKeydown = (e) => {
+      if (e.key === 'Escape' && goalForm.classList.contains('is-open')) hideGoalForm();
+      trapGoalModalFocus(e);
+    };
+    const showGoalForm = () => {
+      goalForm.classList.add('is-open');
+      goalForm.setAttribute('aria-hidden', 'false');
+      goalModalOverlay?.classList.add('is-open');
+      goalModalOverlay?.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+      window.addEventListener('keydown', handleGoalModalKeydown);
+      const initialGoalInput = goalForm.querySelector('#goal-title');
+      initialGoalInput?.focus();
+    };
+    const hideGoalForm = () => {
+      goalForm.classList.remove('is-open');
+      goalForm.setAttribute('aria-hidden', 'true');
+      goalModalOverlay?.classList.remove('is-open');
+      goalModalOverlay?.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+      window.removeEventListener('keydown', handleGoalModalKeydown);
+    };
+    newGoalBtn.addEventListener('click', showGoalForm);
+    addGoalLink?.addEventListener('click', showGoalForm);
+    cancelGoalButtons.forEach((button) => button.addEventListener('click', hideGoalForm));
+    goalModalOverlay?.addEventListener('click', hideGoalForm);
+  }
+
+  const profileFileInput = document.querySelector('.profile-file-input');
+  const uploadArea = document.querySelector('.upload-area');
+  const fileLabel = document.querySelector('.file-label');
+  if (profileFileInput && uploadArea && fileLabel) {
+    uploadArea.addEventListener('click', () => profileFileInput.click());
+    uploadArea.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        profileFileInput.click();
+      }
+    });
+    profileFileInput.addEventListener('change', (e) => {
+      const target = e.target;
+      if (!target) return;
+      if (target.files && target.files[0]) {
+        fileLabel.textContent = target.files[0].name;
+        fileLabel.classList.add('file-selected');
+        return;
+      }
+      fileLabel.textContent = 'No file selected';
+      fileLabel.classList.remove('file-selected');
+    });
+  }
+
   const initCountUp = () => {
     const animateStat = (el) => {
       const target = parseFloat(el.dataset.target || el.dataset.count);
