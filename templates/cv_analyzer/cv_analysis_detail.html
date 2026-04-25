@@ -5,86 +5,231 @@
 
 {% block content %}
 <div class="page-content">
+
+  <!-- Header -->
   <div class="animate-on-scroll" style="margin-bottom:2rem;">
-    <h1 style="font-size:1.6rem;color:var(--text-0);margin-bottom:0.5rem;">Analysis Results</h1>
-    <p style="font-size:0.875rem;color:var(--text-1);">Analyzed on {{ analysis.created_at|date:"M d, Y · H:i" }}</p>
+    <h1 style="font-size:1.6rem;color:var(--text-primary);margin-bottom:0.5rem;">Analysis Results</h1>
+    <p style="font-size:0.875rem;color:var(--text-muted);">Analyzed on {{ analysis.created_at|date:"M d, Y · H:i" }}</p>
   </div>
 
-  <div class="result-card animate-on-scroll {% if analysis.overall_score >= 80 %}green-border{% elif analysis.overall_score >= 60 %}amber-border{% else %}red-border{% endif %}">
+  <!-- ── ATS SCORE ──────────────────────────────────────────────────────── -->
+  <div class="dash-card animate-on-scroll {% if analysis.overall_score >= 80 %}green-border{% elif analysis.overall_score >= 60 %}amber-border{% else %}red-border{% endif %}" style="margin-bottom:1.25rem;">
     <h2 class="result-heading">ATS Summary</h2>
-    <div class="ats-score-wrap">
-      <div class="ats-score-value" style="color:{% if analysis.overall_score >= 80 %}var(--green){% elif analysis.overall_score >= 60 %}var(--amber){% else %}var(--red){% endif %};">
-        {{ analysis.overall_score }}
+    <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+      <div style="text-align:center;">
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:3rem;
+          color:{% if analysis.overall_score >= 80 %}var(--accent-green,#22c55e){% elif analysis.overall_score >= 60 %}#f59e0b{% else %}#ef4444{% endif %};">
+          {{ analysis.overall_score }}
+        </div>
+        <div style="font-size:0.78rem;color:var(--text-muted);font-family:'DM Sans',sans-serif;">/ 100 ATS Score</div>
       </div>
-      <div class="ats-score-label">ATS Score</div>
+      <div style="flex:1;min-width:200px;">
+        <div class="progress-bar-wrap" style="height:8px;margin-bottom:8px;">
+          <div class="progress-bar-fill" style="width:{{ analysis.overall_score }}%;"></div>
+        </div>
+        <p style="font-size:0.875rem;color:var(--text-muted);font-family:'DM Sans',sans-serif;">
+          {{ analysis.overall_feedback }}
+        </p>
+      </div>
     </div>
   </div>
 
-  <div class="result-card animate-on-scroll {% if analysis.format_score >= 75 %}green-border{% elif analysis.format_score >= 50 %}amber-border{% else %}red-border{% endif %}">
-    <h2 class="result-heading">Format & Structure</h2>
-    <div class="progress-row">
-      <span class="progress-label">Format score</span>
-      <span class="progress-value">{{ analysis.format_score }}%</span>
+  <!-- ── SCORE BREAKDOWN GRID ──────────────────────────────────────────── -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:1.5rem;">
+
+    <!-- Format -->
+    <div class="dash-card animate-on-scroll {% if analysis.format_score >= 75 %}green-border{% elif analysis.format_score >= 50 %}amber-border{% else %}red-border{% endif %}">
+      <h3 style="font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Format & Structure</h3>
+      <p style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;color:var(--accent-indigo,#5B5BD6);">{{ analysis.format_score }}<span style="font-size:0.9rem;font-weight:400;color:var(--text-muted);">/100</span></p>
+      <div class="progress-bar-wrap" style="height:5px;margin:8px 0;">
+        <div class="progress-bar-fill" style="width:{{ analysis.format_score }}%;"></div>
+      </div>
+      <p style="font-size:0.82rem;color:var(--text-muted);font-family:'DM Sans',sans-serif;line-height:1.5;">{{ analysis.format_feedback }}</p>
     </div>
-    <div class="metric-bar">
-      <div class="metric-bar-fill {% if analysis.format_score >= 75 %}green{% elif analysis.format_score >= 50 %}amber{% else %}red{% endif %}" style="width:{{ analysis.format_score }}%;"></div>
+
+    <!-- Content -->
+    <div class="dash-card animate-on-scroll {% if analysis.content_score >= 75 %}green-border{% elif analysis.content_score >= 50 %}amber-border{% else %}red-border{% endif %}">
+      <h3 style="font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Content Quality</h3>
+      <p style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;color:var(--accent-green,#22c55e);">{{ analysis.content_score }}<span style="font-size:0.9rem;font-weight:400;color:var(--text-muted);">/100</span></p>
+      <div class="progress-bar-wrap" style="height:5px;margin:8px 0;">
+        <div class="progress-bar-fill" style="width:{{ analysis.content_score }}%;"></div>
+      </div>
+      <p style="font-size:0.82rem;color:var(--text-muted);font-family:'DM Sans',sans-serif;line-height:1.5;">{{ analysis.content_feedback }}</p>
     </div>
-    <p style="margin-top:12px;font-size:0.85rem;color:var(--text-1);">{{ analysis.format_feedback }}</p>
+
+    <!-- Keywords -->
+    <div class="dash-card animate-on-scroll {% if analysis.keyword_score >= 75 %}green-border{% elif analysis.keyword_score >= 50 %}amber-border{% else %}red-border{% endif %}">
+      <h3 style="font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">ATS Keywords</h3>
+      <p style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;color:var(--accent-blue,#00D4FF);">{{ analysis.keyword_score }}<span style="font-size:0.9rem;font-weight:400;color:var(--text-muted);">/100</span></p>
+      <div class="progress-bar-wrap" style="height:5px;margin:8px 0;">
+        <div class="progress-bar-fill" style="width:{{ analysis.keyword_score }}%;"></div>
+      </div>
+      <p style="font-size:0.82rem;color:var(--text-muted);font-family:'DM Sans',sans-serif;line-height:1.5;">{{ analysis.keyword_feedback }}</p>
+    </div>
+
+    <!-- Readability -->
+    <div class="dash-card animate-on-scroll {% if analysis.readability_score >= 75 %}green-border{% elif analysis.readability_score >= 50 %}amber-border{% else %}red-border{% endif %}">
+      <h3 style="font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Skill Density</h3>
+      <p style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;color:#FCD34D;">{{ analysis.readability_score }}<span style="font-size:0.9rem;font-weight:400;color:var(--text-muted);">/100</span></p>
+      <div class="progress-bar-wrap" style="height:5px;margin:8px 0;">
+        <div class="progress-bar-fill" style="width:{{ analysis.readability_score }}%;"></div>
+      </div>
+      <p style="font-size:0.82rem;color:var(--text-muted);font-family:'DM Sans',sans-serif;line-height:1.5;">{{ analysis.readability_feedback }}</p>
+    </div>
+
   </div>
 
-  <div class="result-card animate-on-scroll {% if analysis.content_score >= 75 %}green-border{% elif analysis.content_score >= 50 %}amber-border{% else %}red-border{% endif %}">
-    <h2 class="result-heading">Content Quality</h2>
-    <div class="progress-row">
-      <span class="progress-label">Content score</span>
-      <span class="progress-value">{{ analysis.content_score }}%</span>
+  <!-- ── SIMILARITY SCORE (if available) ───────────────────────────────── -->
+  {% if similarity > 0 %}
+  <div class="dash-card animate-on-scroll" style="margin-bottom:1.5rem;">
+    <h2 class="result-heading">Job Match Score</h2>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;background:linear-gradient(135deg,#5B5BD6,#00D4FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+        {{ similarity }}%
+      </div>
+      <div class="progress-bar-wrap" style="flex:1;height:8px;">
+        <div class="progress-bar-fill" style="width:{{ similarity }}%;"></div>
+      </div>
     </div>
-    <div class="metric-bar">
-      <div class="metric-bar-fill {% if analysis.content_score >= 75 %}green{% elif analysis.content_score >= 50 %}amber{% else %}red{% endif %}" style="width:{{ analysis.content_score }}%;"></div>
-    </div>
-    <p style="margin-top:12px;font-size:0.85rem;color:var(--text-1);">{{ analysis.content_feedback }}</p>
+    <p style="font-size:0.82rem;color:var(--text-muted);margin-top:8px;font-family:'DM Sans',sans-serif;">
+      Semantic similarity between your CV and the provided job description.
+    </p>
   </div>
-
-  <div class="result-card animate-on-scroll {% if analysis.keyword_score >= 75 %}green-border{% elif analysis.keyword_score >= 50 %}amber-border{% else %}red-border{% endif %}">
-    <h2 class="result-heading">ATS Keywords</h2>
-    <div class="progress-row">
-      <span class="progress-label">Keyword match</span>
-      <span class="progress-value">{{ analysis.keyword_score }}%</span>
-    </div>
-    <div class="metric-bar">
-      <div class="metric-bar-fill {% if analysis.keyword_score >= 75 %}green{% elif analysis.keyword_score >= 50 %}amber{% else %}red{% endif %}" style="width:{{ analysis.keyword_score }}%;"></div>
-    </div>
-    <p style="margin-top:12px;font-size:0.85rem;color:var(--text-1);">{{ analysis.keyword_feedback }}</p>
-    <div class="keyword-tags" style="margin-top:12px;">
-      {% if analysis.keyword_score >= 75 %}
-        <span class="keyword-tag present">Strong keyword coverage</span>
-      {% elif analysis.keyword_score >= 50 %}
-        <span class="keyword-tag present">Some relevant keywords</span>
-        <span class="keyword-tag missing">Add role-specific ATS terms</span>
-      {% else %}
-        <span class="keyword-tag missing">Missing key ATS keywords</span>
-      {% endif %}
-    </div>
-  </div>
-
-  <div class="result-card animate-on-scroll {% if analysis.readability_score >= 75 %}green-border{% elif analysis.readability_score >= 50 %}amber-border{% else %}red-border{% endif %}">
-    <h2 class="result-heading">Readability</h2>
-    <div class="progress-row">
-      <span class="progress-label">Readability score</span>
-      <span class="progress-value">{{ analysis.readability_score }}%</span>
-    </div>
-    <div class="metric-bar">
-      <div class="metric-bar-fill {% if analysis.readability_score >= 75 %}green{% elif analysis.readability_score >= 50 %}amber{% else %}red{% endif %}" style="width:{{ analysis.readability_score }}%;"></div>
-    </div>
-    <p style="margin-top:12px;font-size:0.85rem;color:var(--text-1);">{{ analysis.readability_feedback }}</p>
-  </div>
-
-  {% if analysis.overall_feedback %}
-    <div class="result-card animate-on-scroll {% if analysis.overall_score >= 80 %}green-border{% elif analysis.overall_score >= 60 %}amber-border{% else %}red-border{% endif %}">
-      <h2 class="result-heading">Overall Feedback</h2>
-      <p style="font-size:0.9rem;color:var(--text-1);line-height:1.7;">{{ analysis.overall_feedback }}</p>
-    </div>
   {% endif %}
 
+  <!-- ── SKILLS ─────────────────────────────────────────────────────────── -->
+  {% if skills.technical or skills.soft %}
+  <div class="dash-card animate-on-scroll" style="margin-bottom:1.5rem;">
+    <h2 class="result-heading">Extracted Skills</h2>
+    {% if skills.technical %}
+    <div style="margin-bottom:12px;">
+      <p style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;font-family:'DM Sans',sans-serif;margin-bottom:8px;">Technical</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        {% for skill in skills.technical %}
+          <span style="background:rgba(91,91,214,0.12);color:#a5b4fc;border:1px solid rgba(91,91,214,0.25);font-size:0.78rem;font-family:'DM Sans',sans-serif;padding:4px 12px;border-radius:999px;">{{ skill }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    {% if skills.soft %}
+    <div>
+      <p style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;font-family:'DM Sans',sans-serif;margin-bottom:8px;">Soft Skills</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        {% for skill in skills.soft %}
+          <span style="background:rgba(34,197,94,0.1);color:#86efac;border:1px solid rgba(34,197,94,0.2);font-size:0.78rem;font-family:'DM Sans',sans-serif;padding:4px 12px;border-radius:999px;">{{ skill }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- ── SKILL GAPS ─────────────────────────────────────────────────────── -->
+  {% if gaps.high_priority_skills or gaps.emerging_missing_skills %}
+  <div class="dash-card animate-on-scroll" style="margin-bottom:1.5rem;">
+    <h2 class="result-heading">Skill Gaps</h2>
+    {% if gaps.coverage_percentage is not None %}
+      <p style="font-size:0.82rem;color:var(--text-muted);font-family:'DM Sans',sans-serif;margin-bottom:12px;">
+        You cover <strong style="color:var(--text-primary);">{{ gaps.coverage_percentage }}%</strong>
+        of high-demand market skills
+        ({{ gaps.user_has_high_demand_count }} / {{ gaps.total_high_demand }}).
+      </p>
+    {% endif %}
+    {% if gaps.high_priority_skills %}
+    <div style="margin-bottom:12px;">
+      <p style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;font-family:'DM Sans',sans-serif;margin-bottom:8px;">High Priority Missing</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        {% for skill in gaps.high_priority_skills %}
+          <span style="background:rgba(239,68,68,0.1);color:#fca5a5;border:1px solid rgba(239,68,68,0.2);font-size:0.78rem;font-family:'DM Sans',sans-serif;padding:4px 12px;border-radius:999px;">{{ skill }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    {% if gaps.emerging_missing_skills %}
+    <div>
+      <p style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;font-family:'DM Sans',sans-serif;margin-bottom:8px;">Emerging Skills to Consider</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        {% for skill in gaps.emerging_missing_skills %}
+          <span style="background:rgba(245,158,11,0.1);color:#fcd34d;border:1px solid rgba(245,158,11,0.2);font-size:0.78rem;font-family:'DM Sans',sans-serif;padding:4px 12px;border-radius:999px;">{{ skill }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- ── SUGGESTIONS ───────────────────────────────────────────────────── -->
+  {% if suggestions.High or suggestions.Medium or suggestions.Low %}
+  <div class="dash-card animate-on-scroll" style="margin-bottom:1.5rem;">
+    <h2 class="result-heading">Improvement Suggestions</h2>
+
+    {% if suggestions.High %}
+      <p style="font-size:0.78rem;font-family:'DM Sans',sans-serif;color:#fca5a5;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">🔴 High Priority</p>
+      {% for s in suggestions.High %}
+        <div style="background:rgba(239,68,68,0.06);border-left:3px solid #ef4444;padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:8px;">
+          <span style="font-size:0.72rem;font-family:'DM Sans',sans-serif;color:#fca5a5;font-weight:600;">{{ s.category }}</span>
+          <p style="font-size:0.85rem;color:var(--text-primary);font-family:'DM Sans',sans-serif;margin-top:3px;">{{ s.message }}</p>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    {% if suggestions.Medium %}
+      <p style="font-size:0.78rem;font-family:'DM Sans',sans-serif;color:#fcd34d;text-transform:uppercase;letter-spacing:0.08em;margin:12px 0 8px;">🟡 Medium Priority</p>
+      {% for s in suggestions.Medium %}
+        <div style="background:rgba(245,158,11,0.06);border-left:3px solid #f59e0b;padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:8px;">
+          <span style="font-size:0.72rem;font-family:'DM Sans',sans-serif;color:#fcd34d;font-weight:600;">{{ s.category }}</span>
+          <p style="font-size:0.85rem;color:var(--text-primary);font-family:'DM Sans',sans-serif;margin-top:3px;">{{ s.message }}</p>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    {% if suggestions.Low %}
+      <p style="font-size:0.78rem;font-family:'DM Sans',sans-serif;color:#86efac;text-transform:uppercase;letter-spacing:0.08em;margin:12px 0 8px;">🟢 Polish</p>
+      {% for s in suggestions.Low %}
+        <div style="background:rgba(34,197,94,0.06);border-left:3px solid #22c55e;padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:8px;">
+          <span style="font-size:0.72rem;font-family:'DM Sans',sans-serif;color:#86efac;font-weight:600;">{{ s.category }}</span>
+          <p style="font-size:0.85rem;color:var(--text-primary);font-family:'DM Sans',sans-serif;margin-top:3px;">{{ s.message }}</p>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+  </div>
+  {% endif %}
+
+  <!-- ── SECTION COMPLETENESS ──────────────────────────────────────────── -->
+  {% if sections %}
+  <div class="dash-card animate-on-scroll" style="margin-bottom:1.5rem;">
+    <h2 class="result-heading">Section Completeness — {{ completeness }}%</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;">
+      {% for section_name, present in sections.items %}
+        <div style="display:flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--text-muted);">
+          {% if present %}
+            <span style="color:#22c55e;font-size:1rem;">✓</span>
+          {% else %}
+            <span style="color:#ef4444;font-size:1rem;">✗</span>
+          {% endif %}
+          {{ section_name|capfirst }}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── CONTACT & EXPERIENCE ──────────────────────────────────────────── -->
+  {% if contact_info or experience_years %}
+  <div class="dash-card animate-on-scroll" style="margin-bottom:1.5rem;">
+    <h2 class="result-heading">Contact & Experience</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--text-muted);">
+      {% if contact_info.email %}    <div>📧 {{ contact_info.email }}</div>{% endif %}
+      {% if contact_info.phone %}    <div>📞 {{ contact_info.phone }}</div>{% endif %}
+      {% if contact_info.linkedin %} <div>🔗 {{ contact_info.linkedin }}</div>{% endif %}
+      {% if contact_info.github %}   <div>🐙 {{ contact_info.github }}</div>{% endif %}
+      {% if experience_years %}      <div>🗓 {{ experience_years }} year{{ experience_years|pluralize }} experience</div>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── ACTIONS ────────────────────────────────────────────────────────── -->
   <div class="animate-on-scroll" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
     <a href="{% url 'upload_cv_analysis' %}" class="btn-primary">Analyze Another CV</a>
     <a href="{% url 'cv_analysis_list' %}" class="btn-ghost">View All Analyses</a>
@@ -92,7 +237,8 @@
     <form method="POST" action="{% url 'delete_cv_analysis' analysis.pk %}" style="display:inline;">
       {% csrf_token %}
       <button type="submit" onclick="return confirm('Delete this analysis?')"
-        style="background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.25);color:var(--red);font-size:0.82rem;padding:10px 18px;border-radius:999px;cursor:pointer;">
+        style="background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.25);
+               color:#f85149;font-size:0.82rem;padding:10px 18px;border-radius:999px;cursor:pointer;">
         Delete
       </button>
     </form>

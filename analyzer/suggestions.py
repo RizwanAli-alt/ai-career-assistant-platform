@@ -1,28 +1,21 @@
 """
 Suggestion Generation Engine.
 
-FIX (Issue #10 — filename typo):
-  File was named 'suggerstions.py' (extra 'r'). app.py imports from
-  'analyzer.suggestions' which caused a ModuleNotFoundError. Renamed to
-  suggestions.py. This is the correct canonical file going forward.
+Canonical filename: suggestions.py  (was suggerstions.py — typo fixed)
+app.py / views.py both import from 'analyzer.suggestions'.
 
-FIX (scorer.py key alignment after Issue #2 fix):
-  scorer.py now returns both SRS dimension keys AND backward-compat aliases:
-    - "keyword_density_score"  → alias for "keywords_score"
-    - "skills_relevance_score" → alias for "skill_density_score"
-    - "experience_score", "education_score", "projects_score" (UI detail scores)
-  All lookups here use the backward-compat alias keys so no changes are needed
-  to the suggestion logic itself.
-
-FIX (Issue #5 — NullHandler):
-  Added logging.NullHandler() for Django safety.
+scorer.py returns these backward-compat alias keys:
+  - "keyword_density_score"  → alias for "keywords_score"
+  - "skills_relevance_score" → alias for "skill_density_score"
+  - "experience_score", "education_score", "projects_score"
+All lookups here use those alias keys — no changes to suggestion logic needed.
 """
 
 import logging
 from typing import Dict, List
 
 logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())  # Safe for library / Django use
+logger.addHandler(logging.NullHandler())
 
 
 class SuggestionGenerator:
@@ -36,10 +29,6 @@ class SuggestionGenerator:
         suggestions.extend(self._medium_priority(score_result, extracted_skills, gaps))
         suggestions.extend(self._low_priority(score_result, extracted_skills, gaps))
         return suggestions
-
-    # ------------------------------------------------------------------
-    # Priority buckets
-    # ------------------------------------------------------------------
 
     def _high_priority(self, score_result, extracted_skills, gaps) -> List[Dict]:
         suggestions = []
@@ -109,7 +98,7 @@ class SuggestionGenerator:
                 "priority": "Medium",
                 "category": "Overall",
                 "message": (
-                    "Good foundation — but there's room to grow. Add measurable results "
+                    "Good foundation! Add measurable results "
                     "(e.g. 'reduced load time by 40%') to push your score above 75."
                 ),
             })
@@ -124,7 +113,6 @@ class SuggestionGenerator:
                 ),
             })
 
-        # Uses backward-compat alias key set by scorer.py
         if bd.get("keyword_density_score", 0) < 40:
             suggestions.append({
                 "priority": "Medium",

@@ -1,12 +1,10 @@
 """
 Utility functions for CV analysis.
 
-FIX (Issue #5 — filename typo):
-  File was named 'utilites.py' (missing 't'). app.py imports from
-  'analyzer.utilities' which caused a ModuleNotFoundError. Renamed to
-  utilities.py. This is the correct canonical file going forward.
+Canonical filename: utilities.py  (was utilites.py — typo fixed)
+app.py / views.py both import from 'analyzer.utilities'.
 
-Other fixes retained from previous version:
+Other fixes:
   - calculate_experience_years() uses datetime.date.today().year (not hardcoded)
   - get_file_size_mb() handles Streamlit UploadedFile objects correctly
   - NullHandler added for Django logging safety
@@ -18,7 +16,7 @@ import datetime
 from typing import Optional
 
 logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())  # Safe for library / Django use
+logger.addHandler(logging.NullHandler())
 
 MAX_FILE_SIZE_MB = 5
 ALLOWED_EXTENSIONS = {"pdf", "docx"}
@@ -56,12 +54,6 @@ def validate_file(filename: str, file_size_mb: float) -> tuple:
 def get_file_size_mb(file_object) -> float:
     """
     Get file size in megabytes from a Streamlit UploadedFile or file-like object.
-
-    Args:
-        file_object: Streamlit UploadedFile or any file-like object
-
-    Returns:
-        Size in MB
     """
     try:
         if hasattr(file_object, "size") and file_object.size:
@@ -113,9 +105,6 @@ def extract_contact_info(text: str) -> dict:
     """
     Extract contact information from CV text.
 
-    Args:
-        text: CV text
-
     Returns:
         {"email", "phone", "linkedin", "github"} — None for missing fields
     """
@@ -144,19 +133,16 @@ def check_section_completeness(text: str) -> dict:
     """
     Check which standard CV sections are present.
 
-    Args:
-        text: CV text
-
     Returns:
         {"sections": {...}, "completed_count": int, "completeness_percentage": float}
     """
     sections = {
-        "contact": bool(re.search(r"(email|phone|linkedin|@)", text, re.I)),
-        "summary": bool(re.search(r"\b(summary|objective|profile|about)\b", text, re.I)),
-        "experience": bool(re.search(r"\b(experience|employment|work history)\b", text, re.I)),
-        "education": bool(re.search(r"\b(education|academic|university|college)\b", text, re.I)),
-        "skills": bool(re.search(r"\b(skills?|competencies|technical skills)\b", text, re.I)),
-        "projects": bool(re.search(r"\b(projects?|portfolio)\b", text, re.I)),
+        "contact":        bool(re.search(r"(email|phone|linkedin|@)", text, re.I)),
+        "summary":        bool(re.search(r"\b(summary|objective|profile|about)\b", text, re.I)),
+        "experience":     bool(re.search(r"\b(experience|employment|work history)\b", text, re.I)),
+        "education":      bool(re.search(r"\b(education|academic|university|college)\b", text, re.I)),
+        "skills":         bool(re.search(r"\b(skills?|competencies|technical skills)\b", text, re.I)),
+        "projects":       bool(re.search(r"\b(projects?|portfolio)\b", text, re.I)),
         "certifications": bool(re.search(r"\b(certifications?|awards|licenses)\b", text, re.I)),
     }
 
@@ -164,8 +150,8 @@ def check_section_completeness(text: str) -> dict:
     total = len(sections)
 
     return {
-        "sections": sections,
-        "completed_count": completed,
-        "total_expected": total,
+        "sections":               sections,
+        "completed_count":        completed,
+        "total_expected":         total,
         "completeness_percentage": round(completed / total * 100, 1),
     }

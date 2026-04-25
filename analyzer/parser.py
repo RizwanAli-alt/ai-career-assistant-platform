@@ -12,6 +12,11 @@ IMPROVEMENTS (v2.1):
   in the finally block. This avoids the Windows file-locking race condition
   and guarantees cleanup even when extraction raises.
 
+  FIX #7 — PDF Compression Support: ReportLab-generated PDFs with compressed
+  text streams fail in pdfplumber. Now we try PyPDF2 as fallback. Also changed
+  validation from file size (which is misleading for compressed PDFs) to
+  extracted text length. PDFs with <50 chars of text are rejected.
+
   Other fixes retained from v2.0:
     - clean_text() preserves newlines so section detection works correctly
     - MAX_TEXT_LENGTH safety cap at 50 000 characters
@@ -31,6 +36,11 @@ except ImportError:
     pdfplumber = None
 
 try:
+    from PyPDF2 import PdfReader
+except ImportError:
+    PdfReader = None
+
+try:
     from docx import Document
 except ImportError:
     Document = None
@@ -38,11 +48,12 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MAX_TEXT_LENGTH = 50_000
+MIN_EXTRACTED_TEXT = 50  # Minimum characters to consider extraction successful
 
 
 def extract_text_from_pdf(file_path: str) -> Optional[str]:
     """
-    Extract text from a PDF file using pdfplumber.
+    Extract text from a PDF file using pdfplumber with PyPDF2 fallback.
 
     Args:
         file_path: Path to the PDF file.
@@ -52,33 +63,56 @@ def extract_text_from_pdf(file_path: str) -> Optional[str]:
 
     Raises:
         FileNotFoundError: If the file does not exist.
-        ValueError: If pdfplumber is not installed.
+        ValueError: If no PDF extraction library is available.
     """
-    if pdfplumber is None:
-        raise ValueError(
-            "pdfplumber is not installed. Run: pip install pdfplumber"
-        )
-
     file_path = Path(file_path)
     if not file_path.exists():
         raise FileNotFoundError(f"PDF file not found: {file_path}")
 
-    try:
-        pages_text = []
-        with pdfplumber.open(file_path) as pdf:
-            for page in pdf.pages:
+    # Try pdfplumber first (better for most PDFs)
+    if pdfplumber is not None:
+        try:
+            pages_text = []
+            with pdfplumber.open(file_path) as pdf:
+                for page in pdf.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        pages_text.append(page_text)
+
+            if pages_text:
+                extracted_text = "\n\n".join(pages_text)
+                cleaned = clean_text(extracted_text)
+                if len(cleaned) >= MIN_EXTRACTED_TEXT:
+                    logger.info(f"[pdfplumber] Extracted {len(cleaned)} chars from {file_path}")
+                    return cleaned[:MAX_TEXT_LENGTH]
+        except Exception as e:
+            logger.debug(f"pdfplumber failed: {e}. Trying PyPDF2 fallback...")
+
+    # Fallback to PyPDF2 for compressed PDFs (ReportLab, etc.)
+    if PdfReader is not None:
+        try:
+            reader = PdfReader(file_path)
+            pages_text = []
+            for page in reader.pages:
                 page_text = page.extract_text()
                 if page_text:
                     pages_text.append(page_text)
 
-        extracted_text = "\n\n".join(pages_text)
-        cleaned = clean_text(extracted_text)
-        logger.info(f"Extracted text from PDF: {file_path} ({len(cleaned)} chars)")
-        return cleaned[:MAX_TEXT_LENGTH]
+            if pages_text:
+                extracted_text = "\n\n".join(pages_text)
+                cleaned = clean_text(extracted_text)
+                if len(cleaned) >= MIN_EXTRACTED_TEXT:
+                    logger.info(f"[PyPDF2] Extracted {len(cleaned)} chars from {file_path}")
+                    return cleaned[:MAX_TEXT_LENGTH]
+        except Exception as e:
+            logger.debug(f"PyPDF2 failed: {e}")
 
-    except Exception as e:
-        logger.error(f"Error extracting text from PDF {file_path}: {e}")
-        raise
+    # If we get here, extraction failed
+    raise ValueError(
+        f"Could not extract text from PDF. "
+        f"Requires: pdfplumber and/or PyPDF2. "
+        f"Install with: pip install pdfplumber PyPDF2"
+    )
 
 
 def extract_text_from_docx(file_path: str) -> Optional[str]:
@@ -146,6 +180,12 @@ def extract_text_from_bytes(file_bytes: bytes, filename: str) -> Optional[str]:
         1. The file handle is only ever held by this process.
         2. shutil.rmtree() is more reliable than os.unlink() on Windows
            because it retries across the directory, not just the file.
+
+    FIX #7 — Compressed PDF Support:
+      ReportLab-generated PDFs have very small file sizes but contain
+      compressed text streams. We now validate based on EXTRACTED text
+      length, not file size. If pdfplumber fails, PyPDF2 fallback handles
+      compressed PDFs.
 
     Args:
         file_bytes: Raw bytes of the uploaded file.
