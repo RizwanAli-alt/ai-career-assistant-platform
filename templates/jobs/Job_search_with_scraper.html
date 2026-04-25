@@ -1,0 +1,570 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Smart Job Search — CareerAI{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ── Page Shell ─────────────────────────────────────── */
+  .scraper-shell {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  .scraper-shell-content { position: relative; z-index: 1; padding: 2.5rem 1.5rem 5rem; max-width: 1100px; margin: 0 auto; }
+
+  /* ── Header ─────────────────────────────────────────── */
+  .scraper-header { margin-bottom: 2rem; }
+  .scraper-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+  .scraper-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  /* ── CV Skill Pills ─────────────────────────────────── */
+  .cv-skills-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    padding: 12px 16px;
+    background: rgba(91,91,214,0.08);
+    border: 1px solid rgba(91,91,214,0.2);
+    border-radius: 10px;
+  }
+  .cv-skills-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .cv-skill-pill {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    background: rgba(91,91,214,0.15);
+    color: #a5b4fc;
+    border: 1px solid rgba(91,91,214,0.3);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+
+  /* ── Search Bar ─────────────────────────────────────── */
+  .scraper-search-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto auto;
+    gap: 10px;
+    align-items: end;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 700px) {
+    .scraper-search-bar { grid-template-columns: 1fr 1fr; }
+    .scraper-search-bar .scraper-btn-row { grid-column: 1 / -1; display: flex; gap: 8px; }
+  }
+
+  .scraper-field-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+    display: block;
+  }
+  .scraper-input {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    padding: 11px 14px;
+    transition: border-color 0.2s;
+  }
+  .scraper-input:focus { outline: none; border-color: var(--accent-indigo); }
+
+  /* Demo toggle */
+  .demo-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    transition: border-color 0.2s;
+  }
+  .demo-toggle:has(input:checked) { border-color: var(--accent-indigo); color: #a5b4fc; }
+  .demo-toggle input { accent-color: var(--accent-indigo); cursor: pointer; }
+
+  /* ── Summary Bar ────────────────────────────────────── */
+  .results-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .results-count {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-primary);
+  }
+  .demo-badge {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    background: rgba(251,191,36,0.12);
+    color: #FCD34D;
+    border: 1px solid rgba(251,191,36,0.25);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+  .live-badge {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    background: rgba(74,222,128,0.12);
+    color: var(--accent-green);
+    border: 1px solid rgba(74,222,128,0.25);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+
+  /* ── Portal Tabs ────────────────────────────────────── */
+  .portal-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .portal-tab {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .portal-tab.active, .portal-tab:hover { border-color: var(--accent-indigo); color: #a5b4fc; background: rgba(91,91,214,0.1); }
+
+  /* ── Job Cards ──────────────────────────────────────── */
+  .scraper-jobs-list { display: flex; flex-direction: column; gap: 14px; }
+
+  .scraper-job-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: start;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .scraper-job-card:hover { border-color: rgba(91,91,214,0.4); transform: translateY(-1px); }
+
+  .sjc-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .sjc-title a { color: inherit; text-decoration: none; }
+  .sjc-title a:hover { color: #a5b4fc; }
+
+  .sjc-meta {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .sjc-meta span { margin-right: 10px; }
+
+  .sjc-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.83rem;
+    color: rgba(148,163,184,0.85);
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .sjc-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill-portal {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    padding: 2px 9px;
+    border-radius: 999px;
+    border: 1px solid;
+  }
+  .pill-linkedin  { background: rgba(10,102,194,0.15); color: #60a5fa; border-color: rgba(10,102,194,0.3); }
+  .pill-indeed    { background: rgba(74,222,128,0.1);  color: var(--accent-green); border-color: rgba(74,222,128,0.25); }
+  .pill-rozee     { background: rgba(251,191,36,0.1);  color: #FCD34D; border-color: rgba(251,191,36,0.25); }
+  .pill-remote    { background: rgba(0,212,255,0.1);   color: var(--accent-blue);  border-color: rgba(0,212,255,0.2); }
+  .pill-hybrid    { background: rgba(168,85,247,0.1);  color: #c4b5fd; border-color: rgba(168,85,247,0.25); }
+  .pill-onsite    { background: rgba(248,113,113,0.1); color: #fca5a5; border-color: rgba(248,113,113,0.2); }
+  .pill-skill     { background: rgba(91,91,214,0.1);   color: #a5b4fc; border-color: rgba(91,91,214,0.25); }
+
+  /* Match score ring */
+  .sjc-right { text-align: center; min-width: 80px; }
+  .match-ring {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    position: relative;
+  }
+  .match-ring.high   { background: conic-gradient(#4ade80 0%, rgba(74,222,128,0.15) 0%); border: 2px solid rgba(74,222,128,0.4); }
+  .match-ring.medium { background: conic-gradient(#FCD34D 0%, rgba(252,211,77,0.12) 0%); border: 2px solid rgba(252,211,77,0.35); }
+  .match-ring.low    { background: transparent; border: 2px solid var(--border); }
+  .match-pct {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+  .match-ring.high   .match-pct { color: #4ade80; }
+  .match-ring.medium .match-pct { color: #FCD34D; }
+  .match-ring.low    .match-pct { color: var(--text-muted); }
+  .match-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  .sjc-apply {
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    background: rgba(91,91,214,0.15);
+    border: 1px solid rgba(91,91,214,0.3);
+    color: #a5b4fc;
+    border-radius: 8px;
+    padding: 7px 14px;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .sjc-apply:hover { background: rgba(91,91,214,0.28); color: #a5b4fc; }
+
+  /* ── Empty / No CV states ───────────────────────────── */
+  .scraper-empty {
+    text-align: center;
+    padding: 60px 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+  .scraper-empty p {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  /* ── No-CV banner ───────────────────────────────────── */
+  .no-cv-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: rgba(251,191,36,0.07);
+    border: 1px solid rgba(251,191,36,0.2);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: #FCD34D;
+  }
+  .no-cv-banner a { color: #FCD34D; font-weight: 600; }
+
+  /* ── Pagination ─────────────────────────────────────── */
+  .scraper-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+  }
+  .scraper-pagination a, .scraper-pagination span {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    padding: 7px 14px;
+    border-radius: 8px;
+  }
+  .scraper-pagination a { border: 1px solid var(--border); color: var(--text-muted); text-decoration: none; transition: all 0.2s; }
+  .scraper-pagination a:hover { border-color: var(--accent-indigo); color: #a5b4fc; }
+  .scraper-pagination span { background: var(--accent-indigo); color: #fff; border: 1px solid var(--accent-indigo); }
+
+  @media (max-width: 540px) {
+    .scraper-job-card { grid-template-columns: 1fr; }
+    .sjc-right { text-align: left; display: flex; align-items: center; gap: 14px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+  <div class="jobs-page-shell scraper-shell">
+    <div class="jobs-bg-grid"></div>
+    <div class="jobs-bg-glow jobs-bg-glow-blue"></div>
+    <div class="jobs-bg-glow jobs-bg-glow-purple"></div>
+
+    <div class="scraper-shell-content">
+
+      <!-- Header -->
+      <div class="scraper-header animate-on-scroll">
+        <span class="section-label" style="display:inline-block;margin-bottom:0.5rem;">AI-Powered</span>
+        <h1 class="scraper-title">Smart Job Search</h1>
+        <p class="scraper-sub">Scrapes LinkedIn, Indeed & Rozee.pk in real-time and matches jobs to your CV skills.</p>
+      </div>
+
+      <!-- Messages -->
+      {% if messages %}
+        {% for msg in messages %}
+          <div style="padding:12px 16px;border-radius:10px;margin-bottom:14px;font-family:'DM Sans',sans-serif;font-size:0.85rem;
+            {% if msg.tags == 'error' %}background:rgba(239,68,68,0.12);color:#FCA5A5;border:1px solid rgba(239,68,68,0.25);
+            {% elif msg.tags == 'warning' %}background:rgba(251,191,36,0.1);color:#FCD34D;border:1px solid rgba(251,191,36,0.25);
+            {% else %}background:rgba(74,222,128,0.1);color:var(--accent-green);border:1px solid rgba(74,222,128,0.25);{% endif %}">
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <!-- No CV warning -->
+      {% if not has_cv_analysis %}
+        <div class="no-cv-banner animate-on-scroll">
+          ⚠️ No CV analyzed yet — jobs won't show match scores.
+          <a href="{% url 'upload_cv_analysis' %}">Analyze your CV →</a>
+        </div>
+      {% endif %}
+
+      <!-- CV Skills bar -->
+      {% if user_skills %}
+        <div class="cv-skills-bar animate-on-scroll">
+          <span class="cv-skills-label">Your CV skills:</span>
+          {% for skill in user_skills %}
+            <span class="cv-skill-pill">{{ skill }}</span>
+          {% endfor %}
+          <a href="{% url 'upload_cv_analysis' %}" style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:rgba(148,163,184,0.7);margin-left:auto;text-decoration:none;">Update CV →</a>
+        </div>
+      {% endif %}
+
+      <!-- Search Form -->
+      <form method="GET" action="{% url 'job_search_with_scraper' %}" class="animate-on-scroll">
+        <div class="scraper-search-bar">
+          <div>
+            <label class="scraper-field-label">Job Title / Keywords</label>
+            <input type="text" name="q" value="{{ request.GET.q }}"
+                   class="scraper-input" placeholder="e.g. Python Developer, Django, React">
+          </div>
+          <div>
+            <label class="scraper-field-label">Location</label>
+            <input type="text" name="location" value="{{ request.GET.location }}"
+                   class="scraper-input" placeholder="e.g. Lahore, Remote">
+          </div>
+          <div class="scraper-btn-row" style="display:flex;flex-direction:column;gap:6px;">
+            <label class="scraper-field-label">Mode</label>
+            <label class="demo-toggle">
+              <input type="checkbox" name="demo" value="true"
+                     {% if demo_mode %}checked{% endif %}
+                     onchange="this.form.submit()">
+              🎭 Demo mode
+            </label>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <label class="scraper-field-label">&nbsp;</label>
+            <div style="display:flex;gap:8px;">
+              <button type="submit" class="job-btn-primary" style="width:auto;min-width:110px;padding:11px 18px;font-size:0.88rem;">
+                🔍 Search
+              </button>
+              {% if search_performed %}
+                <a href="{% url 'job_search_with_scraper' %}?q={{ request.GET.q }}&location={{ request.GET.location }}&demo={{ request.GET.demo }}&refresh=true"
+                   class="btn-ghost" style="padding:11px 14px;font-size:0.82rem;display:inline-flex;align-items:center;border-radius:10px;border:1px solid var(--border);color:var(--text-muted);text-decoration:none;">
+                  ↻ Refresh
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <!-- Results -->
+      {% if search_performed %}
+        <div class="results-summary animate-on-scroll">
+          <span class="results-count">{{ total_jobs }} jobs found
+            {% if request.GET.q %}for "{{ request.GET.q }}"{% endif %}
+          </span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            {% if demo_mode %}
+              <span class="demo-badge">🎭 Demo data</span>
+            {% else %}
+              <span class="live-badge">🟢 Live scraped</span>
+            {% endif %}
+            {% if has_cv_analysis %}
+              <span style="font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--text-muted);">Sorted by CV match</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if jobs %}
+          <!-- Portal filter tabs (JS-powered) -->
+          <div class="portal-tabs" style="margin-bottom:1.25rem;" id="portalTabs">
+            <button class="portal-tab active" data-portal="all" onclick="filterPortal('all', this)">All portals</button>
+            <button class="portal-tab" data-portal="LinkedIn"  onclick="filterPortal('LinkedIn', this)">LinkedIn</button>
+            <button class="portal-tab" data-portal="Indeed"    onclick="filterPortal('Indeed', this)">Indeed</button>
+            <button class="portal-tab" data-portal="Rozee.pk"  onclick="filterPortal('Rozee.pk', this)">Rozee.pk</button>
+          </div>
+
+          <div class="scraper-jobs-list" id="jobsList">
+            {% for job in jobs %}
+              {% with score=job.match_score|default:0 %}
+              <div class="scraper-job-card animate-on-scroll" data-portal="{{ job.portal }}">
+                <div class="sjc-left">
+                  <div class="sjc-title">
+                    <a href="{{ job.url }}" target="_blank" rel="noopener">{{ job.title }}</a>
+                  </div>
+                  <div class="sjc-meta">
+                    <span>🏢 {{ job.company }}</span>
+                    <span>📍 {{ job.location }}</span>
+                    {% if job.modality and job.modality != 'Unknown' %}
+                      <span>💼 {{ job.modality }}</span>
+                    {% endif %}
+                  </div>
+                  {% if job.description %}
+                    <div class="sjc-desc">{{ job.description|truncatechars:220 }}</div>
+                  {% endif %}
+                  <div class="sjc-pills">
+                    <!-- Portal pill -->
+                    {% if job.portal == 'LinkedIn' %}
+                      <span class="pill-portal pill-linkedin">LinkedIn</span>
+                    {% elif job.portal == 'Indeed' %}
+                      <span class="pill-portal pill-indeed">Indeed</span>
+                    {% else %}
+                      <span class="pill-portal pill-rozee">Rozee.pk</span>
+                    {% endif %}
+                    <!-- Modality pill -->
+                    {% if job.modality == 'Remote' %}
+                      <span class="pill-portal pill-remote">Remote</span>
+                    {% elif job.modality == 'Hybrid' %}
+                      <span class="pill-portal pill-hybrid">Hybrid</span>
+                    {% elif job.modality == 'On-site' %}
+                      <span class="pill-portal pill-onsite">On-site</span>
+                    {% endif %}
+                    <!-- Skill pills -->
+                    {% for skill in job.skills_mentioned|slice:":5" %}
+                      <span class="pill-skill">{{ skill }}</span>
+                    {% endfor %}
+                  </div>
+                </div>
+                <div class="sjc-right">
+                  {% if has_cv_analysis %}
+                    <div class="match-ring {% if score >= 60 %}high{% elif score >= 30 %}medium{% else %}low{% endif %}">
+                      <span class="match-pct">{{ score|floatformat:0 }}%</span>
+                      <span class="match-label">match</span>
+                    </div>
+                  {% endif %}
+                  <a href="{{ job.url }}" target="_blank" rel="noopener" class="sjc-apply">
+                    Apply →
+                  </a>
+                </div>
+              </div>
+              {% endwith %}
+            {% endfor %}
+          </div>
+
+          <!-- Pagination -->
+          {% if jobs.has_other_pages %}
+            <nav class="scraper-pagination">
+              {% if jobs.has_previous %}
+                <a href="?q={{ request.GET.q }}&location={{ request.GET.location }}&demo={{ request.GET.demo }}&page={{ jobs.previous_page_number }}">← Prev</a>
+              {% endif %}
+              {% for num in jobs.paginator.page_range %}
+                {% if jobs.number == num %}
+                  <span>{{ num }}</span>
+                {% elif num > jobs.number|add:'-3' and num < jobs.number|add:'3' %}
+                  <a href="?q={{ request.GET.q }}&location={{ request.GET.location }}&demo={{ request.GET.demo }}&page={{ num }}">{{ num }}</a>
+                {% endif %}
+              {% endfor %}
+              {% if jobs.has_next %}
+                <a href="?q={{ request.GET.q }}&location={{ request.GET.location }}&demo={{ request.GET.demo }}&page={{ jobs.next_page_number }}">Next →</a>
+              {% endif %}
+            </nav>
+          {% endif %}
+
+        {% else %}
+          <div class="scraper-empty animate-on-scroll">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(148,163,184,0.6)" stroke-width="1.5" style="margin:0 auto 14px;" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <p>No jobs found for "{{ request.GET.q }}"{% if request.GET.location %} in {{ request.GET.location }}{% endif %}.</p>
+            <p>Try broader keywords or enable Demo mode to see sample listings.</p>
+          </div>
+        {% endif %}
+
+      {% else %}
+        <!-- Initial state -->
+        <div class="scraper-empty animate-on-scroll">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="rgba(91,91,214,0.5)" stroke-width="1.3" style="margin:0 auto 16px;" aria-hidden="true">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          <p style="font-size:1rem;color:var(--text-primary);font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;">Search for jobs across 3 portals</p>
+          <p>Enter a job title above to scrape LinkedIn, Indeed, and Rozee.pk simultaneously.<br>
+          Enable <strong>Demo mode</strong> for instant results without live scraping.</p>
+          {% if not has_cv_analysis %}
+            <a href="{% url 'upload_cv_analysis' %}" class="job-btn-primary" style="display:inline-flex;width:auto;margin-top:16px;font-size:0.85rem;">
+              Analyze CV first for match scores →
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function filterPortal(portal, btn) {
+  // Update active tab
+  document.querySelectorAll('.portal-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Show/hide cards
+  document.querySelectorAll('#jobsList .scraper-job-card').forEach(card => {
+    if (portal === 'all' || card.dataset.portal === portal) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+</script>
+{% endblock %}
