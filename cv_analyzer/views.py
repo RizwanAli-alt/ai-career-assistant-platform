@@ -15,21 +15,6 @@ import logging
 from .models import CVAnalysis, CVTemplate
 from .forms import CVUploadForm, CVComparisonForm, CVFilterForm
 
-# ============================================================================
-# YOUR ANALYZER MODULES
-# ============================================================================
-from analyzer.parser import extract_text_from_bytes
-from analyzer.skills import get_skill_extractor
-from analyzer.scorer import calculate_score
-from analyzer.gap import detect_skill_gaps
-from analyzer.suggestions import generate_suggestions
-from analyzer.similarity import get_similarity_analyzer
-from analyzer.utilities import (
-    check_section_completeness,
-    extract_contact_info,
-    calculate_experience_years,
-)
-
 logger = logging.getLogger(__name__)
 
 
@@ -41,6 +26,20 @@ logger = logging.getLogger(__name__)
 @require_http_methods(["GET", "POST"])
 def upload_cv_analysis(request):
     """Upload and analyze CV using your analyzer modules."""
+
+    # Import analyzer helpers lazily so a broken optional module does not
+    # prevent the rest of the Django project from starting.
+    from analyzer.parser import extract_text_from_bytes
+    from analyzer.skills import get_skill_extractor
+    from analyzer.scorer import calculate_score
+    from analyzer.gap import detect_skill_gaps
+    from analyzer.suggestions import generate_suggestions
+    from analyzer.similarity import get_similarity_analyzer
+    from analyzer.utilities import (
+        check_section_completeness,
+        extract_contact_info,
+        calculate_experience_years,
+    )
     
     if request.method == 'POST':
         form = CVUploadForm(request.POST, request.FILES)
