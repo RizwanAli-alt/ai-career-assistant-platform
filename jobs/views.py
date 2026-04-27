@@ -207,7 +207,11 @@ def job_search_with_scraper(request):
     if request.method == 'GET':
         query = request.GET.get('q', '').strip()
         location = request.GET.get('location', '').strip()
-        demo_mode = request.GET.get('demo', 'true').lower() == 'true'
+        demo_values = request.GET.getlist('demo')
+        if demo_values:
+            demo_mode = any(value.lower() == 'true' for value in demo_values)
+        else:
+            demo_mode = True
         force_refresh = request.GET.get('refresh', 'false').lower() == 'true'
         
         if query:

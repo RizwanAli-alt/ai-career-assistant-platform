@@ -106,7 +106,7 @@ def home(request):
         "sort": sort,
         "top_users": top_users,
     }
-    return render(request, "community/home.html", context)
+    return render(request, "forum/forum_home.html", context)
 
 
 # ─────────────────────────────────────────────

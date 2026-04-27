@@ -392,6 +392,7 @@
           <div class="scraper-btn-row" style="display:flex;flex-direction:column;gap:6px;">
             <label class="scraper-field-label">Mode</label>
             <label class="demo-toggle">
+              <input type="hidden" name="demo" value="false">
               <input type="checkbox" name="demo" value="true"
                      {% if demo_mode %}checked{% endif %}
                      onchange="this.form.submit()">
