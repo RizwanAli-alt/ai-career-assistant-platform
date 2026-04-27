@@ -42,7 +42,7 @@ class ChatSessionAdmin(admin.ModelAdmin):
     
     def user_link(self, obj):
         """Display user with link"""
-        url = reverse('admin:auth_user_change', args=[obj.user.id])
+        url = reverse(f"admin:{obj.user._meta.app_label}_{obj.user._meta.model_name}_change", args=[obj.user.id])
         return format_html('<a href="{}">{}</a>', url, obj.user.username)
     user_link.short_description = 'User'
     
@@ -306,7 +306,7 @@ class UserFeedbackAdmin(admin.ModelAdmin):
     
     def user_link(self, obj):
         """Display user with link"""
-        url = reverse('admin:auth_user_change', args=[obj.user.id])
+        url = reverse(f"admin:{obj.user._meta.app_label}_{obj.user._meta.model_name}_change", args=[obj.user.id])
         return format_html('<a href="{}">{}</a>', url, obj.user.username)
     user_link.short_description = 'User'
     

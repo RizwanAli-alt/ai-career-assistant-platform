@@ -47,7 +47,7 @@ try:
     from sklearn.metrics.pairwise import cosine_similarity
     import numpy as np
     _ST_AVAILABLE = True
-except ImportError:
+except Exception:
     SentenceTransformer = None  # type: ignore
     cosine_similarity   = None  # type: ignore
     np                  = None  # type: ignore

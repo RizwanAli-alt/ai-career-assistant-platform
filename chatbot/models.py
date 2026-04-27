@@ -1,10 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 import json
 
 class ChatSession(models.Model):
     """Model for chat sessions"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_sessions')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='chat_sessions')
     title = models.CharField(max_length=200, default='New Chat')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -119,7 +119,7 @@ class UserFeedback(models.Model):
         (5, 'Very Helpful'),
     ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bot_feedback')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='bot_feedback')
     message = models.ForeignKey(ChatMessage, on_delete=models.CASCADE, related_name='feedback')
     rating = models.IntegerField(choices=RATING_CHOICES)
     comment = models.TextField(blank=True, null=True)

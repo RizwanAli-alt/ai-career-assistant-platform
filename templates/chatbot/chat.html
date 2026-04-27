@@ -1,81 +1,835 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Chat with AI - AI Career Assistant{% endblock %}
+{% block title %}Chat — AI Career Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Design Tokens ─────────────────────────── */
+  :root {
+    --sidebar-bg: #0f1117;
+    --sidebar-border: #1e2130;
+    --sidebar-hover: #1a1f2e;
+    --sidebar-active: #1e2a40;
+    --main-bg: #13161f;
+    --input-bg: #1a1f2e;
+    --input-border: #2a3040;
+    --user-bubble: #2563eb;
+    --user-bubble-text: #fff;
+    --bot-bubble: #1e2436;
+    --bot-bubble-text: #e2e8f0;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59,130,246,0.15);
+    --text-primary: #f1f5f9;
+    --text-muted: #64748b;
+    --text-subtle: #94a3b8;
+    --border: #1e2536;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --font-display: 'DM Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Reset & Base ──────────────────────────── */
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-display);
+    background: var(--main-bg);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── Layout ────────────────────────────────── */
+  .chat-shell {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ───────────────────────────────── */
+  .sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+    transition: width 0.3s ease;
+  }
+
+  .sidebar-header {
+    padding: 22px 18px 16px;
+    border-bottom: 1px solid var(--sidebar-border);
+  }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    margin-bottom: 14px;
+  }
+
+  .sidebar-logo-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+
+  .sidebar-logo-text span {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  .btn-new-chat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .btn-new-chat:hover {
+    background: #1d4ed8;
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  .btn-new-chat:active { transform: translateY(0); }
+
+  /* Sessions */
+  .sidebar-sessions {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sidebar-border) transparent;
+  }
+
+  .sidebar-sessions::-webkit-scrollbar { width: 4px; }
+  .sidebar-sessions::-webkit-scrollbar-thumb { background: var(--sidebar-border); border-radius: 2px; }
+
+  .sessions-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 4px 10px 8px;
+  }
+
+  .session-item {
+    display: block;
+    padding: 9px 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    margin-bottom: 2px;
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+
+  .session-item:hover { background: var(--sidebar-hover); }
+  .session-item.active { background: var(--sidebar-active); }
+
+  .session-item-title {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-subtle);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+
+  .session-item.active .session-item-title { color: var(--text-primary); font-weight: 500; }
+
+  .session-item-date {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* Sidebar footer */
+  .sidebar-footer {
+    padding: 12px 8px;
+    border-top: 1px solid var(--sidebar-border);
+  }
+
+  .sidebar-footer-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 13px;
+    transition: background 0.15s, color 0.15s;
+    margin-bottom: 2px;
+  }
+
+  .sidebar-footer-link:hover { background: var(--sidebar-hover); color: var(--text-subtle); }
+
+  /* ── Main Chat Area ─────────────────────────── */
+  .chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--main-bg);
+  }
+
+  /* Chat header */
+  .chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--main-bg);
+    flex-shrink: 0;
+  }
+
+  .chat-session-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-icon {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    text-decoration: none;
+  }
+
+  .btn-icon:hover {
+    background: var(--input-bg);
+    color: var(--text-subtle);
+    border-color: var(--input-border);
+  }
+
+  /* Messages */
+  .messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .messages-container::-webkit-scrollbar { width: 5px; }
+  .messages-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* Welcome screen */
+  .welcome-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-align: center;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .welcome-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    background: var(--accent-glow);
+    border: 1px solid rgba(59,130,246,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+
+  .welcome-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .welcome-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 380px;
+    line-height: 1.6;
+  }
+
+  .welcome-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 8px;
+    max-width: 480px;
+  }
+
+  .chip {
+    padding: 8px 14px;
+    background: var(--bot-bubble);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text-subtle);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    user-select: none;
+  }
+
+  .chip:hover {
+    background: var(--sidebar-active);
+    border-color: var(--accent);
+    color: var(--text-primary);
+  }
+
+  /* Message rows */
+  .message-row {
+    display: flex;
+    gap: 12px;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .message-row.user-row { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .avatar.bot-avatar {
+    background: var(--accent-glow);
+    border: 1px solid rgba(59,130,246,0.25);
+    color: var(--accent);
+  }
+
+  .avatar.user-avatar {
+    background: #1e3a5f;
+    color: #93c5fd;
+  }
+
+  .bubble {
+    max-width: 68%;
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    line-height: 1.7;
+    position: relative;
+  }
+
+  .bubble.user-bubble {
+    background: var(--user-bubble);
+    color: var(--user-bubble-text);
+    border-bottom-right-radius: 4px;
+  }
+
+  .bubble.bot-bubble {
+    background: var(--bot-bubble);
+    color: var(--bot-bubble-text);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+  }
+
+  /* Markdown-like content in bubbles */
+  .bubble strong { color: #93c5fd; font-weight: 600; }
+  .bubble em { color: #c4b5fd; font-style: italic; }
+  .bubble .bubble-section { margin-bottom: 10px; }
+  .bubble .bullet-list { padding-left: 4px; }
+  .bubble .bullet-item {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 4px;
+    line-height: 1.6;
+  }
+  .bubble .bullet-item::before {
+    content: "•";
+    color: var(--accent);
+    font-weight: bold;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Feedback */
+  .feedback-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    align-items: center;
+  }
+
+  .feedback-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.15s;
+  }
+
+  .feedback-btn:hover.up   { background: #052e16; border-color: #16a34a; color: #4ade80; }
+  .feedback-btn:hover.down { background: #450a0a; border-color: #dc2626; color: #f87171; }
+
+  .feedback-label {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* Timestamp */
+  .msg-time {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 5px;
+    padding: 0 4px;
+  }
+  .user-row .msg-time { text-align: right; }
+
+  /* ── Input Area ─────────────────────────────── */
+  .input-area {
+    padding: 16px 24px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--main-bg);
+    flex-shrink: 0;
+  }
+
+  .input-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 14px;
+    padding: 10px 12px 10px 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .input-wrapper:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .chat-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: 14px;
+    line-height: 1.5;
+    resize: none;
+    min-height: 24px;
+    max-height: 120px;
+  }
+
+  .chat-input::placeholder { color: var(--text-muted); }
+
+  .btn-send {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .btn-send:hover  { background: #1d4ed8; transform: scale(1.05); }
+  .btn-send:active { transform: scale(0.97); }
+
+  .input-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  /* ── Rename Modal ───────────────────────────── */
+  .rename-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .rename-modal-overlay.open { display: flex; }
+
+  .rename-modal {
+    background: #1a1f2e;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    width: 360px;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+    animation: fadeUp 0.2s ease;
+  }
+
+  .rename-modal h5 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+  }
+
+  .rename-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--main-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .rename-input:focus { border-color: var(--accent); }
+
+  .rename-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .btn-modal-cancel {
+    padding: 9px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-display);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-modal-cancel:hover { background: var(--sidebar-hover); }
+
+  .btn-modal-save {
+    padding: 9px 16px;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-modal-save:hover { background: #1d4ed8; }
+
+  /* ── Responsive ─────────────────────────────── */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .bubble  { max-width: 88%; }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-    <div class="row" style="height: 80vh;">
-        <!-- Chat Sidebar -->
-        <div class="col-md-3 border-end d-flex flex-column">
-            <a href="{% url 'chat' %}" class="btn btn-primary mb-3">
-                <i class="fas fa-plus"></i> New Chat
-            </a>
-            
-            <div style="overflow-y: auto; flex: 1;">
-                <h6 class="mb-3">Recent Chats</h6>
-                {% for session in user.chat_sessions.all|slice:":10" %}
-                    <div class="list-group-item {% if session.id == session.id %}active{% endif %}">
-                        <a href="{% url 'chat_detail' session.id %}" class="text-decoration-none">
-                            {{ session.title|truncatewords:5 }}
-                        </a>
-                        <small class="text-muted d-block">{{ session.updated_at|date:"M d" }}</small>
-                    </div>
-                {% endfor %}
-            </div>
+<div class="chat-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="/" class="sidebar-logo">
+        <div class="sidebar-logo-icon">🚀</div>
+        <div class="sidebar-logo-text">
+          CareerAI
+          <span>Your career co-pilot</span>
         </div>
-        
-        <!-- Chat Main -->
-        <div class="col-md-9 d-flex flex-column">
-            <!-- Messages -->
-            <div style="flex: 1; overflow-y: auto; padding: 20px;">
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="mb-3">
-                            {% if message.message_type == 'user' %}
-                                <div class="text-end">
-                                    <div class="badge bg-primary d-inline-block" style="max-width: 80%;">
-                                        {{ message.content }}
-                                    </div>
-                                </div>
-                            {% else %}
-                                <div class="text-start">
-                                    <div class="badge bg-light text-dark d-inline-block" style="max-width: 80%;">
-                                        {{ message.content|linebreaks }}
-                                    </div>
-                                    {% if user.is_authenticated %}
-                                        <div class="small mt-2">
-                                            <button class="btn btn-link btn-sm p-0" data-message-id="{{ message.id }}">
-                                                <i class="fas fa-thumbs-up"></i>
-                                            </button>
-                                            <button class="btn btn-link btn-sm p-0" data-message-id="{{ message.id }}">
-                                                <i class="fas fa-thumbs-down"></i>
-                                            </button>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="text-center mt-5">
-                        <h5>Hello! 👋</h5>
-                        <p class="text-muted">Ask me anything about your career journey!</p>
-                    </div>
-                {% endif %}
-            </div>
-            
-            <!-- Input -->
-            <div class="border-top p-3">
-                <form method="POST" class="d-flex gap-2">
-                    {% csrf_token %}
-                    {{ form.content }}
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-send"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
+      </a>
+      <a href="{% url 'chat' %}" class="btn-new-chat">
+        <i class="fas fa-plus"></i> New chat
+      </a>
     </div>
+
+    <div class="sidebar-sessions">
+      <div class="sessions-label">Recent</div>
+      {% for chat_session in recent_sessions %}
+        <a
+          href="{% url 'chat_detail' chat_session.id %}"
+          class="session-item {% if chat_session.id == current_session_id %}active{% endif %}"
+        >
+          <div class="session-item-title">{{ chat_session.title|truncatewords:6 }}</div>
+          <div class="session-item-date">{{ chat_session.updated_at|date:"M d" }}</div>
+        </a>
+      {% empty %}
+        <div style="padding:10px;font-size:12px;color:var(--text-muted);">No chats yet</div>
+      {% endfor %}
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="{% url 'faq' %}" class="sidebar-footer-link">
+        <i class="fas fa-circle-question" style="width:16px;text-align:center"></i> FAQ
+      </a>
+      <a href="{% url 'career_tips' %}" class="sidebar-footer-link">
+        <i class="fas fa-lightbulb" style="width:16px;text-align:center"></i> Career Tips
+      </a>
+      <a href="{% url 'chat_list' %}" class="sidebar-footer-link">
+        <i class="fas fa-clock-rotate-left" style="width:16px;text-align:center"></i> All Sessions
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="chat-main">
+
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="chat-session-title" id="session-title-display">{{ session.title }}</div>
+      <div class="header-actions">
+        <button class="btn-icon" title="Rename chat" onclick="openRenameModal()">
+          <i class="fas fa-pen"></i>
+        </button>
+        <form method="POST" action="{% url 'delete_chat_session' session.pk %}"
+              onsubmit="return confirm('Delete this session?');" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn-icon" title="Delete chat" style="color:#ef4444;">
+            <i class="fas fa-trash"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="messages-container" id="messages-container">
+
+      {% if not messages %}
+        <div class="welcome-screen">
+          <div class="welcome-icon">🎯</div>
+          <h2 class="welcome-title">Hi {{ request.user.first_name|default:request.user.username }}!</h2>
+          <p class="welcome-sub">I'm your AI career assistant. Ask me anything about your career journey.</p>
+          <div class="welcome-chips">
+            <div class="chip" onclick="sendChip('How do I improve my resume?')">📄 Resume tips</div>
+            <div class="chip" onclick="sendChip('Help me prepare for an interview')">🎯 Interview prep</div>
+            <div class="chip" onclick="sendChip('How do I negotiate salary?')">💰 Salary negotiation</div>
+            <div class="chip" onclick="sendChip('I want to change my career')">🔄 Career change</div>
+            <div class="chip" onclick="sendChip('What skills should I develop?')">📚 Skills development</div>
+            <div class="chip" onclick="sendChip('How do I improve my networking?')">🤝 Networking</div>
+          </div>
+        </div>
+
+      {% else %}
+        {% for message in messages %}
+          <div class="message-row {% if message.message_type == 'user' %}user-row{% endif %}">
+
+            {% if message.message_type == 'bot' %}
+              <div class="avatar bot-avatar">🤖</div>
+            {% else %}
+              <div class="avatar user-avatar">{{ request.user.username|first|upper }}</div>
+            {% endif %}
+
+            <div>
+              <div class="bubble {% if message.message_type == 'user' %}user-bubble{% else %}bot-bubble{% endif %}">
+                {{ message.content|linebreaksbr }}
+              </div>
+              <div class="msg-time">{{ message.timestamp|date:"g:i A" }}</div>
+
+              {% if message.message_type == 'bot' and user.is_authenticated %}
+                <div class="feedback-row">
+                  <span class="feedback-label">Helpful?</span>
+                  <form method="POST" action="{% url 'submit_feedback' message.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="rating" value="5">
+                    <button type="submit" class="feedback-btn up" title="Helpful">
+                      <i class="fas fa-thumbs-up"></i>
+                    </button>
+                  </form>
+                  <form method="POST" action="{% url 'submit_feedback' message.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="rating" value="1">
+                    <button type="submit" class="feedback-btn down" title="Not helpful">
+                      <i class="fas fa-thumbs-down"></i>
+                    </button>
+                  </form>
+                </div>
+              {% endif %}
+            </div>
+
+          </div>
+        {% endfor %}
+      {% endif %}
+
+    </div>
+
+    <!-- Input -->
+    <div class="input-area">
+      <form method="POST" id="chat-form">
+        {% csrf_token %}
+        <div class="input-wrapper">
+          <textarea
+            name="content"
+            id="chat-textarea"
+            class="chat-input"
+            placeholder="Ask anything about your career..."
+            rows="1"
+            required
+          ></textarea>
+          <button type="submit" class="btn-send" title="Send">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </form>
+      <div class="input-hint">Press <kbd style="background:var(--input-bg);border:1px solid var(--border);padding:1px 5px;border-radius:4px;font-size:10px;">Enter</kbd> to send · <kbd style="background:var(--input-bg);border:1px solid var(--border);padding:1px 5px;border-radius:4px;font-size:10px;">Shift+Enter</kbd> for new line</div>
+    </div>
+
+  </main>
 </div>
+
+<!-- Rename Modal -->
+<div class="rename-modal-overlay" id="rename-modal-overlay">
+  <div class="rename-modal">
+    <h5><i class="fas fa-pen" style="color:var(--accent);margin-right:8px"></i>Rename Chat</h5>
+    <form method="POST" action="{% url 'rename_chat_session' session.pk %}">
+      {% csrf_token %}
+      <input
+        type="text"
+        name="title"
+        class="rename-input"
+        id="rename-input"
+        placeholder="Enter a new name..."
+        maxlength="200"
+        value="{{ session.title }}"
+        required
+      >
+      <div class="rename-actions">
+        <button type="button" class="btn-modal-cancel" onclick="closeRenameModal()">Cancel</button>
+        <button type="submit" class="btn-modal-save">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Auto-scroll to bottom
+  const container = document.getElementById('messages-container');
+  if (container) {
+    container.scrollTop = container.scrollHeight;
+  }
+
+  // Auto-resize textarea
+  const textarea = document.getElementById('chat-textarea');
+  if (textarea) {
+    textarea.addEventListener('input', function () {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+
+    // Send on Enter (Shift+Enter = newline)
+    textarea.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (this.value.trim()) {
+          document.getElementById('chat-form').submit();
+        }
+      }
+    });
+  }
+
+  // Quick-suggestion chips
+  function sendChip(text) {
+    if (textarea) {
+      textarea.value = text;
+      document.getElementById('chat-form').submit();
+    }
+  }
+
+  // Rename modal
+  function openRenameModal() {
+    document.getElementById('rename-modal-overlay').classList.add('open');
+    setTimeout(() => document.getElementById('rename-input').focus(), 100);
+  }
+
+  function closeRenameModal() {
+    document.getElementById('rename-modal-overlay').classList.remove('open');
+  }
+
+  document.getElementById('rename-modal-overlay').addEventListener('click', function (e) {
+    if (e.target === this) closeRenameModal();
+  });
+</script>
 {% endblock %}

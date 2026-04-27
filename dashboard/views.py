@@ -15,7 +15,7 @@ from jobs.models import (
     AutoApplyPermission,
 )
 from cv_analyzer.models import CVAnalysis
-from forum.models import ForumThread
+from forum.models import Post
 from .models import UserActivity, UserStats, GoalTracker
 
 CV_ANALYSES_MONTHLY_GOAL = 4
@@ -50,7 +50,7 @@ def dashboard(request):
     recent_applications = JobApplication.objects.filter(user=user).count()
     saved_jobs = SavedJob.objects.filter(user=user).count()
     cv_analyses = CVAnalysis.objects.filter(user=user).count()
-    forum_posts = ForumThread.objects.filter(author=user).count()
+    forum_posts = Post.objects.filter(author=user).count()
     
     # Get this month's applications
     this_month_applications = JobApplication.objects.filter(

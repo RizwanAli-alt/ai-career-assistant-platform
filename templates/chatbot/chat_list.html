@@ -1,63 +1,272 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Chat Sessions - AI Career Assistant{% endblock %}
+{% block title %}Chat Sessions — AI Career Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #13161f;
+    --card-bg: #1a1f2e;
+    --border: #1e2536;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59,130,246,0.12);
+    --text: #f1f5f9;
+    --text-muted: #64748b;
+    --text-subtle: #94a3b8;
+    --radius: 14px;
+  }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
+
+  .sessions-page { max-width: 900px; margin: 0 auto; padding: 48px 24px; }
+
+  .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .page-title  { font-size: 28px; font-weight: 600; }
+  .page-sub    { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+
+  .btn-new {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .btn-new:hover { background: #1d4ed8; color: #fff; transform: translateY(-1px); }
+
+  /* Sessions grid */
+  .sessions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
+  }
+
+  .session-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: border-color 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .session-card:hover { border-color: rgba(59,130,246,0.3); }
+
+  .session-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .session-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--accent-glow);
+    border: 1px solid rgba(59,130,246,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .session-info { flex: 1; min-width: 0; }
+
+  .session-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .session-dates {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 3px;
+    line-height: 1.6;
+  }
+
+  /* Actions */
+  .session-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-open {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .btn-open:hover { background: #1d4ed8; color: #fff; }
+
+  .btn-delete {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: transparent;
+    border: 1px solid #450a0a;
+    border-radius: 8px;
+    color: #f87171;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-delete:hover { background: #450a0a22; }
+
+  /* Rename inline */
+  .rename-form {
+    display: flex;
+    gap: 8px;
+  }
+
+  .rename-input {
+    flex: 1;
+    padding: 8px 12px;
+    background: #0f1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    min-width: 0;
+  }
+
+  .rename-input:focus { border-color: var(--accent); }
+  .rename-input::placeholder { color: var(--text-muted); }
+
+  .btn-rename {
+    padding: 8px 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-subtle);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .btn-rename:hover {
+    background: rgba(59,130,246,0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Empty state */
+  .empty-state {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 64px 24px;
+    background: var(--card-bg);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+  }
+
+  .empty-icon { font-size: 40px; margin-bottom: 14px; }
+  .empty-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+  .empty-sub   { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row mb-4">
-        <div class="col-md-12 d-flex justify-content-between align-items-center">
-            <div>
-                <h1><i class="fas fa-comments"></i> Chat Sessions</h1>
-                <p class="text-muted mb-0">Your saved conversations with Career Assistant</p>
-            </div>
-            <a href="{% url 'chat' %}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> New Chat
-            </a>
-        </div>
+<div class="sessions-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">💬 Chat Sessions</h1>
+      <p class="page-sub">Your saved conversations with the Career Assistant</p>
     </div>
+    <a href="{% url 'chat' %}" class="btn-new"><i class="fas fa-plus"></i> New Chat</a>
+  </div>
 
-    {% if sessions %}
-        <div class="row">
-            {% for session in sessions %}
-                <div class="col-lg-6 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title mb-1">{{ session.title }}</h5>
-                            <p class="small text-muted mb-2">Updated {{ session.updated_at|date:'M d, Y H:i' }}</p>
-                            <p class="small text-muted mb-3">Created {{ session.created_at|date:'M d, Y H:i' }}</p>
-
-                            <div class="d-flex flex-wrap gap-2 mb-3">
-                                <a href="{% url 'chat_detail' session.pk %}" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-message"></i> Open
-                                </a>
-                                <form method="POST" action="{% url 'delete_chat_session' session.pk %}" onsubmit="return confirm('Delete this chat session?');">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
-                                </form>
-                            </div>
-
-                            <form method="POST" action="{% url 'rename_chat_session' session.pk %}" class="row g-2">
-                                {% csrf_token %}
-                                <div class="col-8">
-                                    <input type="text" name="title" class="form-control form-control-sm" placeholder="Rename session" maxlength="200" required>
-                                </div>
-                                <div class="col-4 d-grid">
-                                    <button type="submit" class="btn btn-outline-secondary btn-sm">Rename</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+  <div class="sessions-grid">
+    {% for session in sessions %}
+      <div class="session-card">
+        <div class="session-card-header">
+          <div class="session-icon">💬</div>
+          <div class="session-info">
+            <div class="session-title">{{ session.title }}</div>
+            <div class="session-dates">
+              Updated {{ session.updated_at|date:"M d, Y · g:i A" }}<br>
+              Created {{ session.created_at|date:"M d, Y" }}
+            </div>
+          </div>
         </div>
-    {% else %}
-        <div class="alert alert-info">
-            <i class="fas fa-info-circle"></i> No chat sessions yet.
-            <a href="{% url 'chat' %}" class="alert-link">Start your first chat</a>.
+
+        <div class="session-actions">
+          <a href="{% url 'chat_detail' session.pk %}" class="btn-open">
+            <i class="fas fa-comments"></i> Open
+          </a>
+          <form method="POST" action="{% url 'delete_chat_session' session.pk %}"
+                onsubmit="return confirm('Delete this session?');" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn-delete">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </form>
         </div>
-    {% endif %}
+
+        <form method="POST" action="{% url 'rename_chat_session' session.pk %}" class="rename-form">
+          {% csrf_token %}
+          <input type="text" name="title" class="rename-input" placeholder="Rename this session…" maxlength="200" required>
+          <button type="submit" class="btn-rename">Rename</button>
+        </form>
+      </div>
+
+    {% empty %}
+      <div class="empty-state">
+        <div class="empty-icon">💬</div>
+        <div class="empty-title">No chats yet</div>
+        <p class="empty-sub">Start a conversation with your AI career assistant</p>
+        <a href="{% url 'chat' %}" class="btn-new" style="display:inline-flex;">
+          <i class="fas fa-plus"></i> Start First Chat
+        </a>
+      </div>
+    {% endfor %}
+  </div>
 </div>
 {% endblock %}
