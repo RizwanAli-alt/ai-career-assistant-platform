@@ -40,7 +40,7 @@
     <li><a href="{% url 'job_list' %}">Jobs</a></li>
     <li><a href="{% url 'chat' %}">Chatbot</a></li>
     <li><a href="{% url 'resource_hub' %}">Courses</a></li>
-    <li><a href="{% url 'forum_home' %}">Forum</a></li>
+    <li><a href="{% url 'community:home' %}">Forum</a></li>
   </ul>
 
   <div class="navbar-actions">
@@ -66,7 +66,7 @@
     <a href="{% url 'job_list' %}">Jobs</a>
     <a href="{% url 'chat' %}">Chatbot</a>
     <a href="{% url 'resource_hub' %}">Courses</a>
-    <a href="{% url 'forum_home' %}">Forum</a>
+    <a href="{% url 'community:home' %}">Forum</a>
     {% if user.is_authenticated %}
       <a href="{% url 'logout' %}">Logout</a>
     {% else %}
@@ -98,7 +98,7 @@
         <li><a href="{% url 'job_list' %}">Jobs</a></li>
         <li><a href="{% url 'chat' %}">Chatbot</a></li>
         <li><a href="{% url 'resource_hub' %}">Courses</a></li>
-        <li><a href="{% url 'forum_home' %}">Forum</a></li>
+        <li><a href="{% url 'community:home' %}">Forum</a></li>
       </ul>
     </div>
     <p class="footer-copy">© 2026 CareerAI · Built for Pakistani graduates</p>

@@ -25,7 +25,7 @@ from .forms import (
 def register(request):
     """User registration view"""
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('home')
     
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
@@ -52,7 +52,7 @@ def register(request):
 def login_view(request):
     """User login view"""
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('home')
     
     if request.method == 'POST':
         form = UserLoginForm(request.POST)
@@ -81,7 +81,7 @@ def login_view(request):
                     request.session.set_expiry(0)
                 
                 messages.success(request, f'Welcome back, {user.first_name or user.username}!')
-                next_url = request.GET.get('next', 'dashboard')
+                next_url = request.GET.get('next', 'home')
                 return redirect(next_url)
             else:
                 messages.error(request, 'Invalid username/email or password.')

@@ -59,6 +59,7 @@ class Post(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        db_table = 'forum_thread'
         ordering = ['-is_pinned', '-created_at']
 
     def __str__(self):
