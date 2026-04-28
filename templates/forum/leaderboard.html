@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Leaderboard — Forum{% endblock %}
+
+{% block extra_head %}
+<style>
+  .leaderboard-shell{max-width:1200px;margin:0 auto;padding:32px max(24px,4vw) 64px}
+  .leaderboard-card{display:grid;gap:16px}
+  .leaderboard-row{display:grid;grid-template-columns:60px minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:center;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg-2)}
+  .leaderboard-row.head{background:transparent;border:none;color:var(--text-1);font-size:.8rem;text-transform:uppercase;letter-spacing:.08em}
+  .rank-badge{font-weight:700;font-size:1rem}
+  .rank-1{background:rgba(210,153,34,0.12);border-color:rgba(210,153,34,0.45)}
+  .rank-2{background:rgba(139,148,158,0.12);border-color:rgba(139,148,158,0.35)}
+  .rank-3{background:rgba(248,216,117,0.12);border-color:rgba(248,216,117,0.45)}
+  .user-cell{display:flex;align-items:center;gap:12px}
+  .avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-weight:600;font-size:.9rem;overflow:hidden}
+  .avatar img{width:100%;height:100%;object-fit:cover}
+  .role-badge{padding:4px 10px;border-radius:999px;font-size:.7rem;font-weight:600;border:1px solid transparent;text-transform:capitalize}
+  .role-student{background:rgba(139,148,158,0.12);color:var(--text-1);border-color:rgba(139,148,158,0.35)}
+  .role-senior{background:rgba(47,129,247,0.12);color:var(--accent);border-color:rgba(47,129,247,0.35)}
+  .role-employer{background:rgba(63,185,80,0.12);color:var(--green);border-color:rgba(63,185,80,0.35)}
+  .role-mentor{background:rgba(123,97,255,0.12);color:#b192ff;border-color:rgba(123,97,255,0.35)}
+  .points-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:rgba(47,129,247,0.14);color:var(--accent);font-size:.72rem;font-weight:600;border:1px solid rgba(47,129,247,0.3)}
+  .icon{width:16px;height:16px}
+  @media (max-width: 900px){
+    .leaderboard-row{grid-template-columns:40px minmax(0,1fr);grid-auto-rows:auto;gap:8px}
+    .leaderboard-row.head{display:none}
+  }
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const forumLink = document.querySelector('.navbar-links a[href="{% url 'community:home' %}"]');
+    if (forumLink) forumLink.classList.add('active');
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="leaderboard-shell">
+  <div class="card leaderboard-card">
+    <h1>Top Contributors</h1>
+    <div class="leaderboard-row head">
+      <span>Rank</span>
+      <span>User</span>
+      <span>Role</span>
+      <span>Points</span>
+      <span>Badges</span>
+    </div>
+    {% for leader in top_users|slice:":20" %}
+      <div class="leaderboard-row {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% endif %}">
+        <span class="rank-badge">#{{ forloop.counter }}</span>
+        <div class="user-cell">
+          <div class="avatar">
+            {% if leader.avatar %}
+              <img src="{{ leader.avatar.url }}" alt="{{ leader.user.username }}" />
+            {% else %}
+              {{ leader.user.username|first|upper }}
+            {% endif %}
+          </div>
+          <a href="{% url 'community:user_profile_public' leader.user.username %}">{{ leader.user.username }}</a>
+        </div>
+        <span class="role-badge role-{{ leader.role }}">{{ leader.role }}</span>
+        <span class="points-badge">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="14 9 12 2 10 9"/>
+            <path d="M4.59 9H19.4a2 2 0 0 1 1.99 2.2l-1.18 8A2 2 0 0 1 18.24 21H5.76a2 2 0 0 1-1.97-1.8l-1.18-8A2 2 0 0 1 4.59 9z"/>
+            <line x1="12" y1="12" x2="12" y2="21"/>
+          </svg>
+          {{ leader.points }}
+        </span>
+        <span>{{ leader.badge_count|default:0 }}</span>
+      </div>
+    {% empty %}
+      <div class="leaderboard-row">No leaderboard data available.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

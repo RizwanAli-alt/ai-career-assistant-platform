@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Search — Forum{% endblock %}
+
+{% block extra_head %}
+<style>
+  .search-shell{max-width:1100px;margin:0 auto;padding:32px max(24px,4vw) 64px}
+  .search-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+  .search-input{flex:1;min-width:240px;padding:10px 14px;background:var(--bg-1);border:1px solid var(--border);border-radius:8px;color:var(--text-0);font-family:'Inter',system-ui,sans-serif;font-size:.9rem}
+  .search-input:focus{border-color:var(--accent);outline:none}
+  .post-card{display:grid;gap:14px}
+  .post-title{font-size:1.1rem;font-weight:600}
+  .post-preview{color:var(--text-1);font-size:.9rem}
+  .post-meta{display:flex;align-items:center;gap:10px;color:var(--text-1);font-size:.8rem;flex-wrap:wrap}
+  .stats-row{display:flex;gap:16px;flex-wrap:wrap;color:var(--text-1);font-size:.8rem}
+  .stats-item{display:inline-flex;align-items:center;gap:6px}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(47,129,247,0.12);color:var(--accent);font-size:.72rem;font-weight:600;border:1px solid rgba(47,129,247,0.3)}
+  .icon{width:16px;height:16px}
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const forumLink = document.querySelector('.navbar-links a[href="{% url 'community:home' %}"]');
+    if (forumLink) forumLink.classList.add('active');
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="search-shell">
+  <form class="search-bar" method="get" action="{% url 'community:search' %}">
+    <input class="search-input" type="search" name="q" value="{{ query }}" placeholder="Search posts and categories" />
+    <button class="btn-primary" type="submit">Search</button>
+  </form>
+
+  {% if query %}
+    <p class="text-muted">Results for "{{ query }}": {{ results|length }}</p>
+  {% endif %}
+
+  <div class="search-results">
+    {% for post in results %}
+      <article class="card post-card">
+        <div class="post-meta">
+          {% if post.category %}
+            <span class="badge">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7"/>
+                <path d="M16 5H8l-4 7h16l-4-7z"/>
+              </svg>
+              {% if post.category.icon and post.category.icon|slugify %}
+                <span>{{ post.category.icon }}</span>
+              {% endif %}
+              {{ post.category.name }}
+            </span>
+          {% endif %}
+          <span>{{ post.created_at|timesince }} ago</span>
+        </div>
+        <div>
+          <h2 class="post-title"><a href="{% url 'community:post_detail' post.pk %}">{{ post.title }}</a></h2>
+          <p class="post-preview">{{ post.body|truncatewords:30 }}</p>
+        </div>
+        <div class="stats-row">
+          <span class="stats-item">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            {{ post.views }}
+          </span>
+          <span class="stats-item">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            {{ post.reply_count }}
+          </span>
+          <span class="stats-item">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            {{ post.like_count }}
+          </span>
+        </div>
+      </article>
+    {% empty %}
+      <div class="card">No results found.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

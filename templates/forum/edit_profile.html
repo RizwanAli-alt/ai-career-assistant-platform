@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit Profile — Forum{% endblock %}
+
+{% block extra_head %}
+<style>
+  .form-shell{max-width:720px;margin:0 auto;padding:32px max(24px,4vw) 64px}
+  .form-card{display:grid;gap:16px}
+  .form-card h1{font-size:1.8rem;font-weight:700}
+  .form-card p{color:var(--text-1)}
+  .form-field{display:grid;gap:6px}
+  .form-label{font-size:.82rem;font-weight:600;color:var(--text-1)}
+  .glass-input,.form-control,.form-select{width:100%;padding:10px 14px;background:var(--bg-1);border:1px solid var(--border);border-radius:8px;color:var(--text-0);font-family:'Inter',system-ui,sans-serif;font-size:.9rem}
+  .glass-input:focus,.form-control:focus,.form-select:focus{border-color:var(--accent);outline:none}
+  textarea.form-control,textarea.glass-input{min-height:140px;resize:vertical}
+  .form-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .field-error{font-size:.78rem;color:var(--red)}
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const forumLink = document.querySelector('.navbar-links a[href="{% url 'community:home' %}"]');
+    if (forumLink) forumLink.classList.add('active');
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="form-shell">
+  <div class="card form-card">
+    <div>
+      <h1>Edit Profile</h1>
+      <p>Keep your community profile up to date.</p>
+    </div>
+    <form method="post" enctype="multipart/form-data" action="">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="field-error">{{ form.non_field_errors }}</div>
+      {% endif %}
+      <div class="form-field">
+        <label class="form-label" for="{{ form.bio.id_for_label }}">{{ form.bio.label }}</label>
+        {{ form.bio }}
+        {% for error in form.bio.errors %}
+          <span class="field-error">{{ error }}</span>
+        {% endfor %}
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="{{ form.role.id_for_label }}">{{ form.role.label }}</label>
+        {{ form.role }}
+        {% for error in form.role.errors %}
+          <span class="field-error">{{ error }}</span>
+        {% endfor %}
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="{{ form.linkedin_url.id_for_label }}">{{ form.linkedin_url.label }}</label>
+        {{ form.linkedin_url }}
+        {% for error in form.linkedin_url.errors %}
+          <span class="field-error">{{ error }}</span>
+        {% endfor %}
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="{{ form.github_url.id_for_label }}">{{ form.github_url.label }}</label>
+        {{ form.github_url }}
+        {% for error in form.github_url.errors %}
+          <span class="field-error">{{ error }}</span>
+        {% endfor %}
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="{{ form.avatar.id_for_label }}">{{ form.avatar.label }}</label>
+        {{ form.avatar }}
+        {% for error in form.avatar.errors %}
+          <span class="field-error">{{ error }}</span>
+        {% endfor %}
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" type="submit">Save Profile</button>
+        <a class="btn-ghost" href="{% url 'community:user_profile' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

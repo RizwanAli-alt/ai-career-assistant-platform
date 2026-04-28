@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ profile_user.username }} — Profile{% endblock %}
+
+{% block extra_head %}
+<style>
+  .profile-shell{max-width:1200px;margin:0 auto;padding:32px max(24px,4vw) 64px}
+  .profile-grid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:24px}
+  .profile-card{display:grid;gap:16px}
+  .avatar-large{width:90px;height:90px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-size:1.8rem;font-weight:700;overflow:hidden}
+  .avatar-large img{width:100%;height:100%;object-fit:cover}
+  .role-badge{padding:4px 10px;border-radius:999px;font-size:.7rem;font-weight:600;border:1px solid transparent;text-transform:capitalize}
+  .role-student{background:rgba(139,148,158,0.12);color:var(--text-1);border-color:rgba(139,148,158,0.35)}
+  .role-senior{background:rgba(47,129,247,0.12);color:var(--accent);border-color:rgba(47,129,247,0.35)}
+  .role-employer{background:rgba(63,185,80,0.12);color:var(--green);border-color:rgba(63,185,80,0.35)}
+  .role-mentor{background:rgba(123,97,255,0.12);color:#b192ff;border-color:rgba(123,97,255,0.35)}
+  .points-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:rgba(47,129,247,0.14);color:var(--accent);font-size:.72rem;font-weight:600;border:1px solid rgba(47,129,247,0.3)}
+  .profile-links{display:grid;gap:8px}
+  .profile-links a{display:flex;align-items:center;gap:8px;color:var(--text-1);font-size:.85rem}
+  .profile-links a:hover{color:var(--text-0)}
+  .profile-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .activity-card{display:grid;gap:14px}
+  .activity-list{display:grid;gap:12px}
+  .activity-item{display:flex;justify-content:space-between;gap:10px;color:var(--text-1);font-size:.9rem}
+  .badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+  .badge-item{display:flex;align-items:center;gap:8px;padding:10px;border-radius:10px;background:var(--bg-3);border:1px solid var(--border)}
+  .icon{width:16px;height:16px}
+  @media (max-width: 980px){
+    .profile-grid{grid-template-columns:1fr}
+  }
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const forumLink = document.querySelector('.navbar-links a[href="{% url 'community:home' %}"]');
+    if (forumLink) forumLink.classList.add('active');
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="profile-shell">
+  <div class="profile-grid">
+    <aside class="card profile-card">
+      <div class="avatar-large">
+        {% if profile.avatar %}
+          <img src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}" />
+        {% else %}
+          {{ profile_user.username|first|upper }}
+        {% endif %}
+      </div>
+      <div>
+        <h2>{{ profile_user.username }}</h2>
+        <span class="role-badge role-{{ profile.role }}">{{ profile.role }}</span>
+      </div>
+      <p>{{ profile.bio|default:"No bio added yet." }}</p>
+      <span class="points-badge">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="14 9 12 2 10 9"/>
+          <path d="M4.59 9H19.4a2 2 0 0 1 1.99 2.2l-1.18 8A2 2 0 0 1 18.24 21H5.76a2 2 0 0 1-1.97-1.8l-1.18-8A2 2 0 0 1 4.59 9z"/>
+          <line x1="12" y1="12" x2="12" y2="21"/>
+        </svg>
+        {{ profile.points }} points
+      </span>
+      <div class="profile-links">
+        {% if profile.linkedin_url %}
+          <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+              <rect x="2" y="9" width="4" height="12"/>
+              <circle cx="4" cy="4" r="2"/>
+            </svg>
+            LinkedIn
+          </a>
+        {% endif %}
+        {% if profile.github_url %}
+          <a href="{{ profile.github_url }}" target="_blank" rel="noopener">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.49.5.09.68-.22.68-.48 0-.24-.01-.87-.01-1.71-2.78.6-3.37-1.34-3.37-1.34-.45-1.15-1.11-1.46-1.11-1.46-.91-.62.07-.61.07-.61 1 .07 1.53 1.04 1.53 1.04.9 1.53 2.36 1.09 2.94.83.09-.65.35-1.09.64-1.34-2.22-.25-4.56-1.11-4.56-4.95 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02A9.6 9.6 0 0 1 12 6.8c.85 0 1.71.11 2.51.32 1.9-1.29 2.74-1.02 2.74-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.85-2.34 4.7-4.57 4.95.36.31.68.92.68 1.86 0 1.34-.01 2.42-.01 2.75 0 .26.18.58.69.48A10 10 0 0 0 22 12c0-5.52-4.48-10-10-10z"/>
+            </svg>
+            GitHub
+          </a>
+        {% endif %}
+      </div>
+      <div class="profile-actions">
+        {% if user == profile_user %}
+          <a class="btn-primary" href="{% url 'community:edit_profile' %}">Edit Profile</a>
+        {% endif %}
+        {% if user != profile_user and (profile.role == 'senior' or profile.role == 'mentor' or profile.role == 'employer') %}
+          <a class="btn-ghost" href="{% url 'community:home' %}">Request Mentorship</a>
+        {% endif %}
+      </div>
+    </aside>
+
+    <section class="activity-card">
+      <div class="card">
+        <h3>Recent Posts</h3>
+        <div class="activity-list">
+          {% for post in posts %}
+            <div class="activity-item">
+              <a href="{% url 'community:post_detail' post.pk %}">{{ post.title }}</a>
+              <span>{{ post.created_at|timesince }} ago</span>
+            </div>
+          {% empty %}
+            <span class="activity-item">No posts yet.</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Badges</h3>
+        <div class="badge-grid">
+          {% for badge in badges %}
+            <div class="badge-item">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="8" r="6"/>
+                <path d="M15.21 13.89 17 22l-5-3-5 3 1.79-8.11"/>
+              </svg>
+              {% if badge.icon and badge.icon|slugify %}
+                <span>{{ badge.icon }}</span>
+              {% endif %}
+              <span>{{ badge.name|default:badge.badge.name }}</span>
+            </div>
+          {% empty %}
+            <span>No badges earned yet.</span>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
