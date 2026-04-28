@@ -121,7 +121,7 @@ button, input, select, textarea { font-family: var(--font-body); }
 }
 
 /* ---------- Navbar ---------- */
-.navbar {
+.page-wrapper .navbar {
   position: sticky;
   top: 0;
   z-index: 100;
@@ -137,7 +137,7 @@ button, input, select, textarea { font-family: var(--font-body); }
   gap: 32px;
 }
 
-.nav-logo {
+.page-wrapper .nav-logo {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -148,11 +148,11 @@ button, input, select, textarea { font-family: var(--font-body); }
   font-size: 20px;
 }
 
-.nav-logo .logo-icon {
+.page-wrapper .nav-logo .logo-icon {
   color: white;
 }
 
-.nav-links {
+.page-wrapper .nav-links {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -160,7 +160,7 @@ button, input, select, textarea { font-family: var(--font-body); }
   justify-content: center;
 }
 
-.nav-links a {
+.page-wrapper .nav-links a {
   padding: 6px 14px;
   border-radius: var(--radius-sm);
   font-size: 14px;
@@ -170,28 +170,28 @@ button, input, select, textarea { font-family: var(--font-body); }
   white-space: nowrap;
 }
 
-.nav-links a:hover { color: var(--text-primary); background: var(--bg-card); }
-.nav-links a.active {
+.page-wrapper .nav-links a:hover { color: var(--text-primary); background: var(--bg-card); }
+.page-wrapper .nav-links a.active {
   color: var(--accent-blue);
   background: rgba(0, 212, 255, 0.08);
   border-bottom: 2px solid var(--accent-blue);
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
 
-.nav-actions {
+.page-wrapper .nav-actions {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
 }
 
-.nav-user {
+.page-wrapper .nav-user {
   font-size: 14px;
   color: var(--text-secondary);
   font-weight: 500;
 }
 
-.btn-logout {
+.page-wrapper .btn-logout {
   padding: 7px 16px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-glass);
@@ -203,7 +203,7 @@ button, input, select, textarea { font-family: var(--font-body); }
   transition: var(--transition);
 }
 
-.btn-logout:hover {
+.page-wrapper .btn-logout:hover {
   border-color: var(--border-hover);
   color: var(--text-primary);
   background: rgba(0, 212, 255, 0.05);
@@ -1023,8 +1023,8 @@ button, input, select, textarea { font-family: var(--font-body); }
 @media (max-width: 900px) {
   .stats-strip { grid-template-columns: repeat(2, 1fr); }
   .skill-gap-grid { grid-template-columns: 1fr; }
-  .navbar { padding: 0 16px; gap: 16px; }
-  .nav-links { display: none; }
+  .page-wrapper .navbar { padding: 0 16px; gap: 16px; }
+  .page-wrapper .nav-links { display: none; }
 }
 
 @media (max-width: 600px) {
