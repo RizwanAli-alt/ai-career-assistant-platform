@@ -391,7 +391,7 @@
   const welcomeMessage = document.getElementById('chatWelcome');
   const csrfElement = document.querySelector('[name=csrfmiddlewaretoken]');
   if (!csrfElement) {
-    throw new Error('CSRF token element is missing from the page. Ensure the csrf_token tag is rendered.');
+    throw new Error('CSRF token missing. This template must be rendered by Django with csrf_token available in context.');
   }
   const csrfToken = csrfElement.value;
 
@@ -465,16 +465,21 @@
         body: JSON.stringify({ message: text })
       });
       if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}: ${response.statusText}`);
+        console.error('Chat request failed with status:', response.status, response.statusText);
+        throw new Error('Unable to send message. Please check your connection and try again.');
       }
       const data = await response.json();
       if (!data || !data.response) {
-        throw new Error('Server response missing required "response" field.');
+        console.error('Invalid chat response payload:', data);
+        throw new Error('Received an invalid response from the server. Please try again.');
       }
       return data.response;
     } catch (error) {
       console.error('Chat request failed:', error);
-      throw error;
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Unable to send message. Please check your connection and try again.');
     }
   }
 
@@ -492,9 +497,12 @@
       const reply = await sendMessage(trimmed);
       chatMessages.appendChild(createMessageRow({ role: 'bot', text: reply || '...' }));
     } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : 'Unable to send message. Please check your connection and try again.';
       chatMessages.appendChild(createMessageRow({
         role: 'bot',
-        text: 'Unable to send message. Please check your connection and try again.'
+        text: message
       }));
     } finally {
       setWaiting(false);
