@@ -37,6 +37,7 @@
   .reply-toggle{background:transparent;border:1px solid var(--border);color:var(--text-1);padding:6px 10px;border-radius:999px;font-size:.75rem;cursor:pointer}
   .reply-toggle:hover{border-color:var(--border-strong);color:var(--text-0)}
   .form-card{display:grid;gap:12px}
+  .is-hidden{display:none}
   .glass-input,.form-control,.form-select{width:100%;padding:10px 14px;background:var(--bg-1);border:1px solid var(--border);border-radius:8px;color:var(--text-0);font-family:'Inter',system-ui,sans-serif;font-size:.9rem}
   .glass-input:focus,.form-control:focus,.form-select:focus{border-color:var(--accent);outline:none}
   textarea.glass-input,textarea.form-control{min-height:120px;resize:vertical}
@@ -139,7 +140,7 @@
             </button>
             <button class="reply-toggle" type="button" data-reply-toggle="reply-form-{{ reply.id }}">Reply</button>
           </div>
-          <form class="form-card" id="reply-form-{{ reply.id }}" method="post" style="display:none;" action="">
+          <form class="form-card is-hidden" id="reply-form-{{ reply.id }}" method="post" action="">
             {% csrf_token %}
             <input type="hidden" name="action" value="reply">
             <input type="hidden" name="parent_id" value="{{ reply.id }}">
@@ -255,8 +256,7 @@
       const formId = button.dataset.replyToggle;
       const form = document.getElementById(formId);
       if (form) {
-        const isOpen = form.style.display === 'grid';
-        form.style.display = isOpen ? 'none' : 'grid';
+        form.classList.toggle('is-hidden');
       }
     });
   });
