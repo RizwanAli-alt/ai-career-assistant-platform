@@ -237,6 +237,7 @@
       });
 
       if (!response.ok) {
+        console.error('Like request failed', response.status);
         return;
       }
 

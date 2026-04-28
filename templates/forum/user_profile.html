@@ -116,9 +116,6 @@
                 <circle cx="12" cy="8" r="6"/>
                 <path d="M15.21 13.89 17 22l-5-3-5 3 1.79-8.11"/>
               </svg>
-              {% if badge.icon and badge.icon|slugify %}
-                <span>{{ badge.icon }}</span>
-              {% endif %}
               <span>{{ badge.name|default:badge.badge.name }}</span>
             </div>
           {% empty %}

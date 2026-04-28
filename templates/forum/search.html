@@ -47,9 +47,6 @@
                 <path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7"/>
                 <path d="M16 5H8l-4 7h16l-4-7z"/>
               </svg>
-              {% if post.category.icon and post.category.icon|slugify %}
-                <span>{{ post.category.icon }}</span>
-              {% endif %}
               {{ post.category.name }}
             </span>
           {% endif %}

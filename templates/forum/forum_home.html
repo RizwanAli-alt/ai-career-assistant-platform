@@ -78,9 +78,6 @@
           <a class="pill-link {% if not active_category %}active{% endif %}" href="?sort={{ sort|default:'newest' }}">All Categories</a>
           {% for category in categories %}
             <a class="pill-link {% if active_category and active_category.pk == category.pk %}active{% endif %}" href="?category={{ category.slug }}&sort={{ sort|default:'newest' }}">
-              {% if category.icon and category.icon|slugify %}
-                <span>{{ category.icon }}</span>
-              {% endif %}
               {{ category.name }}
             </a>
           {% endfor %}
@@ -99,9 +96,6 @@
                   <path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7"/>
                   <path d="M16 5H8l-4 7h16l-4-7z"/>
                 </svg>
-                {% if post.category.icon and post.category.icon|slugify %}
-                  <span>{{ post.category.icon }}</span>
-                {% endif %}
                 {{ post.category.name }}
               </span>
             {% endif %}
