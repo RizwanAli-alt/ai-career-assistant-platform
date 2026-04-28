@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ post.title }} — Forum{% endblock %}
+
+{% block extra_head %}
+<style>
+  .post-shell{max-width:860px;margin:0 auto;padding:32px max(24px,4vw) 64px}
+  .breadcrumb{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text-1);margin-bottom:18px}
+  .breadcrumb a{color:var(--text-1)}
+  .breadcrumb-sep{width:6px;height:6px;border-radius:50%;background:var(--border-strong)}
+  .post-card{display:grid;gap:16px}
+  .post-title{font-size:2rem;font-weight:700;line-height:1.2}
+  .post-author{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-weight:600;font-size:1rem;overflow:hidden}
+  .avatar img{width:100%;height:100%;object-fit:cover}
+  .role-badge{padding:4px 10px;border-radius:999px;font-size:.7rem;font-weight:600;border:1px solid transparent;text-transform:capitalize}
+  .role-student{background:rgba(139,148,158,0.12);color:var(--text-1);border-color:rgba(139,148,158,0.35)}
+  .role-senior{background:rgba(47,129,247,0.12);color:var(--accent);border-color:rgba(47,129,247,0.35)}
+  .role-employer{background:rgba(63,185,80,0.12);color:var(--green);border-color:rgba(63,185,80,0.35)}
+  .role-mentor{background:rgba(123,97,255,0.12);color:#b192ff;border-color:rgba(123,97,255,0.35)}
+  .points-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:rgba(47,129,247,0.14);color:var(--accent);font-size:.72rem;font-weight:600;border:1px solid rgba(47,129,247,0.3)}
+  .post-body{color:var(--text-0);font-size:.95rem}
+  .post-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .stats-row{display:flex;gap:16px;flex-wrap:wrap;color:var(--text-1);font-size:.82rem}
+  .stats-item{display:inline-flex;align-items:center;gap:6px}
+  .like-button{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:transparent;color:var(--text-1);padding:6px 12px;border-radius:999px;cursor:pointer;transition:.2s;border-color:var(--border)}
+  .like-button:hover{border-color:var(--border-strong)}
+  .like-button.liked{color:var(--accent);border-color:rgba(47,129,247,0.4);background:rgba(47,129,247,0.1)}
+  .like-button.liked svg{fill:currentColor}
+  .section-title{font-size:1.2rem;font-weight:600;margin:26px 0 14px}
+  .reply-card{display:grid;gap:10px}
+  .reply-meta{display:flex;align-items:center;gap:10px;color:var(--text-1);font-size:.8rem}
+  .reply-body{color:var(--text-0);font-size:.9rem}
+  .reply-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .reply-children{margin-left:24px;padding-left:16px;border-left:1px solid var(--border);display:grid;gap:12px}
+  .reply-toggle{background:transparent;border:1px solid var(--border);color:var(--text-1);padding:6px 10px;border-radius:999px;font-size:.75rem;cursor:pointer}
+  .reply-toggle:hover{border-color:var(--border-strong);color:var(--text-0)}
+  .form-card{display:grid;gap:12px}
+  .is-hidden{display:none}
+  .glass-input,.form-control,.form-select{width:100%;padding:10px 14px;background:var(--bg-1);border:1px solid var(--border);border-radius:8px;color:var(--text-0);font-family:'Inter',system-ui,sans-serif;font-size:.9rem}
+  .glass-input:focus,.form-control:focus,.form-select:focus{border-color:var(--accent);outline:none}
+  textarea.glass-input,textarea.form-control{min-height:120px;resize:vertical}
+  .mentorship-card{margin-top:24px}
+  .icon{width:16px;height:16px}
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const forumLink = document.querySelector('.navbar-links a[href="{% url 'community:home' %}"]');
+    if (forumLink) forumLink.classList.add('active');
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="post-shell">
+  <div class="breadcrumb">
+    <a href="{% url 'community:home' %}">Forum</a>
+    <span class="breadcrumb-sep"></span>
+    {% if post.category %}
+      <a href="{% url 'community:home' %}?category={{ post.category.slug }}">{{ post.category.name }}</a>
+    {% else %}
+      <span>General</span>
+    {% endif %}
+  </div>
+
+  <article class="card post-card">
+    <div>
+      <h1 class="post-title">{{ post.title }}</h1>
+    </div>
+    <div class="post-author">
+      <div class="avatar">
+        {% if post.author.community_profile.avatar %}
+          <img src="{{ post.author.community_profile.avatar.url }}" alt="{{ post.author.username }}" />
+        {% else %}
+          {{ post.author.username|first|upper }}
+        {% endif %}
+      </div>
+      <div>
+        <div>{{ post.author.username }}</div>
+        {% if post.author.community_profile %}
+          <span class="role-badge role-{{ post.author.community_profile.role }}">{{ post.author.community_profile.role }}</span>
+        {% endif %}
+      </div>
+      {% if post.author.community_profile %}
+        <span class="points-badge">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="14 9 12 2 10 9"/>
+            <path d="M4.59 9H19.4a2 2 0 0 1 1.99 2.2l-1.18 8A2 2 0 0 1 18.24 21H5.76a2 2 0 0 1-1.97-1.8l-1.18-8A2 2 0 0 1 4.59 9z"/>
+            <line x1="12" y1="12" x2="12" y2="21"/>
+          </svg>
+          {{ post.author.community_profile.points }} pts
+        </span>
+      {% endif %}
+      <span class="stats-item">{{ post.created_at|timesince }} ago</span>
+    </div>
+    <div class="post-body">{{ post.body|linebreaks }}</div>
+    <div class="post-actions">
+      <button class="like-button {% if user_liked_post %}liked{% endif %}" type="button" data-like-button data-like-type="post" data-like-id="{{ post.pk }}">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        <span data-like-count>{{ post.like_count }}</span>
+      </button>
+      <div class="stats-row">
+        <span class="stats-item">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          {{ post.views }}
+        </span>
+        <span class="stats-item">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          {{ post.reply_count }}
+        </span>
+      </div>
+    </div>
+  </article>
+
+  <section>
+    <h2 class="section-title">{{ replies|length }} Replies</h2>
+    <div class="reply-list">
+      {% for reply in replies %}
+        <div class="card reply-card">
+          <div class="reply-meta">
+            <div class="avatar">{{ reply.author.username|first|upper }}</div>
+            <div>{{ reply.author.username }}</div>
+            <span>{{ reply.created_at|timesince }} ago</span>
+          </div>
+          <div class="reply-body">{{ reply.body|linebreaks }}</div>
+          <div class="reply-actions">
+            <button class="like-button {% if reply.id in user_liked_reply_ids %}liked{% endif %}" type="button" data-like-button data-like-type="reply" data-like-id="{{ reply.id }}">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+              <span data-like-count>{{ reply.like_count }}</span>
+            </button>
+            <button class="reply-toggle" type="button" data-reply-toggle="reply-form-{{ reply.id }}">Reply</button>
+          </div>
+          <form class="form-card is-hidden" id="reply-form-{{ reply.id }}" method="post" action="">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="reply">
+            <input type="hidden" name="parent_id" value="{{ reply.id }}">
+            <textarea name="body" class="form-control" placeholder="Write a reply..."></textarea>
+            <button class="btn-primary" type="submit">Submit Reply</button>
+          </form>
+          {% if reply.children.all %}
+            <div class="reply-children">
+              {% for child in reply.children.all %}
+                <div class="card reply-card">
+                  <div class="reply-meta">
+                    <div class="avatar">{{ child.author.username|first|upper }}</div>
+                    <div>{{ child.author.username }}</div>
+                    <span>{{ child.created_at|timesince }} ago</span>
+                  </div>
+                  <div class="reply-body">{{ child.body|linebreaks }}</div>
+                  <div class="reply-actions">
+                    <button class="like-button {% if child.id in user_liked_reply_ids %}liked{% endif %}" type="button" data-like-button data-like-type="reply" data-like-id="{{ child.id }}">
+                      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                      <span data-like-count>{{ child.like_count }}</span>
+                    </button>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      {% empty %}
+        <div class="card">No replies yet. Start the conversation.</div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="card form-card">
+    <h3>Leave a Reply</h3>
+    <form method="post" action="">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="reply">
+      {{ reply_form.body }}
+      <button class="btn-primary" type="submit">Submit Reply</button>
+    </form>
+  </section>
+
+  {% if can_request_mentorship %}
+    <section class="card mentorship-card">
+      <h3>Request Mentorship from {{ post.author.username }}</h3>
+      <form method="post" action="">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="mentorship">
+        {{ mentorship_form.message }}
+        <button class="btn-primary" type="submit">Send Request</button>
+      </form>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  const getCookie = (name) => {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === `${name}=`) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  };
+
+  document.querySelectorAll('[data-like-button]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const targetId = button.dataset.likeId;
+      const targetType = button.dataset.likeType;
+      const formData = new FormData();
+      formData.append('type', targetType);
+      if (targetType === 'post') {
+        formData.append('post_id', targetId);
+      } else {
+        formData.append('reply_id', targetId);
+      }
+
+      const response = await fetch("{% url 'community:like_toggle' %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        console.error('Like request failed', response.status);
+        return;
+      }
+
+      const data = await response.json();
+      if (data.count !== undefined) {
+        button.classList.toggle('liked', data.liked);
+        const countNode = button.querySelector('[data-like-count]');
+        if (countNode) countNode.textContent = data.count;
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-reply-toggle]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const formId = button.dataset.replyToggle;
+      const form = document.getElementById(formId);
+      if (form) {
+        form.classList.toggle('is-hidden');
+      }
+    });
+  });
+</script>
+{% endblock %}
