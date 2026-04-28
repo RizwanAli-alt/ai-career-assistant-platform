@@ -224,7 +224,7 @@
     background: transparent;
     color: var(--text-0);
     font-size: 0.95rem;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: inherit;
   }
 
   .chat-input::placeholder {
@@ -391,7 +391,7 @@
   const welcomeMessage = document.getElementById('chatWelcome');
   const csrfElement = document.querySelector('[name=csrfmiddlewaretoken]');
   if (!csrfElement) {
-    throw new Error('CSRF token missing. This template must be rendered by Django with csrf_token available in context.');
+    throw new Error('CSRF token not found on page.');
   }
   const csrfToken = csrfElement.value;
 
@@ -468,7 +468,18 @@
         console.error('Chat request failed with status:', response.status, response.statusText);
         throw new Error('Unable to send message. Please check your connection and try again.');
       }
-      const data = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        console.error('Unexpected response content type:', contentType);
+        throw new Error('Received an invalid response from the server. Please try again.');
+      }
+      let data;
+      try {
+        data = await response.json();
+      } catch (error) {
+        console.error('Failed to parse chat response JSON:', error);
+        throw new Error('Received an invalid response from the server. Please try again.');
+      }
       if (!data || !data.response) {
         console.error('Invalid chat response payload:', data);
         throw new Error('Received an invalid response from the server. Please try again.');
