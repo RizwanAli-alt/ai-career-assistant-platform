@@ -5,42 +5,483 @@
 
 {% block extra_head %}
 <style>
-  .forum-shell{max-width:1200px;margin:0 auto;padding:32px max(24px,4vw) 64px}
-  .forum-header{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;margin-bottom:24px}
-  .forum-header h1{font-size:2rem;font-weight:700}
-  .forum-header p{color:var(--text-1);font-size:.95rem}
-  .forum-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px}
-  .filter-bar{background:var(--bg-2);border:1px solid var(--border);border-radius:14px;padding:18px;display:grid;gap:14px;margin-bottom:18px}
-  .tab-row,.pill-row{display:flex;gap:8px;flex-wrap:wrap}
-  .tab-link,.pill-link{padding:8px 14px;border-radius:999px;border:1px solid var(--border);color:var(--text-1);font-size:.82rem;font-weight:500;transition:.2s}
-  .tab-link.active,.pill-link.active{background:var(--bg-3);border-color:var(--border-strong);color:var(--text-0)}
-  .tab-link:hover,.pill-link:hover{border-color:var(--border-strong);color:var(--text-0)}
-  .post-card{display:grid;gap:14px}
-  .post-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--text-1);font-size:.82rem}
-  .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(47,129,247,0.12);color:var(--accent);font-size:.72rem;font-weight:600;border:1px solid rgba(47,129,247,0.3)}
-  .badge-muted{background:rgba(139,148,158,0.12);color:var(--text-1);border-color:rgba(139,148,158,0.3)}
-  .post-title{font-size:1.2rem;font-weight:600;line-height:1.3}
-  .post-title a{color:var(--text-0)}
-  .post-preview{color:var(--text-1);font-size:.9rem}
-  .post-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-  .stats-row{display:flex;gap:16px;flex-wrap:wrap;color:var(--text-1);font-size:.8rem}
-  .stats-item{display:inline-flex;align-items:center;gap:6px}
-  .avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-weight:600;font-size:.85rem}
-  .author-row{display:flex;align-items:center;gap:10px}
-  .role-badge{padding:4px 10px;border-radius:999px;font-size:.7rem;font-weight:600;border:1px solid transparent;text-transform:capitalize}
-  .role-student{background:rgba(139,148,158,0.12);color:var(--text-1);border-color:rgba(139,148,158,0.35)}
-  .role-senior{background:rgba(47,129,247,0.12);color:var(--accent);border-color:rgba(47,129,247,0.35)}
-  .role-employer{background:rgba(63,185,80,0.12);color:var(--green);border-color:rgba(63,185,80,0.35)}
-  .role-mentor{background:rgba(123,97,255,0.12);color:#b192ff;border-color:rgba(123,97,255,0.35)}
-  .sidebar-card{display:grid;gap:12px}
-  .sidebar-list{display:grid;gap:10px}
-  .sidebar-item{display:flex;align-items:center;justify-content:space-between;color:var(--text-1);font-size:.85rem}
-  .leader-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .leader-meta{display:flex;align-items:center;gap:10px}
-  .points-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:rgba(47,129,247,0.14);color:var(--accent);font-size:.72rem;font-weight:600;border:1px solid rgba(47,129,247,0.3)}
-  .icon{width:16px;height:16px}
-  @media (max-width: 980px){
-    .forum-grid{grid-template-columns:1fr}
+  .forum-page {
+    --forum-accent: #2F81F7;
+    --forum-green: #3FB950;
+    background: radial-gradient(circle at 20% 20%, rgba(47,129,247,0.06), transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(63,185,80,0.04), transparent 50%);
+    padding: 48px 0 80px;
+  }
+
+  .forum-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px max(24px, 4vw) 64px;
+  }
+
+  .forum-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .forum-title {
+    font-size: 2.6rem;
+    font-weight: 800;
+    color: var(--text-0);
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .forum-title .gradient-text {
+    background: linear-gradient(135deg, #2F81F7, #3FB950);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .forum-subtitle {
+    color: var(--text-1);
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+  }
+
+  .forum-stats {
+    color: var(--text-2);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .btn-new-post {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, rgba(47,129,247,0.25), rgba(63,185,80,0.12));
+    border: 1px solid rgba(47,129,247,0.35);
+    color: var(--text-0);
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 10px;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .btn-new-post:hover {
+    transform: translateY(-1px);
+    border-color: rgba(47,129,247,0.6);
+    box-shadow: 0 0 20px rgba(47,129,247,0.4);
+  }
+
+  .forum-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 28px;
+  }
+
+  .filter-bar {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    display: grid;
+    gap: 14px;
+    margin-bottom: 16px;
+    backdrop-filter: blur(14px);
+  }
+
+  .tab-row,
+  .pill-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tab-link,
+  .pill-link {
+    position: relative;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--text-1);
+    font-size: 0.82rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.02);
+    transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .tab-link:hover,
+  .pill-link:hover {
+    transform: translateY(-1px) scale(1.02);
+    border-color: rgba(47,129,247,0.4);
+    color: var(--text-0);
+  }
+
+  .tab-link.active,
+  .pill-link.active {
+    background: linear-gradient(135deg, rgba(47,129,247,0.25), rgba(63,185,80,0.1));
+    border-color: rgba(47,129,247,0.35);
+    color: var(--text-0);
+    box-shadow: 0 0 0 1px rgba(47,129,247,0.15);
+  }
+
+  .tab-link.active::before,
+  .pill-link.active::before {
+    content: "";
+    position: absolute;
+    left: -1px;
+    top: 10%;
+    width: 3px;
+    height: 80%;
+    background: var(--forum-accent);
+    border-radius: 999px;
+  }
+
+  .post-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    display: grid;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    backdrop-filter: blur(14px);
+  }
+
+  .post-card + .post-card {
+    margin-top: 24px;
+  }
+
+  .post-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, rgba(47,129,247,0.5), rgba(63,185,80,0.2));
+  }
+
+  .post-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(47,129,247,0.35);
+    box-shadow: 0 8px 32px rgba(2, 6, 20, 0.4), 0 0 0 1px rgba(47,129,247,0.15);
+  }
+
+  .post-card.is-pinned {
+    border-left: 3px solid var(--forum-accent);
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    color: var(--text-1);
+    font-size: 0.82rem;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border: 1px solid rgba(47,129,247,0.3);
+    background: rgba(47,129,247,0.12);
+    color: var(--forum-accent);
+  }
+
+  .badge-muted {
+    background: rgba(139,148,158,0.12);
+    color: var(--text-1);
+    border-color: rgba(139,148,158,0.3);
+  }
+
+  .category-badge {
+    background: linear-gradient(135deg, rgba(47,129,247,0.25), rgba(63,185,80,0.18));
+    border-color: rgba(47,129,247,0.35);
+    color: var(--text-0);
+  }
+
+  .pinned-badge {
+    background: rgba(47,129,247,0.12);
+    color: var(--forum-accent);
+    border-color: rgba(47,129,247,0.35);
+  }
+
+  .pinned-badge svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .post-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .post-title a {
+    color: var(--text-0);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .post-title a:hover {
+    color: var(--forum-accent);
+  }
+
+  .post-preview {
+    color: var(--text-1);
+    font-size: 0.9rem;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, var(--forum-accent), #3FB950);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  .author-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .role-badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+    text-transform: capitalize;
+  }
+
+  .role-student {
+    background: rgba(139,148,158,0.12);
+    color: var(--text-1);
+    border-color: rgba(139,148,158,0.35);
+  }
+
+  .role-senior {
+    background: rgba(47,129,247,0.12);
+    color: var(--forum-accent);
+    border-color: rgba(47,129,247,0.35);
+  }
+
+  .role-employer {
+    background: rgba(63,185,80,0.12);
+    color: var(--forum-green);
+    border-color: rgba(63,185,80,0.35);
+  }
+
+  .role-mentor {
+    background: rgba(123,97,255,0.12);
+    color: #b192ff;
+    border-color: rgba(123,97,255,0.35);
+  }
+
+  .post-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    color: var(--text-1);
+    font-size: 0.8rem;
+  }
+
+  .stats-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .stats-item .icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .sidebar {
+    display: grid;
+    gap: 24px;
+  }
+
+  .sidebar-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    gap: 12px;
+    backdrop-filter: blur(14px);
+  }
+
+  .sidebar-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--forum-accent), var(--forum-green));
+  }
+
+  .sidebar-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-0);
+    margin-bottom: 4px;
+  }
+
+  .sidebar-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text-1);
+    font-size: 0.85rem;
+  }
+
+  .category-item {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border-left: 2px solid transparent;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .category-item:hover {
+    background: var(--bg-3);
+    border-left-color: var(--forum-accent);
+  }
+
+  .category-count {
+    background: var(--bg-3);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .leader-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .leader-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .rank-badge {
+    min-width: 32px;
+    height: 28px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: #0d1117;
+    background: var(--bg-3);
+  }
+
+  .rank-1 {
+    background: #F0A500;
+  }
+
+  .rank-2 {
+    background: #8B949E;
+    color: #0d1117;
+  }
+
+  .rank-3 {
+    background: #CD7F32;
+  }
+
+  .points-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(47,129,247,0.14);
+    color: var(--text-0);
+    font-size: 0.72rem;
+    font-weight: 600;
+    border: 1px solid rgba(47,129,247,0.3);
+    box-shadow: 0 0 8px rgba(47,129,247,0.3);
+  }
+
+  .icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .empty-state svg {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 16px;
+    color: var(--forum-accent);
+  }
+
+  .empty-state h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-0);
+    margin-bottom: 8px;
+  }
+
+  .empty-state p {
+    color: var(--text-2);
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 980px) {
+    .forum-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
 <script>
@@ -52,144 +493,160 @@
 {% endblock %}
 
 {% block content %}
-<div class="forum-shell">
-  <div class="forum-header">
-    <div>
-      <h1>Community Forum</h1>
-      <p>Connect with peers, ask questions, and share career insights.</p>
-    </div>
-    <a class="btn-primary" href="{% url 'community:create_post' %}">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <path d="M12 5v14M5 12h14"/>
-      </svg>
-      New Post
-    </a>
-  </div>
-
-  <div class="forum-grid">
-    <div>
-      <div class="filter-bar">
-        <div class="tab-row">
-          <a class="tab-link {% if sort == 'newest' %}active{% endif %}" href="?sort=newest{% if active_category %}&category={{ active_category.slug }}{% endif %}">Newest</a>
-          <a class="tab-link {% if sort == 'trending' %}active{% endif %}" href="?sort=trending{% if active_category %}&category={{ active_category.slug }}{% endif %}">Trending</a>
-          <a class="tab-link {% if sort == 'unanswered' %}active{% endif %}" href="?sort=unanswered{% if active_category %}&category={{ active_category.slug }}{% endif %}">Unanswered</a>
-        </div>
-        <div class="pill-row">
-          <a class="pill-link {% if not active_category %}active{% endif %}" href="?sort={{ sort|default:'newest' }}">All Categories</a>
-          {% for category in categories %}
-            <a class="pill-link {% if active_category and active_category.pk == category.pk %}active{% endif %}" href="?category={{ category.slug }}&sort={{ sort|default:'newest' }}">
-              {{ category.name }}
-            </a>
-          {% endfor %}
-        </div>
+<div class="forum-page">
+  <div class="forum-shell">
+    <div class="forum-header">
+      <div>
+        <h1 class="forum-title">Community <span class="gradient-text">Forum</span></h1>
+        <p class="forum-subtitle">Connect with peers, ask questions, and share career insights.</p>
+        <div class="forum-stats">{{ posts|length }} discussions · {{ top_users|length }} members active</div>
       </div>
+      <a class="btn-primary btn-new-post" href="{% url 'community:create_post' %}">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+        New Post
+      </a>
+    </div>
 
-      {% for post in posts %}
-        <article class="card post-card">
-          <div class="post-meta">
-            {% if post.is_pinned %}
-              <span class="badge badge-muted">Pinned</span>
-            {% endif %}
-            {% if post.category %}
-              <span class="badge">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                  <path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7"/>
-                  <path d="M16 5H8l-4 7h16l-4-7z"/>
-                </svg>
-                {{ post.category.name }}
-              </span>
-            {% endif %}
+    <div class="forum-grid">
+      <div>
+        <div class="filter-bar">
+          <div class="tab-row">
+            <a class="tab-link {% if sort == 'newest' %}active{% endif %}" href="?sort=newest{% if active_category %}&category={{ active_category.slug }}{% endif %}">Newest</a>
+            <a class="tab-link {% if sort == 'trending' %}active{% endif %}" href="?sort=trending{% if active_category %}&category={{ active_category.slug }}{% endif %}">Trending</a>
+            <a class="tab-link {% if sort == 'unanswered' %}active{% endif %}" href="?sort=unanswered{% if active_category %}&category={{ active_category.slug }}{% endif %}">Unanswered</a>
           </div>
-
-          <div>
-            <h2 class="post-title">
-              <a href="{% url 'community:post_detail' post.pk %}">{{ post.title }}</a>
-            </h2>
-            <p class="post-preview">{{ post.body|truncatewords:30 }}</p>
+          <div class="pill-row">
+            <a class="pill-link {% if not active_category %}active{% endif %}" href="?sort={{ sort|default:'newest' }}">All Categories</a>
+            {% for category in categories %}
+              <a class="pill-link {% if active_category and active_category.pk == category.pk %}active{% endif %}" href="?category={{ category.slug }}&sort={{ sort|default:'newest' }}">
+                {{ category.name }}
+              </a>
+            {% endfor %}
           </div>
+        </div>
 
-          <div class="author-row">
-            <div class="avatar">{{ post.author.username|first|upper }}</div>
-            <div>
-              <div>{{ post.author.username }}</div>
-              {% if post.author.community_profile %}
-                <span class="role-badge role-{{ post.author.community_profile.role }}">{{ post.author.community_profile.role }}</span>
+        {% for post in posts %}
+          <article class="card post-card {% if post.is_pinned %}is-pinned{% endif %}">
+            <div class="post-meta">
+              {% if post.is_pinned %}
+                <span class="badge pinned-badge">
+                  <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M14 3l7 7-1.41 1.41-2.83-2.83-4.24 4.24 2.83 2.83L14 17l-4-4-7 7v-2l6-6-4-4 8-8z" />
+                  </svg>
+                  Pinned
+                </span>
+              {% endif %}
+              {% if post.category %}
+                <span class="badge category-badge">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7" />
+                    <path d="M16 5H8l-4 7h16l-4-7z" />
+                  </svg>
+                  {{ post.category.name }}
+                </span>
               {% endif %}
             </div>
-          </div>
 
-          <div class="post-footer">
-            <div class="stats-row">
-              <span class="stats-item">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3"/>
-                </svg>
-                {{ post.views }}
-              </span>
-              <span class="stats-item">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                </svg>
-                {{ post.reply_count }}
-              </span>
-              <span class="stats-item">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-                {{ post.like_count }}
-              </span>
+            <div>
+              <h2 class="post-title">
+                <a href="{% url 'community:post_detail' post.pk %}">{{ post.title }}</a>
+              </h2>
+              <p class="post-preview">{{ post.body|truncatewords:30 }}</p>
             </div>
-            <span class="stats-item">{{ post.created_at|timesince }} ago</span>
-          </div>
-        </article>
-      {% empty %}
-        <div class="card">No posts yet. Be the first to start a discussion.</div>
-      {% endfor %}
-    </div>
 
-    <aside class="sidebar">
-      <div class="card sidebar-card">
-        <h3>Categories</h3>
-        <div class="sidebar-list">
-          {% for category in categories %}
-            <div class="sidebar-item">
-              <span>{{ category.name }}</span>
-              <span>{{ category.posts.count }}</span>
-            </div>
-          {% empty %}
-            <span class="sidebar-item">No categories yet.</span>
-          {% endfor %}
-        </div>
-      </div>
-
-      <div class="card sidebar-card">
-        <h3>Top Contributors</h3>
-        <div class="sidebar-list">
-          {% for contributor in top_users %}
-            <div class="leader-row">
-              <div class="leader-meta">
-                <span class="badge badge-muted">#{{ forloop.counter }}</span>
-                <div>
-                  <div>{{ contributor.user.username }}</div>
-                  <span class="role-badge role-{{ contributor.role }}">{{ contributor.role }}</span>
-                </div>
+            <div class="author-row">
+              <div class="avatar">{{ post.author.username|first|upper }}</div>
+              <div>
+                <div>{{ post.author.username }}</div>
+                {% if post.author.community_profile %}
+                  <span class="role-badge role-{{ post.author.community_profile.role }}">{{ post.author.community_profile.role }}</span>
+                {% endif %}
               </div>
-              <span class="points-badge">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="14 9 12 2 10 9"/>
-                  <path d="M4.59 9H19.4a2 2 0 0 1 1.99 2.2l-1.18 8A2 2 0 0 1 18.24 21H5.76a2 2 0 0 1-1.97-1.8l-1.18-8A2 2 0 0 1 4.59 9z"/>
-                  <line x1="12" y1="12" x2="12" y2="21"/>
-                </svg>
-                {{ contributor.points }}
-              </span>
             </div>
-          {% empty %}
-            <span class="sidebar-item">No contributors yet.</span>
-          {% endfor %}
-        </div>
+
+            <div class="post-footer">
+              <div class="stats-row">
+                <span class="stats-item">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  {{ post.views }}
+                </span>
+                <span class="stats-item">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                  {{ post.reply_count }}
+                </span>
+                <span class="stats-item">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                  {{ post.like_count }}
+                </span>
+              </div>
+              <span class="stats-item">{{ post.created_at|timesince }} ago</span>
+            </div>
+          </article>
+        {% empty %}
+          <div class="card empty-state">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+              <path d="M4 4h16v12H7l-3 3V4zm2 2v9.17L6.17 14H18V6H6zm3 3h6v2H9V9zm0-3h8v2H9V6z" />
+            </svg>
+            <h4>No posts yet</h4>
+            <p>Be the first to start a discussion and help the community grow.</p>
+            <a class="btn-primary btn-new-post" href="{% url 'community:create_post' %}">Create the first post</a>
+          </div>
+        {% endfor %}
       </div>
-    </aside>
+
+      <aside class="sidebar">
+        <div class="card sidebar-card">
+          <h3 class="sidebar-title">Categories</h3>
+          <div class="sidebar-list">
+            {% for category in categories %}
+              <div class="sidebar-item category-item">
+                <span>{{ category.name }}</span>
+                <span class="category-count">{{ category.posts.count }}</span>
+              </div>
+            {% empty %}
+              <span class="sidebar-item">No categories yet.</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="card sidebar-card">
+          <h3 class="sidebar-title">Top Contributors</h3>
+          <div class="sidebar-list">
+            {% for contributor in top_users %}
+              <div class="leader-row">
+                <div class="leader-meta">
+                  <span class="rank-badge rank-{{ forloop.counter }}">#{{ forloop.counter }}</span>
+                  <span class="avatar avatar-sm">{{ contributor.user.username|first|upper }}</span>
+                  <div>
+                    <div>{{ contributor.user.username }}</div>
+                    <span class="role-badge role-{{ contributor.role }}">{{ contributor.role }}</span>
+                  </div>
+                </div>
+                <span class="points-badge">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="14 9 12 2 10 9" />
+                    <path d="M4.59 9H19.4a2 2 0 0 1 1.99 2.2l-1.18 8A2 2 0 0 1 18.24 21H5.76a2 2 0 0 1-1.97-1.8l-1.18-8A2 2 0 0 1 4.59 9z" />
+                    <line x1="12" y1="12" x2="12" y2="21" />
+                  </svg>
+                  {{ contributor.points }}
+                </span>
+              </div>
+            {% empty %}
+              <span class="sidebar-item">No contributors yet.</span>
+            {% endfor %}
+          </div>
+        </div>
+      </aside>
+    </div>
   </div>
 </div>
 {% endblock %}
