@@ -391,7 +391,7 @@
   const welcomeMessage = document.getElementById('chatWelcome');
   const csrfElement = document.querySelector('[name=csrfmiddlewaretoken]');
   if (!csrfElement) {
-    throw new Error('CSRF token element is missing from the form. Ensure the csrf_token tag is included.');
+    throw new Error('CSRF token element is missing from the page. Ensure the csrf_token tag is rendered.');
   }
   const csrfToken = csrfElement.value;
 
@@ -455,22 +455,27 @@
   }
 
   async function sendMessage(text) {
-    const response = await fetch("{% url 'chat' %}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrfToken
-      },
-      body: JSON.stringify({ message: text })
-    });
-    if (!response.ok) {
-      throw new Error(`Request failed with status ${response.status}: ${response.statusText}`);
+    try {
+      const response = await fetch("{% url 'chat' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({ message: text })
+      });
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}: ${response.statusText}`);
+      }
+      const data = await response.json();
+      if (!data || !data.response) {
+        throw new Error('Server response missing required "response" field.');
+      }
+      return data.response;
+    } catch (error) {
+      console.error('Chat request failed:', error);
+      throw error;
     }
-    const data = await response.json();
-    if (!data || !data.response) {
-      throw new Error('Server response missing required "response" field. Expected JSON with { response: string }.');
-    }
-    return data.response;
   }
 
   async function handleSend(text) {
@@ -489,7 +494,7 @@
     } catch (error) {
       chatMessages.appendChild(createMessageRow({
         role: 'bot',
-        text: `Error: ${error.message}. Please try again.`
+        text: 'Unable to send message. Please check your connection and try again.'
       }));
     } finally {
       setWaiting(false);
