@@ -362,7 +362,7 @@
     </div>
 
     <div class="chat-input-area">
-      <form id="chatForm">
+      <form id="chatForm" data-chat-url="{% url 'chat' %}">
         {% csrf_token %}
         <div class="chat-input-wrapper">
           <input
@@ -389,11 +389,17 @@
   const typingIndicator = document.getElementById('typingIndicator');
   const suggestions = document.getElementById('chatSuggestions');
   const welcomeMessage = document.getElementById('chatWelcome');
+  const defaultErrorMessage = 'Unable to send message. Please check your connection and try again.';
   const csrfElement = document.querySelector('[name=csrfmiddlewaretoken]');
+  const chatEndpoint = chatForm.dataset.chatUrl;
+  let csrfToken = '';
   if (!csrfElement) {
-    throw new Error('CSRF token not found on page.');
+    console.error('CSRF token not found on page.');
+    chatInput.disabled = true;
+    chatSend.disabled = true;
+  } else {
+    csrfToken = csrfElement.value;
   }
-  const csrfToken = csrfElement.value;
 
   function formatTime() {
     return new Date().toLocaleTimeString('en-US', {
@@ -456,7 +462,7 @@
 
   async function sendMessage(text) {
     try {
-      const response = await fetch("{% url 'chat' %}", {
+      const response = await fetch(chatEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -466,7 +472,7 @@
       });
       if (!response.ok) {
         console.error('Chat request failed with status:', response.status, response.statusText);
-        throw new Error('Unable to send message. Please check your connection and try again.');
+        throw new Error(defaultErrorMessage);
       }
       const contentType = response.headers.get('content-type') || '';
       if (!contentType.includes('application/json')) {
@@ -490,7 +496,7 @@
       if (error instanceof Error) {
         throw error;
       }
-      throw new Error('Unable to send message. Please check your connection and try again.');
+      throw new Error(defaultErrorMessage);
     }
   }
 
@@ -510,7 +516,7 @@
     } catch (error) {
       const message = error instanceof Error
         ? error.message
-        : 'Unable to send message. Please check your connection and try again.';
+        : defaultErrorMessage;
       chatMessages.appendChild(createMessageRow({
         role: 'bot',
         text: message
