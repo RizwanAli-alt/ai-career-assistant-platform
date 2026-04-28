@@ -1,58 +1,127 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
-{% block title %}My Learning - AI Career Assistant{% endblock %}
+{% block title %}My Bookmarks{% endblock %}
+{% block nav_resources_active %}active{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row mb-4">
-        <div class="col-md-12 d-flex justify-content-between align-items-center">
-            <div>
-                <h1><i class="fas fa-graduation-cap"></i> My Learning</h1>
-                <p class="text-muted mb-0">Track your progress across saved and completed resources</p>
-            </div>
-        </div>
-    </div>
 
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="btn-group" role="group" aria-label="Progress filter">
-                <a href="{% url 'my_learning' %}" class="btn btn-outline-primary {% if not status %}active{% endif %}">All</a>
-                <a href="{% url 'my_learning' %}?status=in_progress" class="btn btn-outline-primary {% if status == 'in_progress' %}active{% endif %}">In Progress</a>
-                <a href="{% url 'my_learning' %}?status=completed" class="btn btn-outline-primary {% if status == 'completed' %}active{% endif %}">Completed</a>
-            </div>
-        </div>
-    </div>
-
-    {% if progress %}
-        <div class="row">
-            {% for item in progress %}
-                <div class="col-lg-6 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title mb-1">{{ item.resource.title }}</h5>
-                            <p class="small text-muted mb-2">{{ item.resource.get_resource_type_display }} | {{ item.resource.get_difficulty_level_display }}</p>
-
-                            {% if item.is_completed %}
-                                <span class="badge bg-success mb-2">Completed</span>
-                            {% else %}
-                                <span class="badge bg-warning text-dark mb-2">In Progress</span>
-                            {% endif %}
-
-                            <div class="mb-2">
-                                <progress value="{{ item.progress_percentage }}" max="100" class="w-100"></progress>
-                                <p class="small mb-0">{{ item.progress_percentage }}%</p>
-                            </div>
-
-                            <p class="small text-muted mb-3">Started: {{ item.started_at|date:'M d, Y' }}</p>
-                            <a href="{% url 'resource_detail' item.resource.pk %}" class="btn btn-outline-primary btn-sm">Continue</a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="alert alert-info">No learning progress records found for this filter.</div>
-    {% endif %}
+<div class="page-header fade-up">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+    <a href="{% url 'resource_hub:index' %}" style="color:var(--text-muted);font-size:13px"
+       onmouseover="this.style.color='var(--accent-blue)'" onmouseout="this.style.color='var(--text-muted)'">
+      ← All Resources
+    </a>
+  </div>
+  <h1>🔖 My <span class="gradient-text">Bookmarks</span></h1>
+  <p>Resources you've saved for later</p>
 </div>
+
+{% if not user.is_authenticated %}
+<div class="glass-card fade-up" style="padding:48px;text-align:center;max-width:480px;margin:32px auto">
+  <div style="font-size:48px;margin-bottom:16px">🔒</div>
+  <h3 style="font-family:var(--font-display);font-size:20px;margin-bottom:8px">Login to view bookmarks</h3>
+  <p style="color:var(--text-muted);font-size:14px;margin-bottom:24px">Save resources and track your progress across sessions</p>
+  <a href="{% url 'users:login' %}" class="btn-primary" style="display:inline-flex">Login →</a>
+</div>
+{% else %}
+
+<!-- Quick Stats -->
+<div style="display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap" class="fade-up fade-up-1">
+  <div class="glass-card" style="padding:16px 24px;display:flex;align-items:center;gap:12px">
+    <span style="font-size:22px">🔖</span>
+    <div>
+      <div id="bm-count" style="font-family:var(--font-display);font-size:22px;font-weight:800;background:var(--accent-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent">—</div>
+      <div style="font-size:11px;color:var(--text-muted)">Bookmarks</div>
+    </div>
+  </div>
+  <div class="glass-card" style="padding:16px 24px;display:flex;align-items:center;gap:12px">
+    <span style="font-size:22px">✅</span>
+    <div>
+      <div id="done-count" style="font-family:var(--font-display);font-size:22px;font-weight:800;background:var(--accent-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent">—</div>
+      <div style="font-size:11px;color:var(--text-muted)">Completed</div>
+    </div>
+  </div>
+  <div class="glass-card" style="padding:16px 24px;display:flex;align-items:center;gap:12px">
+    <span style="font-size:22px">⏳</span>
+    <div>
+      <div id="prog-count" style="font-family:var(--font-display);font-size:22px;font-weight:800;background:var(--accent-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent">—</div>
+      <div style="font-size:11px;color:var(--text-muted)">In Progress</div>
+    </div>
+  </div>
+</div>
+
+<!-- Filters for bookmarks -->
+<div class="filters-row fade-up fade-up-2" style="margin-bottom:20px">
+  <button class="filter-chip active" data-status="all">All</button>
+  <button class="filter-chip" data-status="not_started">Not Started</button>
+  <button class="filter-chip" data-status="in_progress">In Progress</button>
+  <button class="filter-chip" data-status="completed">Completed</button>
+  <span class="results-count" id="results-count"></span>
+</div>
+
+<div class="resources-grid fade-up fade-up-3" id="bookmarks-grid">
+  <div class="empty-state" style="grid-column:1/-1">
+    <div class="empty-icon">⏳</div><h3>Loading your bookmarks...</h3>
+  </div>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if user.is_authenticated %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  let allResources = [];
+
+  // Status filter chips
+  document.querySelectorAll('.filter-chip[data-status]').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip[data-status]').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      renderFiltered(chip.dataset.status);
+    });
+  });
+
+  function renderFiltered(status) {
+    const grid = document.getElementById('bookmarks-grid');
+    const countEl = document.getElementById('results-count');
+    let list = allResources;
+    if (status !== 'all') {
+      list = allResources.filter(r => (r.user_progress?.status ?? 'not_started') === status);
+    }
+    if (countEl) countEl.textContent = `${list.length} resource${list.length !== 1 ? 's' : ''}`;
+    if (!list.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><h3>None in this category</h3></div>`;
+      return;
+    }
+    grid.innerHTML = list.map((r, i) => resourceCardHTML(r, i)).join('');
+    attachBookmarkListeners(grid);
+    attachProgressListeners(grid);
+  }
+
+  // Load bookmarks from API
+  fetch('/api/bookmarks/', { headers: { 'Accept': 'application/json' } })
+    .then(r => r.json())
+    .then(data => {
+      const list = Array.isArray(data) ? data : (data.results ?? []);
+      allResources = list.map(b => ({ ...(b.resource ?? b), is_bookmarked: true }));
+
+      // Update stats
+      const doneCount = allResources.filter(r => r.user_progress?.status === 'completed').length;
+      const progCount = allResources.filter(r => r.user_progress?.status === 'in_progress').length;
+      document.getElementById('bm-count').textContent  = allResources.length;
+      document.getElementById('done-count').textContent = doneCount;
+      document.getElementById('prog-count').textContent = progCount;
+
+      renderFiltered('all');
+    })
+    .catch(() => {
+      document.getElementById('bookmarks-grid').innerHTML =
+        `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">❌</div><h3>Could not load bookmarks</h3></div>`;
+    });
+});
+</script>
+{% endif %}
 {% endblock %}

@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Resource Hub{% endblock %} – CareerAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="{% static 'resource_hub/style.css' %}">
+  {% block resource_hub_css %}{% endblock %}
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="bg-canvas">
+  <div class="stars"></div>
+</div>
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+</div>
+<div class="page-wrapper">
+  <nav class="navbar">
+    <a href="{% url 'resource_hub' %}" class="nav-logo">
+      <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 16C4 10.477 8.477 6 14 6C16.768 6 19.273 7.124 21.084 8.94" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M16 2L13 8H17L14 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Career<span>AI</span>
+    </a>
+    <div class="nav-links">
+      <a href="{% url 'dashboard' %}">Dashboard</a>
+      <a href="{% url 'upload_cv_analysis' %}">CV Analyzer</a>
+      <a href="{% url 'job_list' %}">Jobs</a>
+      <a href="{% url 'resource_hub' %}" class="{% block nav_resources_active %}active{% endblock %}">Resources</a>
+      <a href="{% url 'community:home' %}" class="{% block nav_forum_active %}{% endblock %}">Forum</a>
+    </div>
+    <div class="nav-actions">
+      {% if user.is_authenticated %}
+        <span class="nav-user">{{ user.username }}</span>
+        <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn-outline" style="font-size:13px;padding:7px 16px">Login</a>
+        <a href="{% url 'register' %}" class="btn-primary" style="font-size:13px;padding:7px 16px">Sign Up</a>
+      {% endif %}
+    </div>
+  </nav>
+  <main class="main-content">
+    <div class="container">
+      {% if messages %}
+        <div class="messages-list" style="margin-bottom:16px">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+  <footer class="footer">
+    Resource Hub · Part of CareerAI Platform · Built with Django
+  </footer>
+</div>
+{% csrf_token %}
+<script src="{% static 'resource_hub/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

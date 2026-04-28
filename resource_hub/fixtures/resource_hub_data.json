@@ -1,0 +1,622 @@
+[
+{
+  "model": "resource_hub.resource",
+  "pk": 1,
+  "fields": {
+    "title": "Machine Learning Crash Course",
+    "description": "Google's fast-paced introduction to ML with TensorFlow APIs.",
+    "url": "https://developers.google.com/machine-learning/crash-course",
+    "platform": "Google",
+    "category": "AI_ML",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "15 hours",
+    "tags": "machine learning, tensorflow, google, AI, neural networks",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.013Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 2,
+  "fields": {
+    "title": "Practical Deep Learning for Coders",
+    "description": "Top-down approach to deep learning by fast.ai. Free and world-class.",
+    "url": "https://course.fast.ai",
+    "platform": "fast.ai",
+    "category": "AI_ML",
+    "level": "INTERMEDIATE",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "20 hours",
+    "tags": "deep learning, pytorch, fastai, neural networks, AI",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.020Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 3,
+  "fields": {
+    "title": "CS50 AI  Introduction to Artificial Intelligence with Python",
+    "description": "Harvard's introduction to AI concepts and algorithms using Python.",
+    "url": "https://cs50.harvard.edu/ai/",
+    "platform": "Harvard CS50",
+    "category": "AI_ML",
+    "level": "INTERMEDIATE",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "7 weeks",
+    "tags": "AI, python, harvard, search, machine learning, neural networks",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.026Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 4,
+  "fields": {
+    "title": "Machine Learning by Andrew Ng (YouTube)",
+    "description": "The legendary Stanford ML course by Andrew Ng  free on YouTube.",
+    "url": "https://www.youtube.com/playlist?list=PLkDaE6sCZn6FNC6YRfRQc_FbeQrF8BwGI",
+    "platform": "YouTube",
+    "category": "AI_ML",
+    "level": "INTERMEDIATE",
+    "resource_type": "PLAYLIST",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "60 hours",
+    "tags": "machine learning, andrew ng, stanford, regression, classification",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.028Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 5,
+  "fields": {
+    "title": "Kaggle Machine Learning Micro-Courses",
+    "description": "Free hands-on ML courses with real datasets directly in the browser.",
+    "url": "https://www.kaggle.com/learn",
+    "platform": "Kaggle",
+    "category": "AI_ML",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "10 hours",
+    "tags": "kaggle, machine learning, pandas, data, python",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.047Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 6,
+  "fields": {
+    "title": "Neural Networks: Zero to Hero by Andrej Karpathy",
+    "description": "Build neural networks from scratch in Python. By ex-OpenAI director.",
+    "url": "https://www.youtube.com/playlist?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ",
+    "platform": "YouTube",
+    "category": "AI_ML",
+    "level": "ADVANCED",
+    "resource_type": "PLAYLIST",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "25 hours",
+    "tags": "neural networks, backpropagation, GPT, karpathy, deep learning",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.053Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 7,
+  "fields": {
+    "title": "Elements of AI",
+    "description": "Free online course by University of Helsinki. No programming needed.",
+    "url": "https://www.elementsofai.com",
+    "platform": "Other",
+    "category": "AI_ML",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "6 weeks",
+    "tags": "AI, beginner, concepts, ethics, machine learning",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.061Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 8,
+  "fields": {
+    "title": "The Odin Project  Full Stack Web Development",
+    "description": "Free full-stack curriculum. HTML, CSS, JS, Node, React, Ruby.",
+    "url": "https://www.theodinproject.com",
+    "platform": "The Odin Project",
+    "category": "WEB_DEV",
+    "level": "BEGINNER",
+    "resource_type": "BOOTCAMP",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "Self-paced",
+    "tags": "html, css, javascript, react, nodejs, fullstack, web development",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.072Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 9,
+  "fields": {
+    "title": "freeCodeCamp  Responsive Web Design",
+    "description": "Learn HTML and CSS by building 20 projects. Free certification.",
+    "url": "https://www.freecodecamp.org/learn/2022/responsive-web-design/",
+    "platform": "freeCodeCamp",
+    "category": "WEB_DEV",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "300 hours",
+    "tags": "html, css, responsive design, web, freecodecamp",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.080Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 10,
+  "fields": {
+    "title": "CS50W  Web Programming with Python and JavaScript",
+    "description": "Harvard's web development course covering Django, React, SQL.",
+    "url": "https://cs50.harvard.edu/web/",
+    "platform": "Harvard CS50",
+    "category": "WEB_DEV",
+    "level": "INTERMEDIATE",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "12 weeks",
+    "tags": "django, javascript, react, sql, harvard, web development",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.090Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 11,
+  "fields": {
+    "title": "JavaScript Full Course  freeCodeCamp YouTube",
+    "description": "Complete JavaScript course from scratch. 8+ hours on YouTube.",
+    "url": "https://www.youtube.com/watch?v=jS4aFq5-91M",
+    "platform": "YouTube",
+    "category": "WEB_DEV",
+    "level": "BEGINNER",
+    "resource_type": "VIDEO",
+    "is_free": true,
+    "thumbnail_url": "https://img.youtube.com/vi/jS4aFq5-91M/hqdefault.jpg",
+    "youtube_video_id": "jS4aFq5-91M",
+    "duration": "8 hours",
+    "tags": "javascript, ES6, DOM, async, web, freecodecamp",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.100Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 12,
+  "fields": {
+    "title": "MDN Web Docs  Learn Web Development",
+    "description": "Mozilla's official free learning path for web developers.",
+    "url": "https://developer.mozilla.org/en-US/docs/Learn",
+    "platform": "Other",
+    "category": "WEB_DEV",
+    "level": "BEGINNER",
+    "resource_type": "ARTICLE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "Self-paced",
+    "tags": "html, css, javascript, mozilla, web, documentation",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.112Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 13,
+  "fields": {
+    "title": "React Full Course  Traversy Media",
+    "description": "Complete React.js crash course for beginners on YouTube.",
+    "url": "https://www.youtube.com/watch?v=w7ejDZ8SWv8",
+    "platform": "YouTube",
+    "category": "WEB_DEV",
+    "level": "INTERMEDIATE",
+    "resource_type": "VIDEO",
+    "is_free": true,
+    "thumbnail_url": "https://img.youtube.com/vi/w7ejDZ8SWv8/hqdefault.jpg",
+    "youtube_video_id": "w7ejDZ8SWv8",
+    "duration": "2 hours",
+    "tags": "react, javascript, hooks, components, traversy media",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.120Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 14,
+  "fields": {
+    "title": "Flutter Official Codelabs",
+    "description": "Google's official hands-on Flutter tutorials for beginners.",
+    "url": "https://docs.flutter.dev/codelabs",
+    "platform": "Flutter",
+    "category": "APP_DEV",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "Self-paced",
+    "tags": "flutter, dart, mobile, android, ios, google",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.131Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 15,
+  "fields": {
+    "title": "Android Developer Training",
+    "description": "Official free Android development courses by Google.",
+    "url": "https://developer.android.com/courses",
+    "platform": "Other",
+    "category": "APP_DEV",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "Self-paced",
+    "tags": "android, kotlin, java, mobile, google, app development",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.136Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 16,
+  "fields": {
+    "title": "CS50 Mobile  Mobile App Development with React Native",
+    "description": "Harvard's free course on building mobile apps with React Native.",
+    "url": "https://cs50.harvard.edu/mobile/",
+    "platform": "Harvard CS50",
+    "category": "APP_DEV",
+    "level": "INTERMEDIATE",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "8 weeks",
+    "tags": "react native, mobile, javascript, harvard, ios, android",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.149Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 17,
+  "fields": {
+    "title": "Flutter Full Course  freeCodeCamp YouTube",
+    "description": "Complete Flutter and Dart course for beginners  37 hours free.",
+    "url": "https://www.youtube.com/watch?v=VPvVD8t02U8",
+    "platform": "YouTube",
+    "category": "APP_DEV",
+    "level": "BEGINNER",
+    "resource_type": "VIDEO",
+    "is_free": true,
+    "thumbnail_url": "https://img.youtube.com/vi/VPvVD8t02U8/hqdefault.jpg",
+    "youtube_video_id": "VPvVD8t02U8",
+    "duration": "37 hours",
+    "tags": "flutter, dart, mobile, freecodecamp, app development",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.149Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 18,
+  "fields": {
+    "title": "AWS Skill Builder  Free Courses",
+    "description": "Amazon's official free cloud learning platform with 500+ courses.",
+    "url": "https://skillbuilder.aws",
+    "platform": "AWS",
+    "category": "CLOUD_AWS",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "Self-paced",
+    "tags": "aws, cloud, amazon, s3, ec2, lambda, devops",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.169Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 19,
+  "fields": {
+    "title": "Microsoft Azure Fundamentals (AZ-900)  Free",
+    "description": "Free Microsoft Learn path for Azure cloud fundamentals certification.",
+    "url": "https://learn.microsoft.com/en-us/training/paths/azure-fundamentals/",
+    "platform": "Microsoft Learn",
+    "category": "CLOUD_AWS",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "10 hours",
+    "tags": "azure, microsoft, cloud, AZ-900, certification",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.176Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 20,
+  "fields": {
+    "title": "Google Cloud Skills Boost  Free Tier",
+    "description": "Google Cloud training with free labs and learning paths.",
+    "url": "https://cloudskillsboost.google",
+    "platform": "Google",
+    "category": "CLOUD_AWS",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "Self-paced",
+    "tags": "google cloud, GCP, devops, kubernetes, cloud",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.188Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 21,
+  "fields": {
+    "title": "AWS Full Course  TechWorld with Nana YouTube",
+    "description": "Complete AWS beginner to advanced course on YouTube.",
+    "url": "https://www.youtube.com/watch?v=k1RI5locZE4",
+    "platform": "YouTube",
+    "category": "CLOUD_AWS",
+    "level": "BEGINNER",
+    "resource_type": "VIDEO",
+    "is_free": true,
+    "thumbnail_url": "https://img.youtube.com/vi/k1RI5locZE4/hqdefault.jpg",
+    "youtube_video_id": "k1RI5locZE4",
+    "duration": "5 hours",
+    "tags": "aws, cloud, amazon, ec2, s3, techworld nana",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.197Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 22,
+  "fields": {
+    "title": "CS50x  Introduction to Computer Science",
+    "description": "Harvard's legendary intro CS course. Free to audit on edX.",
+    "url": "https://cs50.harvard.edu/x/",
+    "platform": "Harvard CS50",
+    "category": "PROGRAMMING",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "12 weeks",
+    "tags": "C, python, SQL, algorithms, harvard, cs50, computer science",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.201Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 23,
+  "fields": {
+    "title": "MIT 6.0001  Introduction to Computer Science (Python)",
+    "description": "MIT OpenCourseWare free course on Python programming and CS.",
+    "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/",
+    "platform": "MIT OCW",
+    "category": "PROGRAMMING",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "8 weeks",
+    "tags": "python, MIT, computer science, programming, algorithms",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.212Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 24,
+  "fields": {
+    "title": "Khan Academy  Computer Programming",
+    "description": "Free interactive programming lessons from Khan Academy.",
+    "url": "https://www.khanacademy.org/computing/computer-programming",
+    "platform": "Khan Academy",
+    "category": "PROGRAMMING",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "Self-paced",
+    "tags": "javascript, html, sql, khan academy, programming, beginner",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.217Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 25,
+  "fields": {
+    "title": "Python Full Course  freeCodeCamp YouTube",
+    "description": "Complete Python programming course for beginners. 12 hours free.",
+    "url": "https://www.youtube.com/watch?v=rfscVS0vtbw",
+    "platform": "YouTube",
+    "category": "PROGRAMMING",
+    "level": "BEGINNER",
+    "resource_type": "VIDEO",
+    "is_free": true,
+    "thumbnail_url": "https://img.youtube.com/vi/rfscVS0vtbw/hqdefault.jpg",
+    "youtube_video_id": "rfscVS0vtbw",
+    "duration": "12 hours",
+    "tags": "python, programming, beginner, freecodecamp, OOP",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.228Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 26,
+  "fields": {
+    "title": "CS50 Cybersecurity",
+    "description": "Harvard's free course on cybersecurity fundamentals.",
+    "url": "https://cs50.harvard.edu/cybersecurity/",
+    "platform": "Harvard CS50",
+    "category": "PROGRAMMING",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "8 weeks",
+    "tags": "cybersecurity, harvard, security, hacking, cryptography",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.229Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 27,
+  "fields": {
+    "title": "CS50 Data Science",
+    "description": "Harvard's free introduction to data science with Python.",
+    "url": "https://cs50.harvard.edu/python/",
+    "platform": "Harvard CS50",
+    "category": "DATA_SCIENCE",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "10 weeks",
+    "tags": "data science, python, harvard, pandas, analysis",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.237Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 28,
+  "fields": {
+    "title": "Google Data Analytics Certificate (Free Audit)",
+    "description": "Google's professional data analytics course  free to audit.",
+    "url": "https://www.coursera.org/professional-certificates/google-data-analytics",
+    "platform": "Google",
+    "category": "DATA_SCIENCE",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "6 months",
+    "tags": "data analytics, google, SQL, tableau, spreadsheets",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.246Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 29,
+  "fields": {
+    "title": "Kaggle  Data Science Micro-Courses",
+    "description": "Free hands-on data science courses: pandas, visualization, SQL.",
+    "url": "https://www.kaggle.com/learn/data-visualization",
+    "platform": "Kaggle",
+    "category": "DATA_SCIENCE",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "8 hours",
+    "tags": "data science, pandas, visualization, kaggle, python",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.246Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 30,
+  "fields": {
+    "title": "Data Science Full Course  freeCodeCamp YouTube",
+    "description": "Complete data science course covering Python, ML, and analysis.",
+    "url": "https://www.youtube.com/watch?v=ua-CiDNNj30",
+    "platform": "YouTube",
+    "category": "DATA_SCIENCE",
+    "level": "BEGINNER",
+    "resource_type": "VIDEO",
+    "is_free": true,
+    "thumbnail_url": "https://img.youtube.com/vi/ua-CiDNNj30/hqdefault.jpg",
+    "youtube_video_id": "ua-CiDNNj30",
+    "duration": "6 hours",
+    "tags": "data science, python, machine learning, freecodecamp",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.265Z"
+  }
+},
+{
+  "model": "resource_hub.resource",
+  "pk": 31,
+  "fields": {
+    "title": "Statistics and Probability  Khan Academy",
+    "description": "Free statistics course essential for data science.",
+    "url": "https://www.khanacademy.org/math/statistics-probability",
+    "platform": "Khan Academy",
+    "category": "DATA_SCIENCE",
+    "level": "BEGINNER",
+    "resource_type": "COURSE",
+    "is_free": true,
+    "thumbnail_url": "",
+    "youtube_video_id": "",
+    "duration": "Self-paced",
+    "tags": "statistics, probability, data science, math, khan academy",
+    "view_count": 38,
+    "created_at": "2026-04-25T18:02:08.270Z"
+  }
+}
+]

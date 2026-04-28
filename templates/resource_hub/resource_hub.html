@@ -1,94 +1,101 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
-{% block title %}Learning Resources - AI Career Assistant{% endblock %}
+{% block title %}Learning Resources - CareerAI{% endblock %}
+
+{% block resource_hub_css %}
+<link rel="stylesheet" href="{% static 'resource_hub/style.css' %}">
+<style>
+  .resources-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px !important;
+  }
+  .resource-thumb { display: none !important; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row mb-5">
-        <div class="col-md-12">
-            <h1><i class="fas fa-book"></i> Learning Resources</h1>
-            <p class="text-muted">Enhance your skills with curated courses, articles, and tutorials</p>
-        </div>
+<div style="padding: 40px 0;">
+
+  <div style="margin-bottom:32px">
+    <h1 style="font-size:2.5rem;font-weight:800;margin-bottom:8px">
+      Learn <span style="background:linear-gradient(135deg,#00D4FF,#7C3AED);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Anything</span>, Build Everything
+    </h1>
+    <p style="color:var(--text-muted)">Curated free resources for every stage of your tech career journey</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px">
+    <div class="glass-card" style="padding:20px;text-align:center">
+      <div style="font-size:2rem;font-weight:700;color:#00D4FF">{{ resources.count }}</div>
+      <div style="color:var(--text-muted);font-size:13px">Total Resources</div>
     </div>
-    
-    <!-- Featured Resources -->
-    {% if featured_resources %}
-        <div class="row mb-5">
-            <div class="col-md-12">
-                <h3>Featured Resources</h3>
-            </div>
-            {% for resource in featured_resources %}
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        {% if resource.thumbnail %}
-                            <img src="{{ resource.thumbnail.url }}" class="card-img-top" alt="{{ resource.title }}">
-                        {% else %}
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                <i class="fas fa-book fa-4x text-secondary"></i>
-                            </div>
-                        {% endif %}
-                        
-                        <div class="card-body">
-                            <div class="mb-2">
-                                <span class="badge bg-primary">{{ resource.get_resource_type_display }}</span>
-                                <span class="badge bg-info">{{ resource.get_difficulty_level_display }}</span>
-                            </div>
-                            
-                            <h5 class="card-title">{{ resource.title }}</h5>
-                            <p class="card-text text-muted small">{{ resource.description|truncatewords:20 }}</p>
-                            
-                            {% if resource.duration_minutes %}
-                                <p class="small"><i class="fas fa-clock"></i> {{ resource.duration_minutes }} min</p>
-                            {% endif %}
-                            
-                            <a href="{% url 'resource_detail' resource.pk %}" class="btn btn-primary btn-sm w-100">
-                                View Resource
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+    <div class="glass-card" style="padding:20px;text-align:center">
+      <div style="font-size:2rem;font-weight:700;color:#7C3AED">6</div>
+      <div style="color:var(--text-muted);font-size:13px">Categories</div>
+    </div>
+    <div class="glass-card" style="padding:20px;text-align:center">
+      <div style="font-size:2rem;font-weight:700;color:#00D4FF">Free</div>
+      <div style="color:var(--text-muted);font-size:13px">Most Resources</div>
+    </div>
+    <div class="glass-card" style="padding:20px;text-align:center">
+      <div style="font-size:2rem;font-weight:700;color:#7C3AED">Multi</div>
+      <div style="color:var(--text-muted);font-size:13px">Platforms</div>
+    </div>
+  </div>
+
+  <form method="GET" action="{% url 'browse_resources' %}" style="margin-bottom:32px">
+    <div style="display:flex;gap:12px">
+      <input type="text" name="search" placeholder="Search resources — Python, React, Machine Learning..."
+             style="flex:1;padding:14px 20px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:white;font-size:15px">
+      <button type="submit" class="btn-primary" style="padding:14px 28px;border-radius:12px">Search</button>
+    </div>
+  </form>
+
+  <div style="margin-bottom:32px">
+    <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:16px">Browse by Category</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      {% for value, label in categories %}
+      <a href="{% url 'browse_resources' %}?category={{ value }}" style="text-decoration:none">
+        <div class="glass-card" style="padding:20px;text-align:center;transition:all 0.2s"
+             onmouseover="this.style.borderColor='#00D4FF'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
+          <div style="font-weight:600;color:white">{{ label }}</div>
         </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 style="font-size:1.3rem;font-weight:700">All Resources</h2>
+      <a href="{% url 'browse_resources' %}" class="btn-ghost btn-sm">View All →</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      {% for resource in resources|slice:":6" %}
+      <div class="glass-card" style="padding:20px">
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          {% if resource.is_free %}<span style="background:rgba(0,212,255,0.15);color:#00D4FF;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">Free</span>{% endif %}
+          <span style="background:rgba(124,58,237,0.15);color:#7C3AED;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">{{ resource.get_level_display }}</span>
+          <span style="background:rgba(255,255,255,0.08);color:var(--text-muted);padding:3px 10px;border-radius:20px;font-size:11px">{{ resource.get_resource_type_display }}</span>
+        </div>
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:8px;color:white">{{ resource.title }}</h3>
+        <p style="color:var(--text-muted);font-size:13px;margin-bottom:12px">{{ resource.description|truncatewords:15 }}</p>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="color:var(--text-muted);font-size:12px">{{ resource.platform }}</span>
+          <a href="{% url 'resource_detail' resource.pk %}" class="btn-primary" style="padding:6px 16px;font-size:13px;border-radius:8px">View →</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div style="margin-top:32px;text-align:center">
+    <a href="{% url 'browse_resources' %}" class="btn-primary" style="margin-right:12px">Browse All Resources</a>
+    {% if user.is_authenticated %}
+    <a href="{% url 'my_learning' %}" class="btn-ghost">My Learning →</a>
     {% endif %}
-    
-    <!-- Categories -->
-    <div class="row mb-5">
-        <div class="col-md-12">
-            <h3>Browse by Category</h3>
-        </div>
-        {% for category in categories %}
-            <div class="col-md-4 mb-3">
-                <a href="{% url 'browse_resources' %}?category={{ category.id }}" class="card text-decoration-none">
-                    <div class="card-body text-center">
-                        <i class="fas {{ category.icon }} fa-2x text-primary mb-3"></i>
-                        <h5>{{ category.name }}</h5>
-                        <p class="text-muted small">{{ category.description }}</p>
-                    </div>
-                </a>
-            </div>
-        {% endfor %}
-    </div>
-    
-    <!-- Quick Links -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card bg-light">
-                <div class="card-body text-center">
-                    <a href="{% url 'browse_resources' %}" class="btn btn-primary me-3">
-                        <i class="fas fa-search"></i> Browse All
-                    </a>
-                    <a href="{% url 'skill_paths' %}" class="btn btn-success me-3">
-                        <i class="fas fa-road"></i> Learning Paths
-                    </a>
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'my_learning' %}" class="btn btn-info">
-                            <i class="fas fa-chart-line"></i> My Progress
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
+  </div>
+
 </div>
 {% endblock %}

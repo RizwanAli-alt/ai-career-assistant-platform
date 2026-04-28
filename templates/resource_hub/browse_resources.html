@@ -1,78 +1,147 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
-
-{% block title %}Browse Resources - AI Career Assistant{% endblock %}
+{% block title %}Browse Resources - CareerAI{% endblock %}
+{% block resource_hub_css %}
+<link rel="stylesheet" href="{% static 'resource_hub/style.css' %}">
+<style>
+  .resources-grid { display:grid !important; grid-template-columns:repeat(3,1fr) !important; gap:20px !important; }
+  .resource-thumbnail { display:none !important; }
+  body > div > main { padding-top: 90px; }
+  a.navbar-logo,
+  a.navbar-logo *,
+  a.navbar-logo span,
+  .navbar-logo { 
+    color: #ffffff !important; 
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  a.navbar-logo svg,
+  a.navbar-logo svg path { 
+    stroke: #ffffff !important;
+    color: #ffffff !important;
+  }
+  a.navbar-logo .logo-accent { color: #7c6af7 !important; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4"><i class="fas fa-book"></i> Browse Resources</h1>
-    
-    <!-- Filters -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-body">
-                    <form method="GET" class="row g-3">
-                        <div class="col-md-4">
-                            {{ form.search }}
-                        </div>
-                        <div class="col-md-3">
-                            {{ form.resource_type }}
-                        </div>
-                        <div class="col-md-3">
-                            {{ form.difficulty }}
-                        </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary w-100">Filter</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+<div style="max-width:1200px;margin:0 auto;padding:40px 32px;">
+
+<div class="page-header fade-up">
+  <h1>Browse <span class="gradient-text">Resources</span></h1>
+  <p>Filter and find the perfect learning resource for you</p>
+</div>
+
+<div class="search-section fade-up fade-up-1">
+  <form method="GET" action="{% url 'browse_resources' %}">
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+      <div class="search-wrapper" style="flex:1;min-width:280px">
+        <input type="text" name="search" value="{{ search|default:'' }}"
+               class="search-input" placeholder="Search resources — Python, React, Machine Learning..." autocomplete="off">
+      </div>
+      <button type="submit" class="btn-primary">Search</button>
     </div>
-    
-    <!-- Resources -->
-    {% if resources %}
-        <div class="row">
-            {% for resource in resources %}
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        {% if resource.thumbnail %}
-                            <img src="{{ resource.thumbnail.url }}" class="card-img-top" alt="{{ resource.title }}">
-                        {% else %}
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                                <i class="fas fa-file fa-3x text-secondary"></i>
-                            </div>
-                        {% endif %}
-                        
-                        <div class="card-body">
-                            <div class="mb-2">
-                                <span class="badge bg-primary">{{ resource.get_resource_type_display }}</span>
-                                <span class="badge bg-info">{{ resource.get_difficulty_level_display }}</span>
-                            </div>
-                            
-                            <h5 class="card-title">{{ resource.title }}</h5>
-                            <p class="card-text small text-muted">{{ resource.description|truncatewords:15 }}</p>
-                            
-                            <div class="mb-3">
-                                {% if resource.duration_minutes %}
-                                    <small><i class="fas fa-clock"></i> {{ resource.duration_minutes }} min</small><br>
-                                {% endif %}
-                                <small><i class="fas fa-eye"></i> {{ resource.views_count }} views</small>
-                            </div>
-                            
-                            <a href="{% url 'resource_detail' resource.pk %}" class="btn btn-primary btn-sm w-100">
-                                View Details
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+    <div class="filters-row">
+      <select name="category" class="filter-select" onchange="this.form.submit()">
+        <option value="">All Categories</option>
+        {% for value, label in categories %}
+          <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select name="level" class="filter-select" onchange="this.form.submit()">
+        <option value="">All Levels</option>
+        {% for value, label in levels %}
+          <option value="{{ value }}" {% if selected_level == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select name="resource_type" class="filter-select" onchange="this.form.submit()">
+        <option value="">All Types</option>
+        {% for value, label in types %}
+          <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <span class="results-count">{{ resources.count }} resources</span>
+    </div>
+  </form>
+</div>
+
+<div class="fade-up fade-up-2">
+  <div class="section-title" style="margin-bottom:16px">All Resources</div>
+  <div class="resources-grid" id="resources-grid" style="display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:20px!important;">
+    {% for resource in resources %}
+    <div class="resource-card fade-up fade-up-{{ forloop.counter|add:1 }}" data-id="{{ resource.pk }}">
+
+      <div class="resource-card-top">
+        <div style="flex:1;min-width:0">
+          <div class="resource-badge-row">
+            {% if resource.is_free %}
+              <span class="badge badge-free">Free</span>
+            {% else %}
+              <span class="badge badge-paid">Paid</span>
+            {% endif %}
+            <span class="badge badge-level">{{ resource.get_level_display }}</span>
+            <span class="badge badge-type">{{ resource.get_resource_type_display }}</span>
+          </div>
         </div>
-    {% else %}
-        <div class="alert alert-info">
-            <i class="fas fa-search"></i> No resources found.
-        </div>
-    {% endif %}
+        {% if user.is_authenticated %}
+        <a href="{% url 'toggle_bookmark' resource.pk %}" class="bookmark-btn" title="Bookmark">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.7"/>
+          </svg>
+        </a>
+        {% endif %}
+      </div>
+
+      <div class="resource-title">{{ resource.title }}</div>
+      <div class="resource-desc">{{ resource.description|truncatewords:20 }}</div>
+
+      {% if resource.tags %}
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        {% for tag in resource.get_tags_list|slice:":3" %}
+          <span style="font-size:11px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.05);color:var(--text-muted)">#{{ tag }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="resource-meta">
+        <span style="display:flex;align-items:center;gap:4px">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.7"/>
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/>
+          </svg>
+          {{ resource.view_count }}
+        </span>
+        {% if resource.duration %}
+        <span style="display:flex;align-items:center;gap:4px">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          {{ resource.duration }}
+        </span>
+        {% endif %}
+      </div>
+
+      <div class="resource-footer">
+        <span class="platform-pill">{{ resource.platform }}</span>
+        <a class="btn-visit" href="{{ resource.url }}" target="_blank" rel="noopener">
+          Visit
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="display:inline;margin-left:4px">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </a>
+      </div>
+
+    </div>
+    {% empty %}
+    <div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-icon">🔍</div>
+      <h3>No resources found</h3>
+      <p>Try different filters or search terms</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
 </div>
 {% endblock %}

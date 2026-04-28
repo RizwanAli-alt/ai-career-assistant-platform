@@ -19,7 +19,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" integrity="sha384-Z3REaz79l2IaAZqJsSABtTbhjgOUYyV3p90XNnAPCSHg3EMTz1fouunq9WZRtj3d" crossorigin="anonymous" defer></script>
 
-  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+ <link rel="stylesheet" href="{% static 'css/main.css' %}">
+ {% block resource_hub_css %}{% endblock %}
+  {% if 'resources' in request.path %}
+  <link rel="stylesheet" href="{% static 'resource_hub/style.css' %}">
+  {% endif %}
   {% block extra_head %}{% endblock %}
 </head>
 <body>
