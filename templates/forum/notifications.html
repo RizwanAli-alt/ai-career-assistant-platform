@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Notifications — Forum{% endblock %}
+
+{% block extra_head %}
+<style>
+  .notifications-shell{max-width:900px;margin:0 auto;padding:32px max(24px,4vw) 64px}
+  .notifications-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .notification-list{display:grid;gap:12px}
+  .notification-card{display:grid;gap:8px;padding:18px;border-radius:12px;border:1px solid var(--border);background:var(--bg-2)}
+  .notification-card.unread{border-left:4px solid var(--accent);background:rgba(47,129,247,0.08)}
+  .notification-meta{display:flex;align-items:center;gap:12px;color:var(--text-1);font-size:.82rem}
+  .icon{width:16px;height:16px}
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const forumLink = document.querySelector('.navbar-links a[href="{% url 'community:home' %}"]');
+    if (forumLink) forumLink.classList.add('active');
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="notifications-shell">
+  <div class="notifications-header">
+    <div>
+      <h1>Notifications</h1>
+      <p class="text-muted">Updates and alerts from the community.</p>
+    </div>
+    <form method="post" action="">
+      {% csrf_token %}
+      <input type="hidden" name="mark_all_read" value="1">
+      <button class="btn-ghost" type="submit">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 6 9 17l-5-5"/>
+        </svg>
+        Mark all read
+      </button>
+    </form>
+  </div>
+
+  <div class="notification-list">
+    {% for notification in notifications %}
+      <div class="notification-card {% if not notification.is_read %}unread{% endif %}">
+        <div>{{ notification.message }}</div>
+        <div class="notification-meta">
+          <span>{{ notification.created_at|timesince }} ago</span>
+          {% if notification.link %}
+            <a href="{{ notification.link }}">View</a>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="card">No notifications available.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
