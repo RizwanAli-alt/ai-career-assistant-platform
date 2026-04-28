@@ -391,7 +391,7 @@
   const welcomeMessage = document.getElementById('chatWelcome');
   const csrfElement = document.querySelector('[name=csrfmiddlewaretoken]');
   if (!csrfElement) {
-    throw new Error('CSRF token not found');
+    throw new Error('CSRF token element is missing from the form. Ensure the csrf_token tag is included.');
   }
   const csrfToken = csrfElement.value;
 
@@ -464,11 +464,11 @@
       body: JSON.stringify({ message: text })
     });
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      throw new Error(`Request failed with status ${response.status}: ${response.statusText}`);
     }
     const data = await response.json();
     if (!data || !data.response) {
-      throw new Error('Invalid response format');
+      throw new Error('Server response missing required "response" field. Expected JSON with { response: string }.');
     }
     return data.response;
   }
@@ -489,7 +489,7 @@
     } catch (error) {
       chatMessages.appendChild(createMessageRow({
         role: 'bot',
-        text: 'Unable to reach the server. Please check your connection and try again.'
+        text: `Error: ${error.message}. Please try again.`
       }));
     } finally {
       setWaiting(false);
