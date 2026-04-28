@@ -255,7 +255,8 @@
       const formId = button.dataset.replyToggle;
       const form = document.getElementById(formId);
       if (form) {
-        form.style.display = form.style.display === 'none' || !form.style.display ? 'grid' : 'none';
+        const isOpen = form.style.display === 'grid';
+        form.style.display = isOpen ? 'none' : 'grid';
       }
     });
   });
