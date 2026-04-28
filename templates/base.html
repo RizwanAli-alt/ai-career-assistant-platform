@@ -22,12 +22,14 @@
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
   {% block resource_hub_css %}{% endblock %}
   {% if 'resources' in request.path %}
-  <link rel="stylesheet" href="{% static 'resource_hub/style.css' %}">
+    <link rel="stylesheet" href="{% static 'resource_hub/style.css' %}">
   {% endif %}
   {% block extra_head %}{% endblock %}
 </head>
+
 <body>
 <div class="flex flex-col min-h-screen">
+
 {% block navbar %}
 <nav class="navbar" role="navigation" aria-label="Main navigation">
   <a href="{% url 'home' %}" class="navbar-logo" aria-label="CareerAI home">
@@ -49,7 +51,24 @@
 
   <div class="navbar-actions">
     {% if user.is_authenticated %}
-      <a href="/auth/profile/" class="navbar-user-link">{{ user.username }}</a>
+      <a href="/auth/profile/" class="navbar-user" style="text-decoration:none;cursor:pointer">{{ user.username }}</a>
+
+      <!-- ✅ Notifications (bell + unread badge) -->
+      <a href="{% url 'notifications' %}"
+         class="navbar-notifications"
+         aria-label="Notifications"
+         style="position:relative; display:inline-flex; align-items:center; gap:6px; text-decoration:none; margin-right:10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Z" fill="currentColor"/>
+          <path d="M18 16v-5a6 6 0 1 0-12 0v5l-2 2v1h16v-1l-2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+
+        <span id="notif-unread-badge"
+              style="position:absolute; top:-6px; right:-8px; min-width:18px; height:18px; padding:0 5px; border-radius:999px; background:#ef4444; color:#fff; font-size:12px; line-height:18px; text-align:center; display:{% if unread_count|default:0|add:0 > 0 %}inline-block{% else %}none{% endif %};">
+          {{ unread_count|default:0 }}
+        </span>
+      </a>
+
       <a href="{% url 'logout' %}" class="btn-ghost btn-sm">Logout</a>
     {% else %}
       <a href="{% url 'login' %}" class="btn-ghost btn-sm">Sign in</a>
@@ -72,7 +91,7 @@
     <a href="{% url 'browse_resources' %}">Courses</a>
     <a href="{% url 'community:home' %}">Forum</a>
     {% if user.is_authenticated %}
-      <a href="/auth/profile/">{{ user.username }}</a>
+      <a href="{% url 'notifications' %}">Notifications</a>
       <a href="{% url 'logout' %}">Logout</a>
     {% else %}
       <a href="{% url 'login' %}">Sign in</a>
@@ -104,6 +123,21 @@
 {% endblock footer %}
 
 </div>
+
+<!-- ✅ Toast container for realtime notifications -->
+<div id="notif-toast-container"
+     style="position:fixed; right:16px; bottom:16px; z-index:9999; display:flex; flex-direction:column; gap:10px;">
+</div>
+
+<!-- ✅ Pass Django values to static JS (main.js) -->
+<script>
+  window.__NOTIF__ = {
+    isAuthenticated: "{{ user.is_authenticated|yesno:'1,0' }}" === "1",
+    wsPath: "/ws/notifications/",
+    notificationsUrl: "{% url 'notifications' %}",
+    unreadCount: Number("{{ unread_count|default:0 }}"),
+  };
+</script>
 
 <script src="{% static 'js/main.js' %}"></script>
 {% block extra_scripts %}{% endblock %}

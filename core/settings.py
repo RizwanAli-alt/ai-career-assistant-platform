@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'forum',
     'dashboard',
     'resource_hub',      
-    'notifications',     
+    'notifications', 
+    'channels',    
     'ai_interview', 
 ]
 
@@ -79,7 +80,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                # ✅ NEW: Add media context processor for file uploads
+                "notifications.context_processors.unread_notifications_count",
                 "django.template.context_processors.media",
             ],
         },
@@ -88,6 +89,13 @@ TEMPLATES = [
 
 
 WSGI_APPLICATION = "core.wsgi.application"
+
+ASGI_APPLICATION = "core.asgi.application"
+
+# Simple in-memory layer (OK for FYP/dev). For production use Redis.
+CHANNEL_LAYERS = {
+    "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}
+}
 
 
 # Database

@@ -1,97 +1,305 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Notifications - AI Career Assistant{% endblock %}
+{% block title %}Notifications - CareerAI{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row mb-4">
-        <div class="col-md-9">
-            <h1><i class="fas fa-bell"></i> Notifications</h1>
-            <p class="text-muted">{{ unread_count }} unread notification(s)</p>
-        </div>
-        <div class="col-md-3 text-end">
-            <a href="{% url 'notification_preferences' %}" class="btn btn-outline-primary">
-                <i class="fas fa-cog"></i> Preferences
-            </a>
-        </div>
+<section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+        Notifications
+      </h1>
+      <p class="text-sm text-slate-500 mt-1">
+        <span id="notif-page-unread">{{ unread_count|default:0 }}</span> unread notification(s)
+      </p>
     </div>
-    
-    {% if notifications %}
-        <div class="row">
-            <div class="col-md-8">
-                {% for notif in notifications %}
-                    <div class="card mb-3 {% if not notif.is_read %}bg-light{% endif %}">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-1 text-center">
-                                    <i class="fas {{ notif.icon }} fa-2x text-primary"></i>
-                                </div>
-                                <div class="col-md-9">
-                                    <h5>{{ notif.title }}</h5>
-                                    <p class="card-text">{{ notif.message }}</p>
-                                    <small class="text-muted">{{ notif.created_at|date:"M d, Y H:i" }}</small>
-                                    
-                                    {% if notif.related_url %}
-                                        <br>
-                                        <a href="{{ notif.related_url }}" class="btn btn-sm btn-primary mt-2">
-                                            View
-                                        </a>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-2 text-end">
-                                    {% if not notif.is_read %}
-                                        <button class="btn btn-sm btn-outline-primary mark-read" data-id="{{ notif.id }}">
-                                            Mark Read
-                                        </button>
-                                    {% endif %}
-                                    <button class="btn btn-sm btn-outline-danger archive" data-id="{{ notif.id }}">
-                                        Archive
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    {% else %}
-        <div class="alert alert-info">
-            <i class="fas fa-inbox"></i> No notifications.
-        </div>
-    {% endif %}
-</div>
 
+    <div class="flex flex-wrap gap-2 sm:justify-end">
+      <button id="btn-mark-all-read"
+              class="ripple-target inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 transition"
+              type="button">
+        Mark all read
+      </button>
+
+      <button id="btn-archive-read"
+              class="ripple-target inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 transition"
+              type="button">
+        Archive read
+      </button>
+
+      <a href="{% url 'notification_preferences' %}"
+         class="ripple-target inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 transition">
+        Preferences
+      </a>
+    </div>
+  </div>
+
+  <!-- List -->
+  <div id="notif-list" class="mt-6 grid gap-3">
+    {% if notifications %}
+      {% for notif in notifications %}
+        <article class="notif-card group rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition overflow-hidden"
+                 data-id="{{ notif.id }}"
+                 data-read="{{ notif.is_read|yesno:'1,0' }}">
+          <div class="p-4 sm:p-5">
+            <div class="flex gap-4">
+              <div class="shrink-0">
+                <div class="h-11 w-11 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-sm">
+                  <span class="text-sm font-bold">AI</span>
+                </div>
+              </div>
+
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                      {% if not notif.is_read %}
+                        <span class="inline-block h-2.5 w-2.5 rounded-full bg-blue-500"></span>
+                      {% else %}
+                        <span class="inline-block h-2.5 w-2.5 rounded-full bg-slate-300"></span>
+                      {% endif %}
+                      <h2 class="text-base sm:text-lg font-bold text-slate-900 truncate">
+                        {{ notif.title }}
+                      </h2>
+                    </div>
+
+                    <p class="text-sm text-slate-600 mt-1 leading-relaxed">
+                      {{ notif.message }}
+                    </p>
+
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-3 text-xs text-slate-500">
+                      <span>{{ notif.created_at|date:"M d, Y H:i" }}</span>
+                      {% if notif.related_url %}
+                        <span class="text-slate-300">•</span>
+                        <a href="{{ notif.related_url }}" class="text-blue-600 hover:text-blue-700 font-semibold">
+                          View
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-2 sm:justify-end shrink-0">
+                    {% if not notif.is_read %}
+                      <button class="notif-action mark-read ripple-target rounded-xl px-3 py-2 text-xs font-bold border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition"
+                              data-action="read"
+                              type="button">
+                        Mark read
+                      </button>
+                    {% endif %}
+
+                    <button class="notif-action archive ripple-target rounded-xl px-3 py-2 text-xs font-bold border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 transition"
+                            data-action="archive"
+                            type="button">
+                      Archive
+                    </button>
+                  </div>
+                </div>
+
+                <!-- subtle unread highlight -->
+                <div class="mt-4 h-1 rounded-full {% if not notif.is_read %}bg-blue-500{% else %}bg-slate-200{% endif %}"></div>
+              </div>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+
+      {% if page_obj %}
+        <div class="flex items-center justify-between mt-6 text-sm">
+          <div class="text-slate-500">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          </div>
+          <div class="flex gap-2">
+            {% if page_obj.has_previous %}
+              <a class="rounded-xl px-3 py-2 border border-slate-200 hover:bg-slate-50"
+                 href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+              <a class="rounded-xl px-3 py-2 border border-slate-200 hover:bg-slate-50"
+                 href="?page={{ page_obj.next_page_number }}">Next</a>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="rounded-2xl border border-slate-200 bg-white p-8 text-center">
+        <div class="text-slate-900 font-extrabold text-lg">No notifications</div>
+        <p class="text-slate-500 text-sm mt-1">You’re all caught up.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
 <script>
-    document.querySelectorAll('.mark-read').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const notifId = this.dataset.id;
-            fetch(`/notifications/${notifId}/read/`, { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') } })
-                .then(() => location.reload());
-        });
-    });
-    
-    document.querySelectorAll('.archive').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const notifId = this.dataset.id;
-            fetch(`/notifications/${notifId}/archive/`, { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') } })
-                .then(() => location.reload());
-        });
-    });
-    
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
+(function () {
+  const listEl = document.getElementById("notif-list");
+  const unreadEl = document.getElementById("notif-page-unread");
+  const badgeEl = document.getElementById("notif-unread-badge");
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + "=")) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
         }
-        return cookieValue;
+      }
     }
+    return cookieValue;
+  }
+
+  function setUnreadCount(n) {
+    const val = Number(n || 0);
+    if (unreadEl) unreadEl.textContent = val;
+    if (badgeEl) {
+      badgeEl.textContent = val;
+      badgeEl.style.display = val > 0 ? "inline-block" : "none";
+    }
+  }
+
+  function decUnreadIfNeeded(cardEl) {
+    if (!cardEl) return;
+    const wasRead = cardEl.getAttribute("data-read") === "1";
+    if (!wasRead) {
+      const current = Number(unreadEl ? unreadEl.textContent : (badgeEl ? badgeEl.textContent : 0)) || 0;
+      setUnreadCount(Math.max(current - 1, 0));
+      cardEl.setAttribute("data-read", "1");
+    }
+  }
+
+  function animateOutAndRemove(cardEl) {
+    if (!cardEl) return;
+    cardEl.style.transition = "transform 180ms ease, opacity 180ms ease, height 180ms ease, margin 180ms ease, padding 180ms ease";
+    cardEl.style.opacity = "0";
+    cardEl.style.transform = "translateY(-6px)";
+    setTimeout(() => cardEl.remove(), 190);
+  }
+
+  // Event delegation for per-notification buttons
+  if (listEl) {
+    listEl.addEventListener("click", async (e) => {
+      const btn = e.target.closest(".notif-action");
+      if (!btn) return;
+
+      const card = btn.closest(".notif-card");
+      const id = card ? card.getAttribute("data-id") : null;
+      if (!id) return;
+
+      const action = btn.getAttribute("data-action");
+      const csrf = getCookie("csrftoken");
+
+      try {
+        btn.disabled = true;
+
+        if (action === "read") {
+          await fetch(`/notifications/${id}/read/`, {
+            method: "POST",
+            headers: { "X-CSRFToken": csrf }
+          });
+
+          // Update UI
+          decUnreadIfNeeded(card);
+
+          // remove "mark read" button
+          btn.remove();
+
+          // update highlight bar
+          const bar = card.querySelector("div.mt-4.h-1");
+          if (bar) bar.className = "mt-4 h-1 rounded-full bg-slate-200";
+
+          // dot color
+          const dot = card.querySelector("span.h-2\\.5.w-2\\.5");
+          if (dot) dot.className = "inline-block h-2.5 w-2.5 rounded-full bg-slate-300";
+
+          return;
+        }
+
+        if (action === "archive") {
+          await fetch(`/notifications/${id}/archive/`, {
+            method: "POST",
+            headers: { "X-CSRFToken": csrf }
+          });
+
+          // if it was unread, decrement
+          decUnreadIfNeeded(card);
+
+          animateOutAndRemove(card);
+          return;
+        }
+      } catch (err) {
+        console.error(err);
+        btn.disabled = false;
+      }
+    });
+  }
+
+  // Bulk: mark all read
+  const markAllBtn = document.getElementById("btn-mark-all-read");
+  if (markAllBtn) {
+    markAllBtn.addEventListener("click", async () => {
+      const csrf = getCookie("csrftoken");
+      markAllBtn.disabled = true;
+      try {
+        await fetch(`/notifications/mark-all-read/`, {
+          method: "POST",
+          headers: { "X-CSRFToken": csrf }
+        });
+
+        // Update all cards UI
+        document.querySelectorAll(".notif-card").forEach((card) => {
+          card.setAttribute("data-read", "1");
+          const readBtn = card.querySelector('[data-action="read"]');
+          if (readBtn) readBtn.remove();
+
+          const bar = card.querySelector("div.mt-4.h-1");
+          if (bar) bar.className = "mt-4 h-1 rounded-full bg-slate-200";
+
+          const dot = card.querySelector("span.h-2\\.5.w-2\\.5");
+          if (dot) dot.className = "inline-block h-2.5 w-2.5 rounded-full bg-slate-300";
+        });
+
+        setUnreadCount(0);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        markAllBtn.disabled = false;
+      }
+    });
+  }
+
+  // Bulk: archive all read
+  const archiveReadBtn = document.getElementById("btn-archive-read");
+  if (archiveReadBtn) {
+    archiveReadBtn.addEventListener("click", async () => {
+      const csrf = getCookie("csrftoken");
+      archiveReadBtn.disabled = true;
+      try {
+        await fetch(`/notifications/archive-all-read/`, {
+          method: "POST",
+          headers: { "X-CSRFToken": csrf }
+        });
+
+        // remove read cards
+        document.querySelectorAll('.notif-card[data-read="1"]').forEach((card) => {
+          animateOutAndRemove(card);
+        });
+      } catch (e) {
+        console.error(e);
+      } finally {
+        archiveReadBtn.disabled = false;
+      }
+    });
+  }
+
+  // ✅ Optional: when realtime WS toast arrives, we can also inject new card here.
+  // Your main.js already shows toast + increments badge. If you want to ALSO
+  // insert the new notification card live, tell me and I’ll extend it cleanly
+  // (needs a small custom event emitted from main.js).
+})();
 </script>
 {% endblock %}

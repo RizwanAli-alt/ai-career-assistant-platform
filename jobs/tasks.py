@@ -101,17 +101,29 @@ def add_matched_jobs_to_queue(user_id):
 
 
 # ─── internal helper ──────────────────────────────────────────────────────────
-
 def _notify(user, title, message):
-    """Create an in-app notification silently (swallows any import errors)."""
+    """
+    Create an in-app notification safely:
+    - respects user preferences
+    - avoids duplicate spam (dedupe)
+    - never crashes Celery tasks
+    """
     try:
-        from notifications.models import Notification  # noqa: PLC0415
+        from notifications.services import notify_user  # noqa: PLC0415
 
-        Notification.objects.create(
+        # dedupe per-user+title for 10 minutes
+        notify_user(
             user=user,
             notification_type="alert",
             title=title,
             message=message,
+            icon="fa-bell",
+            related_url="/notifications/",  # optional: point to notification page
+            dedupe_key=f"jobs:{user.id}:{title}",
+            dedupe_window_seconds=600,
+            metadata={
+                "source": "jobs",
+            },
         )
     except Exception:  # noqa: BLE001
         pass

@@ -1,82 +1,159 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Notification Preferences - AI Career Assistant{% endblock %}
+{% block title %}Notification Preferences - CareerAI{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <h1 class="mb-4"><i class="fas fa-cog"></i> Notification Preferences</h1>
-            
-            <div class="card">
-                <div class="card-body">
-                    <form method="POST">
-                        {% csrf_token %}
-                        
-                        <h5 class="mb-3">Email Notifications</h5>
-                        
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="email_job" 
-                                name="email_on_job_match" {% if preferences.email_on_job_match %}checked{% endif %}>
-                            <label class="form-check-label" for="email_job">
-                                Email me when new jobs match my profile
-                            </label>
-                        </div>
-                        
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="email_app" 
-                                name="email_on_application_update" {% if preferences.email_on_application_update %}checked{% endif %}>
-                            <label class="form-check-label" for="email_app">
-                                Email me when applications are updated
-                            </label>
-                        </div>
-                        
-                        <div class="form-check mb-4">
-                            <input class="form-check-input" type="checkbox" id="email_forum" 
-                                name="email_on_forum_reply" {% if preferences.email_on_forum_reply %}checked{% endif %}>
-                            <label class="form-check-label" for="email_forum">
-                                Email me when someone replies to my forum posts
-                            </label>
-                        </div>
-                        
-                        <hr>
-                        
-                        <h5 class="mb-3">In-App Notifications</h5>
-                        
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="in_app" 
-                                name="in_app_notifications" {% if preferences.in_app_notifications %}checked{% endif %}>
-                            <label class="form-check-label" for="in_app">
-                                Show in-app notifications
-                            </label>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="form-label">Notification Frequency</label>
-                            <select name="notification_frequency" class="form-select">
-                                <option value="instant" {% if preferences.notification_frequency == 'instant' %}selected{% endif %}>
-                                    Instant - Notify immediately
-                                </option>
-                                <option value="daily" {% if preferences.notification_frequency == 'daily' %}selected{% endif %}>
-                                    Daily - Send daily digest
-                                </option>
-                                <option value="weekly" {% if preferences.notification_frequency == 'weekly' %}selected{% endif %}>
-                                    Weekly - Send weekly digest
-                                </option>
-                            </select>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Save Preferences
-                        </button>
-                        <a href="{% url 'notifications' %}" class="btn btn-outline-secondary">
-                            Back to Notifications
-                        </a>
-                    </form>
-                </div>
-            </div>
-        </div>
+<section class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex items-start justify-between gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+        Notification Preferences
+      </h1>
+      <p class="text-sm text-slate-500 mt-1">
+        Control how and when CareerAI notifies you.
+      </p>
     </div>
-</div>
+
+    <a href="{% url 'notifications' %}"
+       class="ripple-target inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 transition">
+      Back
+    </a>
+  </div>
+
+  <div class="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+    <form method="POST" class="p-5 sm:p-6" id="notif-pref-form">
+      {% csrf_token %}
+
+      <!-- Email -->
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base sm:text-lg font-bold text-slate-900">Email notifications</h2>
+          <p class="text-sm text-slate-500 mt-1">Choose which events should send you an email.</p>
+        </div>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+          Email
+        </span>
+      </div>
+
+      <div class="mt-4 grid gap-3">
+        <label class="group flex items-start justify-between gap-4 rounded-xl border border-slate-200 p-4 hover:bg-slate-50 transition cursor-pointer">
+          <div class="min-w-0">
+            <div class="font-bold text-slate-900">Job matches</div>
+            <div class="text-sm text-slate-500 mt-1">Email me when new jobs match my profile.</div>
+          </div>
+          <input class="h-5 w-5 mt-1 accent-slate-900"
+                 type="checkbox"
+                 id="email_job"
+                 name="email_on_job_match"
+                 {% if preferences.email_on_job_match %}checked{% endif %}>
+        </label>
+
+        <label class="group flex items-start justify-between gap-4 rounded-xl border border-slate-200 p-4 hover:bg-slate-50 transition cursor-pointer">
+          <div class="min-w-0">
+            <div class="font-bold text-slate-900">Application updates</div>
+            <div class="text-sm text-slate-500 mt-1">Email me when applications are updated.</div>
+          </div>
+          <input class="h-5 w-5 mt-1 accent-slate-900"
+                 type="checkbox"
+                 id="email_app"
+                 name="email_on_application_update"
+                 {% if preferences.email_on_application_update %}checked{% endif %}>
+        </label>
+
+        <label class="group flex items-start justify-between gap-4 rounded-xl border border-slate-200 p-4 hover:bg-slate-50 transition cursor-pointer">
+          <div class="min-w-0">
+            <div class="font-bold text-slate-900">Forum replies</div>
+            <div class="text-sm text-slate-500 mt-1">Email me when someone replies to my forum posts.</div>
+          </div>
+          <input class="h-5 w-5 mt-1 accent-slate-900"
+                 type="checkbox"
+                 id="email_forum"
+                 name="email_on_forum_reply"
+                 {% if preferences.email_on_forum_reply %}checked{% endif %}>
+        </label>
+      </div>
+
+      <hr class="my-6 border-slate-200">
+
+      <!-- In-app -->
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base sm:text-lg font-bold text-slate-900">In-app notifications</h2>
+          <p class="text-sm text-slate-500 mt-1">Show notifications inside CareerAI (bell icon).</p>
+        </div>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+          In-app
+        </span>
+      </div>
+
+      <div class="mt-4 grid gap-4">
+        <label class="group flex items-start justify-between gap-4 rounded-xl border border-slate-200 p-4 hover:bg-slate-50 transition cursor-pointer">
+          <div class="min-w-0">
+            <div class="font-bold text-slate-900">Enable in-app notifications</div>
+            <div class="text-sm text-slate-500 mt-1">Turn on/off the notification center.</div>
+          </div>
+          <input class="h-5 w-5 mt-1 accent-slate-900"
+                 type="checkbox"
+                 id="in_app"
+                 name="in_app_notifications"
+                 {% if preferences.in_app_notifications %}checked{% endif %}>
+        </label>
+
+        <div class="rounded-xl border border-slate-200 p-4">
+          <label class="block text-sm font-bold text-slate-900 mb-2">Notification frequency</label>
+          <p class="text-sm text-slate-500 mb-3">
+            (For future digest emails / batching. In-app alerts are still instant.)
+          </p>
+
+          <select name="notification_frequency"
+                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/20">
+            <option value="instant" {% if preferences.notification_frequency == 'instant' %}selected{% endif %}>
+              Instant — Notify immediately
+            </option>
+            <option value="daily" {% if preferences.notification_frequency == 'daily' %}selected{% endif %}>
+              Daily — Send daily digest
+            </option>
+            <option value="weekly" {% if preferences.notification_frequency == 'weekly' %}selected{% endif %}>
+              Weekly — Send weekly digest
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="mt-6 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+        <div class="text-sm text-slate-500" id="pref-saved-hint" style="display:none;">
+          Saved.
+        </div>
+
+        <div class="flex gap-2">
+          <button type="submit"
+                  class="ripple-target inline-flex items-center justify-center rounded-xl px-5 py-2 text-sm font-extrabold bg-slate-900 text-white hover:bg-slate-800 transition">
+            Save Preferences
+          </button>
+          <a href="{% url 'notifications' %}"
+             class="ripple-target inline-flex items-center justify-center rounded-xl px-5 py-2 text-sm font-semibold border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 transition">
+            Back to Notifications
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  // Small UX: show "Saved." message after POST redirect with ?saved=1 (optional).
+  // If you don't want this, remove this script.
+  const url = new URL(window.location.href);
+  const hint = document.getElementById("pref-saved-hint");
+  if (hint && url.searchParams.get("saved") === "1") {
+    hint.style.display = "block";
+    setTimeout(() => { hint.style.display = "none"; }, 2500);
+  }
+})();
+</script>
 {% endblock %}
