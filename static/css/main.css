@@ -82,7 +82,10 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 .navbar-links a:hover::before,.navbar-links a.active::before{opacity:1;transform:scaleX(1)}
 .navbar-links a:hover,.navbar-links a.active{color:var(--text-0)}
 .navbar-actions{display:flex;align-items:center;gap:.6rem}
-.navbar-user{font-size:.85rem;color:var(--text-1)}
+.navbar-user-link{font-size:.85rem;color:var(--text-0);position:relative;padding:5px 8px;text-decoration:none;display:inline-block;border-radius:6px;transition:color .2s}
+.navbar-user-link::after{content:'';position:absolute;inset:0;border-radius:6px;background:linear-gradient(90deg,rgba(47,129,247,.15),rgba(116,80,255,.15));opacity:0;transition:opacity .25s ease}
+.navbar-user-link:hover::after{opacity:1}
+.navbar-user-link:hover{color:#fff;text-shadow:0 0 12px rgba(47,129,247,.8),0 0 24px rgba(116,80,255,.5)}
 
 .hamburger{display:grid;gap:4px;background:none;border:0;width:30px;height:30px;place-content:center;cursor:pointer}
 .hamburger span{display:block;width:18px;height:2px;background:var(--text-0);transition:.2s transform,.2s opacity}
