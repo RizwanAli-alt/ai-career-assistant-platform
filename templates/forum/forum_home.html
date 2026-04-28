@@ -3,86 +3,568 @@
 
 {% block title %}Forum - AI Career Assistant{% endblock %}
 
+{% block extra_head %}
+<style>
+  .forum-page {
+    --forum-accent: #2F81F7;
+    --forum-green: #3FB950;
+    background: radial-gradient(circle at 20% 20%, rgba(47,129,247,0.06), transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(63,185,80,0.04), transparent 50%);
+    padding: 48px 0 80px;
+  }
+
+  .forum-container {
+    position: relative;
+    z-index: 1;
+  }
+
+  .forum-header {
+    margin-bottom: 24px;
+  }
+
+  .forum-title {
+    font-size: 2.6rem;
+    font-weight: 800;
+    color: var(--text-0);
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .forum-title i {
+    color: var(--forum-accent);
+  }
+
+  .forum-title .gradient-text {
+    background: linear-gradient(135deg, #2F81F7, #3FB950);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .forum-subtitle {
+    color: var(--text-2);
+    margin-bottom: 6px;
+  }
+
+  .forum-stats {
+    color: var(--text-1);
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .btn-new-post {
+    background: linear-gradient(135deg, rgba(47,129,247,0.25), rgba(63,185,80,0.12));
+    border: 1px solid rgba(47,129,247,0.35);
+    color: var(--text-0);
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 10px;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .btn-new-post:hover {
+    transform: translateY(-1px);
+    border-color: rgba(47,129,247,0.6);
+    box-shadow: 0 0 20px rgba(47,129,247,0.4);
+  }
+
+  .filter-bar {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    backdrop-filter: blur(14px);
+    margin-bottom: 16px;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .filter-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-2);
+    margin-right: 6px;
+  }
+
+  .filter-pill {
+    position: relative;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--text-1);
+    background: rgba(255, 255, 255, 0.02);
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .filter-pill:hover {
+    transform: translateY(-1px) scale(1.02);
+    border-color: rgba(47,129,247,0.4);
+  }
+
+  .filter-pill.active {
+    background: linear-gradient(135deg, rgba(47,129,247,0.25), rgba(63,185,80,0.1));
+    border-color: rgba(47,129,247,0.35);
+    color: var(--text-0);
+    box-shadow: 0 0 0 1px rgba(47,129,247,0.15);
+  }
+
+  .filter-pill.active::before {
+    content: "";
+    position: absolute;
+    left: -1px;
+    top: 10%;
+    width: 3px;
+    height: 80%;
+    background: var(--forum-accent);
+    border-radius: 999px;
+  }
+
+  .forum-layout {
+    row-gap: 28px;
+    column-gap: 28px;
+  }
+
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .post-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    backdrop-filter: blur(14px);
+  }
+
+  .post-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, rgba(47,129,247,0.5), rgba(63,185,80,0.2));
+  }
+
+  .post-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(47,129,247,0.35);
+    box-shadow: 0 8px 32px rgba(2, 6, 20, 0.4), 0 0 0 1px rgba(47,129,247,0.15);
+  }
+
+  .post-card.is-pinned {
+    border-left: 3px solid var(--forum-accent);
+  }
+
+  .post-card-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .post-meta {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .avatar-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--forum-accent), #3FB950);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  .avatar-circle.avatar-sm {
+    width: 34px;
+    height: 34px;
+    font-size: 0.9rem;
+  }
+
+  .post-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .post-title a {
+    color: var(--text-0);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .post-title a:hover {
+    color: var(--forum-accent);
+  }
+
+  .post-subtitle {
+    color: var(--text-2);
+    font-size: 0.85rem;
+  }
+
+  .post-badges {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .category-badge {
+    background: linear-gradient(135deg, rgba(47,129,247,0.25), rgba(63,185,80,0.18));
+    border: 1px solid rgba(47,129,247,0.35);
+    color: var(--text-0);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .pinned-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(47,129,247,0.12);
+    color: var(--forum-accent);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .pinned-badge svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
+
+  .post-excerpt {
+    color: var(--text-1);
+    margin: 16px 0 0;
+  }
+
+  .post-footer {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .post-stats {
+    display: flex;
+    gap: 18px;
+    color: var(--text-2);
+    font-size: 0.85rem;
+  }
+
+  .post-stats i {
+    font-size: 18px;
+    margin-right: 6px;
+  }
+
+  .post-cta {
+    color: var(--forum-accent);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .post-cta:hover {
+    text-decoration: underline;
+  }
+
+  .sidebar-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(14px);
+  }
+
+  .sidebar-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--forum-accent), var(--forum-green));
+  }
+
+  .sidebar-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-0);
+    margin-bottom: 16px;
+  }
+
+  .category-list,
+  .contributors-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .category-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border-left: 2px solid transparent;
+    color: var(--text-1);
+    text-decoration: none;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .category-item:hover {
+    background: var(--bg-3);
+    border-left-color: var(--forum-accent);
+  }
+
+  .category-count {
+    background: var(--bg-3);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .contributor-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .contributor-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .rank-badge {
+    min-width: 32px;
+    height: 28px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: #0d1117;
+    background: var(--bg-3);
+  }
+
+  .rank-1 {
+    background: #F0A500;
+  }
+
+  .rank-2 {
+    background: #8B949E;
+    color: #0d1117;
+  }
+
+  .rank-3 {
+    background: #CD7F32;
+  }
+
+  .points-badge {
+    background: rgba(47,129,247,0.1);
+    color: var(--text-0);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    box-shadow: 0 0 8px rgba(47,129,247,0.3);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    backdrop-filter: blur(14px);
+  }
+
+  .empty-state svg {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 16px;
+    color: var(--forum-accent);
+  }
+
+  .empty-state h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-0);
+    margin-bottom: 8px;
+  }
+
+  .empty-state p {
+    color: var(--text-2);
+    margin-bottom: 20px;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1><i class="fas fa-comments"></i> Community Forum</h1>
-            <p class="text-muted">Connect with other job seekers and get career advice</p>
-        </div>
-        <div class="col-md-4 text-end">
-            {% if user.is_authenticated %}
-                <div class="dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-plus"></i> New Thread
-                    </button>
-                    <ul class="dropdown-menu">
-                        {% for category in categories %}
-                            <li>
-                                <a class="dropdown-item" href="{% url 'create_thread' category.id %}">
-                                    {{ category.name }}
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% else %}
-                <a href="{% url 'login' %}" class="btn btn-primary">Login to Post</a>
-            {% endif %}
-        </div>
-    </div>
-    
-    <!-- Categories -->
-    <div class="row mb-5">
-        {% for category in categories %}
-            <div class="col-md-6 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            <i class="fas fa-{{ category.icon }} text-{{ category.color }}"></i>
-                            {{ category.name }}
-                        </h5>
-                        <p class="card-text text-muted">{{ category.description }}</p>
-                        <small>{{ category.get_thread_count }} threads</small><br>
-                        <a href="{% url 'category_threads' category.id %}" class="btn btn-sm btn-outline-primary mt-2">
-                            View Category
-                        </a>
-                    </div>
-                </div>
+<div class="forum-page">
+    <div class="container forum-container">
+        <div class="row forum-header align-items-center">
+            <div class="col-lg-8">
+                <h1 class="forum-title">
+                    <i class="fas fa-comments"></i>
+                    Community <span class="gradient-text">Forum</span>
+                </h1>
+                <p class="forum-subtitle">Connect with other job seekers and get career advice</p>
+                <div class="forum-stats">{{ posts|length }} discussions · {{ top_users|length }} members active</div>
             </div>
-        {% endfor %}
-    </div>
-    
-    <!-- Recent Threads -->
-    <h3 class="mb-3">Recent Discussions</h3>
-    <div class="row">
-        {% for thread in recent_threads %}
-            <div class="col-md-12 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-9">
-                                <h5 class="card-title">
-                                    <a href="{% url 'thread_detail' thread.id %}" class="text-decoration-none">
-                                        {{ thread.title }}
-                                    </a>
-                                </h5>
-                                <p class="card-text text-muted small">
-                                    by <a href="{% url 'forum_user_profile' thread.author.username %}">{{ thread.author.username }}</a>
-                                    | {{ thread.created_at|date:"M d, Y" }}
-                                </p>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'community:create_post' %}" class="btn btn-new-post">
+                        <i class="fas fa-plus"></i> New Post
+                    </a>
+                {% else %}
+                    <a href="{% url 'community:login' %}" class="btn btn-new-post">Login to Post</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-group">
+                <span class="filter-label">Sort</span>
+                <a class="filter-pill {% if sort == 'newest' %}active{% endif %}" href="?sort=newest{% if active_category %}&category={{ active_category.slug }}{% endif %}">Newest</a>
+                <a class="filter-pill {% if sort == 'trending' %}active{% endif %}" href="?sort=trending{% if active_category %}&category={{ active_category.slug }}{% endif %}">Trending</a>
+                <a class="filter-pill {% if sort == 'unanswered' %}active{% endif %}" href="?sort=unanswered{% if active_category %}&category={{ active_category.slug }}{% endif %}">Unanswered</a>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">Categories</span>
+                <a class="filter-pill {% if not active_category %}active{% endif %}" href="?sort={{ sort }}">All</a>
+                {% for category in categories %}
+                    <a class="filter-pill {% if active_category and active_category.id == category.id %}active{% endif %}" href="?sort={{ sort }}&category={{ category.slug }}">{{ category.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="row forum-layout">
+            <div class="col-lg-8">
+                <div class="posts-list">
+                    {% for post in posts %}
+                        <div class="post-card {% if post.is_pinned %}is-pinned{% endif %}">
+                            <div class="post-card-header">
+                                <div class="post-meta">
+                                    <div class="avatar-circle">{{ post.author.username|slice:":1" }}</div>
+                                    <div>
+                                        <div class="post-title">
+                                            <a href="{% url 'community:post_detail' post.id %}">{{ post.title }}</a>
+                                        </div>
+                                        <div class="post-subtitle">
+                                            by <a href="{% url 'community:user_profile_public' post.author.username %}">{{ post.author.username }}</a>
+                                            · {{ post.created_at|date:"M d, Y" }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="post-badges">
+                                    {% if post.is_pinned %}
+                                        <span class="pinned-badge">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                                <path d="M14 3l7 7-1.41 1.41-2.83-2.83-4.24 4.24 2.83 2.83L14 17l-4-4-7 7v-2l6-6-4-4 8-8z" />
+                                            </svg>
+                                            Pinned
+                                        </span>
+                                    {% endif %}
+                                    {% if post.category %}
+                                        <span class="category-badge">{{ post.category.name }}</span>
+                                    {% endif %}
+                                </div>
                             </div>
-                            <div class="col-md-3 text-end">
-                                <small>
-                                    <i class="fas fa-eye"></i> {{ thread.views_count }} views |
-                                    <i class="fas fa-reply"></i> {{ thread.replies_count }} replies
-                                </small>
+                            <p class="post-excerpt">{{ post.body|truncatewords:24 }}</p>
+                            <div class="post-footer">
+                                <div class="post-stats">
+                                    <span><i class="fas fa-eye"></i>{{ post.views }}</span>
+                                    <span><i class="fas fa-reply"></i>{{ post.reply_count }}</span>
+                                    <span><i class="fas fa-heart"></i>{{ post.like_count }}</span>
+                                </div>
+                                <a class="post-cta" href="{% url 'community:post_detail' post.id %}">View discussion</a>
                             </div>
                         </div>
+                    {% empty %}
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+                                <path d="M4 4h16v12H7l-3 3V4zm2 2v9.17L6.17 14H18V6H6zm3 3h6v2H9V9zm0-3h8v2H9V6z" />
+                            </svg>
+                            <h4>No discussions yet</h4>
+                            <p>Be the first to spark a conversation and help the community grow.</p>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'community:create_post' %}" class="btn btn-new-post">Create the first post</a>
+                            {% else %}
+                                <a href="{% url 'community:login' %}" class="btn btn-new-post">Login to create a post</a>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="sidebar-card mb-4">
+                    <h5 class="sidebar-title">Categories</h5>
+                    <div class="category-list">
+                        {% for category in categories %}
+                            <a class="category-item" href="?sort={{ sort }}&category={{ category.slug }}">
+                                <span>{{ category.name }}</span>
+                                <span class="category-count">{{ category.posts.count }}</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="sidebar-card">
+                    <h5 class="sidebar-title">Top Contributors</h5>
+                    <div class="contributors-list">
+                        {% for profile in top_users %}
+                            <div class="contributor-item">
+                                <div class="contributor-meta">
+                                    <span class="rank-badge rank-{{ forloop.counter }}">#{{ forloop.counter }}</span>
+                                    <span class="avatar-circle avatar-sm">{{ profile.user.username|slice:":1" }}</span>
+                                    <a class="post-cta" href="{% url 'community:user_profile_public' profile.user.username %}">{{ profile.user.username }}</a>
+                                </div>
+                                <span class="points-badge">{{ profile.points }} pts</span>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
-        {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock %}
