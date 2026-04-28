@@ -71,21 +71,74 @@
       <h2 style="font-size:1.3rem;font-weight:700">All Resources</h2>
       <a href="{% url 'browse_resources' %}" class="btn-ghost btn-sm">View All →</a>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
       {% for resource in resources|slice:":6" %}
-      <div class="glass-card" style="padding:20px">
-        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-          {% if resource.is_free %}<span style="background:rgba(0,212,255,0.15);color:#00D4FF;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">Free</span>{% endif %}
-          <span style="background:rgba(124,58,237,0.15);color:#7C3AED;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">{{ resource.get_level_display }}</span>
-          <span style="background:rgba(255,255,255,0.08);color:var(--text-muted);padding:3px 10px;border-radius:20px;font-size:11px">{{ resource.get_resource_type_display }}</span>
+      <div class="resource-card">
+
+        <div class="resource-card-top">
+          <div style="flex:1;min-width:0">
+            <div class="resource-badge-row">
+              {% if resource.is_free %}
+                <span class="badge badge-free">Free</span>
+              {% else %}
+                <span class="badge badge-paid">Paid</span>
+              {% endif %}
+              <span class="badge badge-level">{{ resource.get_level_display }}</span>
+              <span class="badge badge-type">{{ resource.get_resource_type_display }}</span>
+            </div>
+          </div>
+          {% if user.is_authenticated %}
+          <a href="{% url 'toggle_bookmark' resource.pk %}" class="bookmark-btn" title="Bookmark">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.7"/>
+            </svg>
+          </a>
+          {% endif %}
         </div>
-        <h3 style="font-size:15px;font-weight:600;margin-bottom:8px;color:white">{{ resource.title }}</h3>
-        <p style="color:var(--text-muted);font-size:13px;margin-bottom:12px">{{ resource.description|truncatewords:15 }}</p>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="color:var(--text-muted);font-size:12px">{{ resource.platform }}</span>
-          <a href="{% url 'resource_detail' resource.pk %}" class="btn-primary" style="padding:6px 16px;font-size:13px;border-radius:8px">View →</a>
+
+        <div class="resource-title">{{ resource.title }}</div>
+        <div class="resource-desc">{{ resource.description|truncatewords:20 }}</div>
+
+        {% if resource.tags %}
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          {% for tag in resource.get_tags_list|slice:":3" %}
+            <span style="font-size:11px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.05);color:var(--text-muted)">#{{ tag }}</span>
+          {% endfor %}
         </div>
+        {% endif %}
+
+        <div class="resource-meta">
+          <span style="display:flex;align-items:center;gap:4px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.7"/>
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/>
+            </svg>
+            {{ resource.view_count }}
+          </span>
+          {% if resource.duration %}
+          <span style="display:flex;align-items:center;gap:4px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            {{ resource.duration }}
+          </span>
+          {% endif %}
+        </div>
+
+        <div class="resource-footer">
+          <span class="platform-pill">{{ resource.platform }}</span>
+          <a class="btn-visit" href="{{ resource.url }}" target="_blank" rel="noopener">
+            Visit
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="display:inline;margin-left:4px">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </a>
+        </div>
+
       </div>
+      {% empty %}
+      <p style="color:var(--text-muted)">No resources found.</p>
       {% endfor %}
     </div>
   </div>

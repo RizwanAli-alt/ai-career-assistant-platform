@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ thread.title }} - AI Career Assistant{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-9">
+            <!-- Thread -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2>{{ thread.title }}</h2>
+                    <p class="text-muted">
+                        <i class="fas fa-user"></i>
+                        <a href="{% url 'forum_user_profile' thread.author.username %}">
+                            {{ thread.author.username }}
+                        </a>
+                        | {{ thread.created_at|date:"M d, Y H:i" }}
+                    </p>
+                    <hr>
+                    <div class="mt-3">
+                        {{ thread.content|linebreaks }}
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    <small>
+                        <i class="fas fa-eye"></i> {{ thread.views_count }} views |
+                        <i class="fas fa-reply"></i> {{ thread.replies_count }} replies
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Replies -->
+            <h3 class="mb-3">Replies</h3>
+            {% for reply in replies %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        {% if reply.is_solution %}
+                            <span class="badge bg-success float-end">✓ Solution</span>
+                        {% endif %}
+                        <h6>
+                            <a href="{% url 'forum_user_profile' reply.author.username %}">
+                                {{ reply.author.username }}
+                            </a>
+                        </h6>
+                        <small class="text-muted">{{ reply.created_at|date:"M d, Y H:i" }}</small>
+                        <div class="mt-2">
+                            {{ reply.content|linebreaks }}
+                        </div>
+                        <div class="mt-3">
+                            <form method="POST" action="{% url 'upvote_reply' reply.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-thumbs-up"></i> {{ reply.upvotes }}
+                                </button>
+                            </form>
+                            {% if user == thread.author %}
+                                <form method="POST" action="{% url 'mark_solution' reply.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                        Mark as Solution
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">No replies yet.</p>
+            {% endfor %}
+            
+            <!-- Reply Form -->
+            {% if user.is_authenticated %}
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5>Post Your Reply</h5>
+                        <form method="POST" action="{% url 'reply_thread' thread.id %}">
+                            {% csrf_token %}
+                            {{ form.content }}
+                            <button type="submit" class="btn btn-primary mt-3">Post Reply</button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-muted mt-4"><a href="{% url 'login' %}">Login</a> to reply</p>
+            {% endif %}
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h6>Thread Info</h6>
+                    <small>
+                        Status: <span class="badge bg-info">{{ thread.get_status_display }}</span>
+                    </small><br>
+                    <small>Views: {{ thread.views_count }}</small><br>
+                    <small>Replies: {{ thread.replies_count }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
