@@ -1,189 +1,131 @@
 # CareerAI
 
-CareerAI is a Django-based career assistant platform built to help students and job seekers manage the full job-search workflow in one place. It combines CV analysis, skill extraction, job discovery, AI-powered matching, interview practice, community discussion, and learning resources into a single web application.
+A Django-based career assistant platform for students and job seekers. CareerAI combines CV analysis, job matching, interview practice, community features, and learning resources in one application.
 
-## Overview
+## How it works
 
-The platform is organized around a practical career workflow:
-
-1. Register and log in.
-2. Upload a CV and generate an analysis.
-3. Search jobs through the scraper-backed job search page.
-4. Compare opportunities against extracted CV skills.
-5. Save, apply, or auto-apply to relevant roles.
-6. Use the forum, chatbot, interview tools, and learning resources to improve career readiness.
-
-The landing page is public. After login, users return to the home page and can navigate to the dashboard and tools from the shared layout.
+1. Create an account and log in.
+2. Upload a CV and generate an AI-assisted analysis with ATS scoring.
+3. Search jobs through scraper-backed sources in live or demo mode.
+4. Compare your CV against job requirements and market skill gaps.
+5. Save jobs, manage applications, and configure auto-apply tools.
+6. Improve readiness via the chatbot, forum, interview practice, and resource hub.
 
 ## Features
 
-### CV Analyzer
-- Upload PDF or DOC/DOCX resumes.
-- Extract skills and generate CV feedback.
-- Compare resume quality and track progress over time.
+**CV Analyzer** — Upload PDF, DOC, or DOCX. Extract text, skills, sections, and contact details. Generate ATS-style scores for format, content, keywords, and readability. Compare CVs and review historical analyses.
 
-### Jobs and matching
-- Search jobs through the scraper-driven job search page.
-- Switch between demo mode and live scraping.
-- Rank jobs by CV match score when a CV has been analyzed.
-- Save jobs, manage applications, and configure auto-apply options.
-- Generate job alerts and browse company details.
+**Job Matching** — Scraper-backed job search ranked by CV match score. Save jobs, set alerts, manage applications, and enable auto-apply. Supports live and demo modes.
 
-### AI Interview
-- Start mock interview sessions from available templates.
-- Answer generated questions and review results.
-- Track interview history.
+**AI Interview** — Start mock sessions from templates, answer generated questions, and review results. Full session history and progress tracking.
 
-### Chatbot
-- Ask career questions and get conversational guidance.
-- Browse FAQ content and quick tips.
-- Review chat session history.
+**Chatbot** — Conversational career guidance with persistent session history.
 
-### Forum
-- Browse community discussions and categories.
-- Create posts, reply to threads, like content, and manage profiles.
-- Use leaderboard, notifications, search, and mentorship-style interactions.
+**Forum** — Community threads with replies and likes. Manage profile activity and follow relevant discussions.
 
-### Dashboard
-- View a personalized summary of activity.
-- Track applications, saved jobs, CV progress, goals, and auto-apply status.
+**Dashboard** — Personal overview of CV status, saved jobs, applications, and recent activity.
 
-### Resource Hub
-- Explore curated learning resources and skill paths.
-- Track learning progress and completed resources.
+**Resource Hub** — Curated learning materials and skill paths with progress tracking.
 
-### Notifications
-- Receive updates for platform activity.
-- Mark notifications as read or archive them.
+**Notifications** — Realtime platform updates via Django Channels. Mark as read or archive.
 
-## Technology stack
+## Tech stack
 
-- **Backend:** Python 3.10, Django 4.2.11
-- **Frontend:** HTML, CSS, JavaScript, Tailwind CDN, GSAP animations
-- **Database:** SQLite for local development
-- **AI / NLP:** spaCy, Hugging Face Transformers, sentence-transformers, scikit-learn, torch
-- **PDF and document parsing:** pdfplumber, PyPDF2, python-docx, pdfminer.six
-- **Job scraping:** requests, BeautifulSoup, lxml
+| Layer | Technologies |
+|---|---|
+| Backend | Python 3.10, Django 4.2.9, Channels 4.1.0 |
+| AI / NLP | sentence-transformers, transformers, torch, scikit-learn, spaCy, NLTK |
+| Documents | pdfplumber, pypdf, pdfminer.six, python-docx |
+| Scraping | requests, beautifulsoup4, lxml |
+| Background jobs | Celery, Redis, django-celery-results |
+| Frontend | HTML, CSS, JavaScript, Bootstrap, django-crispy-forms |
+| Database | SQLite (development) |
 
 ## Project structure
 
-```text
+```
 fyp/
-├── core/              # Django project settings, URLs, WSGI/ASGI
-├── users/             # Authentication, profiles, password reset, CV upload
-├── cv_analyzer/       # CV upload, analysis, comparison, templates
-├── jobs/              # Job listings, scraper search, applications, auto-apply
-├── chatbot/           # Career assistant chatbot and FAQ content
-├── forum/             # Community forum, posts, replies, badges, notifications
-├── dashboard/         # User dashboard, analytics, goals, activity tracking
+├── core/              # Settings, URLs, ASGI/WSGI
+├── users/             # Authentication and user profile
+├── cv_analyzer/       # CV upload, extraction, scoring, comparison
+├── jobs/              # Job search, applications, auto-apply, alerts
+├── chatbot/           # Career chatbot and chat history
+├── forum/             # Community posts, replies, profiles
+├── dashboard/         # User dashboard and summary views
 ├── resource_hub/      # Learning resources and skill paths
-├── notifications/     # Notification center and preferences
-├── ai_interview/      # Interview practice, questions, results, history
-├── analyzer/          # CV skill extraction and similarity logic
-├── scraper/           # Job scraping, caching, demo data, matching
+├── notifications/     # Notification center and realtime hooks
+├── ai_interview/      # Interview practice and results
+├── analyzer/          # CV parsing, scoring, gaps, suggestions
+├── scraper/           # Job scraping, caching, matching
 ├── templates/         # Shared and app-specific templates
-├── static/            # CSS, JavaScript, and static assets
-├── media/             # Uploaded CVs and user files
+├── static/            # CSS, JavaScript, and assets
+├── media/             # Uploaded CVs and profile files
+├── logs/              # Application logs
+├── models/            # Skill and market data (JSON)
+├── scripts/           # Development utility scripts
+├── temp/              # Temporary processing files
 └── manage.py
 ```
 
-## Main routes
+## Routes
 
 | Route | Purpose |
 |---|---|
 | `/` | Public landing page |
-| `/auth/` | Register, log in, profile, password reset |
+| `/auth/` | Authentication and profile |
 | `/cv-analyzer/` | CV upload and analysis |
-| `/jobs/search/` | Scraper-backed job search |
-| `/jobs/` | Job listings and related job tools |
-| `/interview/` | AI interview practice |
+| `/jobs/` | Jobs, alerts, applications, auto-apply |
 | `/chatbot/` | Career chatbot |
 | `/forum/` | Community forum |
 | `/dashboard/` | Personal dashboard |
-| `/resources/` | Learning resources and skill paths |
+| `/resources/` | Learning resources |
 | `/notifications/` | Notification center |
+| `/interview/` | Interview practice |
 | `/admin/` | Django admin |
 
 ## Setup
 
-### Prerequisites
+**Prerequisites:** Python 3.10+, pip
 
-- Python 3.10+
-- pip
+```bash
+# 1. Clone and enter the project
+git clone <repository-url>
+cd fyp
 
-### Installation
+# 2. Create and activate a virtual environment
+python -m venv venv
+venv\Scripts\activate        # Windows
+# source venv/bin/activate   # macOS / Linux
 
-1. Clone the repository.
+# 3. Install dependencies
+pip install -r requirements.txt
 
-   ```bash
-   git clone <repository-url>
-   cd fyp
-   ```
+# 4. Apply migrations
+python manage.py migrate
 
-2. Create and activate a virtual environment.
+# 5. Start the development server
+python manage.py runserver
+```
 
-   ```bash
-   python -m venv venv
-   venv\Scripts\activate
-   ```
-
-3. Install the dependencies.
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Apply database migrations.
-
-   ```bash
-   py manage.py migrate
-   ```
-
-5. Start the development server.
-
-   ```bash
-   py manage.py runserver
-   ```
-
-6. Open the application.
-
-   ```text
-   http://127.0.0.1:8000/
-   ```
+Open `http://127.0.0.1:8000/`.
 
 ## Runtime notes
 
-- The app uses SQLite by default and ships with a local `db.sqlite3` file.
-- Some AI and similarity features fall back gracefully when optional packages are unavailable.
-- Job scraping can run in demo mode or live mode from the job search page.
-- Logs are written to `logs/django.log`.
-- Uploaded files are stored under `media/`.
-
-## Optional dependencies and fallbacks
-
-The project includes several optional packages that improve functionality but are not always required for the app to start:
-
-- `sentence-transformers` and `scikit-learn` for semantic job matching.
-- `transformers` and `torch` for NLP-based skill extraction.
-- `pdfplumber` and `PyPDF2` for PDF parsing.
-- `python-docx` for DOCX parsing.
-- `beautifulsoup4`, `requests`, and `lxml` for scraping.
-
-If some of these packages are unavailable, the application falls back to simpler behavior where possible.
-
-## Development tips
-
-- Use `py manage.py check` to validate the project configuration.
-- Use `py manage.py makemigrations` and `py manage.py migrate` after changing models.
-- Check `logs/django.log` when debugging scraper, analyzer, or forum issues.
+- SQLite is used by default (`db.sqlite3`).
+- Uploaded files are stored in `media/`; logs go to `logs/django.log`.
+- CV analysis degrades gracefully when some AI packages are unavailable, but PDF extraction requires `pdfplumber` or `pypdf`.
+- Job scraping supports demo mode and live mode.
+- Realtime notifications require an ASGI server (Channels).
+- Run `python manage.py check` to validate your configuration.
+- After model changes: `python manage.py makemigrations && python manage.py migrate`.
 
 ## Contributing
 
 1. Fork the repository.
 2. Create a feature branch.
-3. Commit changes with a clear message.
+3. Commit with a clear, descriptive message.
 4. Push the branch and open a pull request.
 
 ## License
 
-This project was developed as a Final Year Project (FYP) for academic use.
+Developed as a Final Year Project (FYP) for academic use.
