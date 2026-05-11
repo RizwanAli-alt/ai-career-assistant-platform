@@ -544,25 +544,22 @@ def chat(request, session_id=None):
             return JsonResponse({'redirect': f'/chat/{session.pk}/'})
         return redirect('chat_detail', session_id=session.pk)
 
-    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    # Detect if this is a JSON or form request
+    content_type = request.headers.get('Content-Type', '')
+    is_json_request = 'application/json' in content_type
 
     if request.method == 'POST':
         # Rate limit
         if _rate_limit_exceeded(request.user):
             err = 'You are sending messages too quickly. Please wait a moment.'
-            if is_ajax:
-                return JsonResponse({'success': False, 'error': err}, status=429)
-            messages.error(request, err)
-            return redirect('chat_detail', session_id=session.pk)
+            return JsonResponse({'response': err, 'error': True}, status=429)
 
-        # Validate
+        # Validate — form data only
         user_message = _sanitise(request.POST.get('content', ''))
+        
         if not user_message:
             err = 'Please enter a message before sending.'
-            if is_ajax:
-                return JsonResponse({'success': False, 'error': err}, status=400)
-            messages.error(request, err)
-            return redirect('chat_detail', session_id=session.pk)
+            return JsonResponse({'response': err, 'error': True}, status=400)
 
         # Auto-title on first message
         if session.title == 'New Chat':
@@ -583,10 +580,7 @@ def chat(request, session_id=None):
             )
         except Exception:
             logger.exception("Bot response error for session %s", session.pk)
-            bot_text, intent, confidence = (
-                "I ran into an issue. Please try again in a moment.",
-                'error', 0.0,
-            )
+            return JsonResponse({'response': 'I ran into an issue. Please try again in a moment.', 'error': True}, status=500)
 
         bot_msg_obj = ChatMessage.objects.create(
             session=session,
@@ -599,25 +593,11 @@ def chat(request, session_id=None):
         session.updated_at = timezone.now()
         session.save(update_fields=['updated_at'])
 
-        if is_ajax:
-            return JsonResponse({
-                'success': True,
-                'user_message': {
-                    'id': user_msg_obj.pk,
-                    'content': user_message,
-                    'timestamp': user_msg_obj.timestamp.strftime('%I:%M %p'),
-                },
-                'bot_message': {
-                    'id': bot_msg_obj.pk,
-                    'content': bot_text,
-                    'intent': intent,
-                    'confidence': round(confidence, 2),
-                    'timestamp': bot_msg_obj.timestamp.strftime('%I:%M %p'),
-                },
-                'session_title': session.title,
-            })
-
-        return redirect('chat_detail', session_id=session.pk)
+        return JsonResponse({
+            'response': bot_text,
+            'intent': intent,
+            'confidence': round(confidence, 2),
+        })
 
     # GET
     form            = ChatMessageForm()

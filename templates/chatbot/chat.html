@@ -362,7 +362,7 @@
     </div>
 
     <div class="chat-input-area">
-      <form id="chatForm" data-chat-url="{% url 'chat' %}">
+      <form id="chatForm" data-chat-url="{% url 'chat_detail' session.id %}">
         {% csrf_token %}
         <div class="chat-input-wrapper">
           <input
@@ -462,13 +462,13 @@
 
   async function sendMessage(text) {
     try {
+      const formData = new FormData();
+      formData.append('content', text);
+      formData.append('csrfmiddlewaretoken', csrfToken);
+      
       const response = await fetch(chatEndpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken
-        },
-        body: JSON.stringify({ message: text })
+        body: formData
       });
       if (!response.ok) {
         console.error('Chat request failed with status:', response.status, response.statusText);

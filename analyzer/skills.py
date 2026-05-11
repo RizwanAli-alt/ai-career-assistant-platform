@@ -52,12 +52,12 @@ except ImportError:
 try:
     from transformers import pipeline as hf_pipeline
     _HF_AVAILABLE = True
-except ImportError:
+except Exception as exc:
     hf_pipeline = None  # type: ignore
     _HF_AVAILABLE = False
     logger.warning(
-        "Hugging Face transformers not installed — SRS CV-FR-01 requires it. "
-        "Run: pip install transformers torch"
+        "Hugging Face transformers unavailable — SRS CV-FR-01 transformer pass "
+        "will be skipped. Run: pip install transformers torch"
     )
 
 _DEFAULT_SKILL_DB = Path(__file__).parent.parent / "models" / "skill_db.json"

@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # Your apps
+    # Our apps
     'users',
     'cv_analyzer',
     'jobs',
@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'dashboard',
     'resource_hub',      
     'notifications', 
-    'channels',    
+    'channels',
     'ai_interview', 
 ]
 
@@ -73,15 +73,15 @@ ROOT_URLCONF = "core.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, 'templates')],  # ✅ CHANGED: Use os.path.join
+        "DIRS": [os.path.join(BASE_DIR, 'templates')],  
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "notifications.context_processors.unread_notifications_count",
                 "django.template.context_processors.media",
+                "notifications.context_processors.unread_notifications_count",
             ],
         },
     },
@@ -91,12 +91,12 @@ TEMPLATES = [
 WSGI_APPLICATION = "core.wsgi.application"
 
 ASGI_APPLICATION = "core.asgi.application"
-
 # Simple in-memory layer (OK for FYP/dev). For production use Redis.
 CHANNEL_LAYERS = {
-    "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    }
 }
-
 
 # Database
 DATABASES = {
@@ -141,7 +141,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # ================================
 # 🕒 SESSION SETTINGS
 # ================================
-SESSION_COOKIE_AGE = 1209600  # 2 weeks
+SESSION_COOKIE_AGE = 1209600  
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 
@@ -158,7 +158,7 @@ USE_TZ = True
 # 📁 STATIC FILES
 # ================================
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # ✅ NEW
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 
@@ -174,7 +174,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # ================================
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
-FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, 'temp')  # ✅ NEW: Temp directory for uploads
+FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, 'temp')  
 
 
 # ================================
@@ -186,10 +186,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ================================
 # 🎯 CV ANALYZER SETTINGS
 # ================================
-CV_ANALYSIS_MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+CV_ANALYSIS_MAX_FILE_SIZE = 5 * 1024 * 1024  
 ALLOWED_CV_FORMATS = ['pdf', 'doc', 'docx']
 
-# ✅ NEW: Logging configuration for analyzer/scraper modules
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -266,7 +266,7 @@ try:
     CELERY_BEAT_SCHEDULE = {
         'auto-apply': {
             'task': 'jobs.tasks.scheduled_auto_apply',
-            'schedule': crontab(minute=0, hour='*/2'),  # Every 2 hours
+            'schedule': crontab(minute=0, hour='*/2'), 
         },
     }
 except ImportError:
