@@ -16,8 +16,7 @@
   // Theme Toggle Logic
   const initializeTheme = () => {
     const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const theme = savedTheme || (prefersDark ? 'dark' : 'dark'); // Default to dark
+    const theme = savedTheme || 'dark'; // Default to dark
     document.documentElement.setAttribute('data-theme', theme);
   };
 
