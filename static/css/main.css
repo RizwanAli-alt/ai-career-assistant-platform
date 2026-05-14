@@ -536,7 +536,8 @@ html[data-theme="light"] .job-glass-card{background:#fff;border-color:#e5e7eb}
 .jobs-empty-subtitle{font-size:.86rem;color:rgba(226,232,240,.72);margin-top:.35rem}
 .jobs-pagination{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin-top:2rem}
 .jobs-pagination a,.jobs-pagination span{font-size:.8rem;padding:.45rem .75rem;border-radius:.6rem;border:1px solid rgba(255,255,255,.13);color:rgba(226,232,240,.72);background:rgba(255,255,255,.03);transition:all .2s ease}
-html[data-theme="light"] .jobs-pagination a,html[data-theme="light"] .jobs-pagination span{border-color:#d1d5db;color:var(--text-1);background:#f3f4f6}
+html[data-theme="light"] .jobs-pagination a{border-color:#d1d5db;color:var(--text-1);background:#f3f4f6}
+html[data-theme="light"] .jobs-pagination span{border-color:#d1d5db;color:var(--text-1);background:#f3f4f6}
 .jobs-pagination a:hover{color:var(--btn-text);border-color:rgba(96,165,250,.55)}
 .jobs-pagination span.active{color:var(--btn-text);background:linear-gradient(90deg,#2563eb,#4f46e5);border-color:rgba(96,165,250,.52)}
 .animate-in-left{animation:fadeInLeft .65s ease forwards}
@@ -639,16 +640,25 @@ html[data-theme="light"] .message-item.error{
   border-color:rgba(239,68,68,0.2);
   color:#dc2626;
 }
-html[data-theme="light"] .message-item.info,html[data-theme="light"] .message-item.warning{
+html[data-theme="light"] .message-item.info{
   background:rgba(59,130,246,0.08);
   border-color:rgba(59,130,246,0.2);
   color:#2563eb;
+}
+html[data-theme="light"] .message-item.warning{
+  background:rgba(245,158,11,0.08);
+  border-color:rgba(245,158,11,0.2);
+  color:#d97706;
 }
 html[data-theme="light"] .upload-zone{
   border-color:#d1d5db;
   background:#f9fafb;
 }
-html[data-theme="light"] .upload-zone:hover,html[data-theme="light"] .upload-zone.drag-active{
+html[data-theme="light"] .upload-zone:hover{
+  border-color:#3b82f6;
+  background:#f3f4f6;
+}
+html[data-theme="light"] .upload-zone.drag-active{
   border-color:#3b82f6;
   background:#f3f4f6;
 }
