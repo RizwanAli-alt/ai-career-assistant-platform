@@ -6,11 +6,34 @@
   const hamburger = document.querySelector('.hamburger');
   const mobileMenu = document.querySelector('.mobile-menu');
   const mobileClose = document.querySelector('.mobile-menu-close');
+  const themeToggle = document.getElementById('theme-toggle');
   const NAV_OPACITY_MIN = 0.72;
   const NAV_OPACITY_MAX = 0.96;
   const NAV_OPACITY_SCROLL_RANGE = 420;
   const RIPPLE_DURATION_MS = 600;
   const rippleTimeoutIds = new Set();
+
+  // Theme Toggle Logic
+  const initializeTheme = () => {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = savedTheme || (prefersDark ? 'dark' : 'dark'); // Default to dark
+    document.documentElement.setAttribute('data-theme', theme);
+  };
+
+  const toggleTheme = () => {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
+
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+
+  initializeTheme();
 
   const setNavbarState = () => {
     if (!navbar) return;
