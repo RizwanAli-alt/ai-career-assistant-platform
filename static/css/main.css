@@ -87,6 +87,10 @@ main{min-height:calc(100vh - 60px)}
 .btn-sm{padding:8px 14px;font-size:.82rem}
 .btn-xs{padding:6px 10px;font-size:.74rem}
 .btn-lg{padding:12px 28px;font-size:1rem}
+.btn-accent{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;font-family:'Inter',system-ui,sans-serif;font-size:.875rem;padding:10px 20px;border-radius:8px;cursor:pointer;border:1px solid transparent;background:var(--accent);color:var(--btn-text);font-weight:600}
+.btn-accent:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-secondary{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;font-family:'Inter',system-ui,sans-serif;font-size:.875rem;padding:10px 20px;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--bg-2);color:var(--text-0);font-weight:500}
+.btn-secondary:hover{border-color:var(--border-strong);background:var(--bg-3)}
 .section-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--accent)}
 .form-label{display:block;font-size:.8rem;font-weight:500;color:var(--text-1);margin-bottom:6px}
 .form-input{width:100%;padding:10px 14px;background:var(--bg-1);border:1px solid var(--border);border-radius:8px;color:var(--text-0);font-family:'Inter',system-ui,sans-serif;font-size:.875rem;transition:border-color .2s,background .2s}
