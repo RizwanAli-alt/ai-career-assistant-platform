@@ -143,7 +143,7 @@ html[data-theme="light"] .module-icon-box{background:rgba(203,213,225,0.64);bord
 html[data-theme="light"] .jobs-page-shell{background:linear-gradient(135deg,rgba(241,245,249,1) 0%,rgba(248,250,252,1) 52%,rgba(241,245,249,1) 100%);border-color:rgba(0,0,0,0.08)}
 html[data-theme="light"] .jobs-title{color:var(--text-0)}
 html[data-theme="light"] .jobs-subtitle{color:var(--text-1)}
-html[data-theme="light"] .jobs-sidebar-panel,.jobs-results-panel{background:rgba(226,232,240,0.4);border-color:rgba(0,0,0,0.1);box-shadow:0 14px 30px rgba(0,0,0,0.05)}
+html[data-theme="light"] .jobs-sidebar-panel,html[data-theme="light"] .jobs-results-panel{background:#fff;border-color:#e5e7eb;box-shadow:0 14px 30px rgba(0,0,0,0.05)}
 html[data-theme="light"] .jobs-bg-glow-blue{background:rgba(59,130,246,0.1)}
 html[data-theme="light"] .jobs-bg-glow-purple{background:rgba(124,58,237,0.08)}
 .hamburger{display:grid;gap:4px;background:none;border:0;width:30px;height:30px;place-content:center;cursor:pointer}
@@ -474,12 +474,9 @@ html[data-theme="light"] .jobs-bg-grid{background-image:linear-gradient(to right
 .jobs-bg-glow-purple{width:280px;height:280px;right:-90px;bottom:-110px;background:rgba(124,58,237,.4)}
 .jobs-header-block{margin-bottom:2.4rem}
 .jobs-title{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:#f8fbff;margin-top:.35rem}
-html[data-theme="light"] .jobs-title{color:var(--text-0)}
 .jobs-subtitle{font-size:.9rem;color:rgba(226,232,240,.72);margin-top:.55rem}
-html[data-theme="light"] .jobs-subtitle{color:var(--text-1)}
 .jobs-layout{display:grid;grid-template-columns:260px 1fr;gap:24px;align-items:start}
 .jobs-sidebar-panel,.jobs-results-panel{background:rgba(255,255,255,.05);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.1);border-radius:1rem;box-shadow:0 14px 30px rgba(2,8,25,.28)}
-html[data-theme="light"] .jobs-sidebar-panel,html[data-theme="light"] .jobs-results-panel{background:#fff;border:1px solid #e5e7eb;box-shadow:0 14px 30px rgba(0,0,0,.08)}
 .jobs-sidebar-panel{position:sticky;top:82px;padding:1.2rem}
 .jobs-panel-title{font-size:.92rem;color:var(--text-0);font-weight:700;margin-bottom:1.15rem}
 .jobs-filter-form{display:flex;flex-direction:column;gap:1rem}
