@@ -129,11 +129,13 @@
 
         <div class="flex gap-2">
           <button type="submit"
-                  class="ripple-target inline-flex items-center justify-center rounded-xl px-5 py-2 text-sm font-extrabold bg-slate-900 text-white hover:bg-slate-800 transition">
+                  class="ripple-target inline-flex items-center justify-center rounded-xl px-5 py-2 text-sm font-extrabold transition"
+                  style="background: var(--accent); color: var(--text-white);">
             Save Preferences
           </button>
           <a href="{% url 'notifications' %}"
-             class="ripple-target inline-flex items-center justify-center rounded-xl px-5 py-2 text-sm font-semibold border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 transition">
+             class="ripple-target inline-flex items-center justify-center rounded-xl px-5 py-2 text-sm font-semibold border transition"
+             style="border-color: var(--border); background: var(--bg-2); color: var(--text-0);">
             Back to Notifications
           </a>
         </div>
