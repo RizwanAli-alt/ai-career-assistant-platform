@@ -23,6 +23,7 @@
   --text-primary:    #F0F4FF;
   --text-secondary:  #8892A4;
   --text-muted:      #4A5568;
+  --btn-text:        white;
 
   --success:         #10B981;
   --warning:         #F59E0B;
@@ -56,6 +57,7 @@ html[data-theme="light"] {
   --text-primary:    #0F172A;
   --text-secondary:  #475569;
   --text-muted:      #94A3B8;
+  --btn-text:        white;
 }
 
 /* ---------- Reset & Base ---------- */
@@ -326,7 +328,7 @@ button, input, select, textarea { font-family: var(--font-body); }
   background: var(--accent-gradient);
   border: none;
   border-radius: var(--radius-xl);
-  color: white;
+  color: var(--btn-text);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -594,7 +596,7 @@ button, input, select, textarea { font-family: var(--font-body); }
   background: var(--accent-gradient);
   border: none;
   border-radius: var(--radius-sm);
-  color: white;
+  color: var(--btn-text);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -760,7 +762,7 @@ button, input, select, textarea { font-family: var(--font-body); }
   background: var(--accent-gradient);
   border: none;
   border-radius: var(--radius-md);
-  color: white;
+  color: var(--btn-text);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -874,7 +876,7 @@ button, input, select, textarea { font-family: var(--font-body); }
   background: var(--accent-gradient);
   border: none;
   border-radius: var(--radius-md);
-  color: white;
+  color: var(--btn-text);
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
