@@ -24,6 +24,40 @@
   {% if 'resources' in request.path %}
     <link rel="stylesheet" href="{% static 'resource_hub/style.css' %}">
   {% endif %}
+  <style>
+    /* Footer link hover styling */
+    .footer-link {
+      transition: color 0.2s ease;
+    }
+    .footer-link:hover:not([aria-disabled="true"]) {
+      color: var(--accent);
+    }
+
+    /* Disabled links should not respond to hover */
+    .footer-link[aria-disabled="true"] {
+      pointer-events: none;
+    }
+
+    /* Footer responsive layout */
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 640px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
   {% block extra_head %}{% endblock %}
 </head>
 
@@ -124,18 +158,91 @@
 </main>
 
 {% block footer %}
-<footer class="site-footer">
-  <div class="footer-inner">
-    <div class="footer-row">
-      <a href="{% url 'home' %}" class="navbar-logo">
-        <svg class="logo-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M4 16C4 10.477 8.477 6 14 6C16.768 6 19.273 7.124 21.084 8.94" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M16 2L13 8H17L14 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Career<span class="logo-accent">AI</span></span>
-      </a>
+<footer style="background:var(--bg-1); border-top:1px solid var(--border); color:var(--text-muted); padding:48px 24px;">
+  <!-- Main Footer Content -->
+  <div style="max-width:80rem; margin:0 auto;">
+    <div class="footer-grid">
+      
+      <!-- Column 1: Brand -->
+      <div>
+        <a href="{% url 'home' %}" class="navbar-logo" style="display:flex; align-items:center; gap:8px; margin-bottom:12px; text-decoration:none;">
+          <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M4 16C4 10.477 8.477 6 14 6C16.768 6 19.273 7.124 21.084 8.94" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M16 2L13 8H17L14 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span style="font-weight:700; color:var(--text-primary);">Career<span class="logo-accent">AI</span></span>
+        </a>
+        <p style="font-size:0.875rem; line-height:1.5; margin-bottom:8px; color:var(--text-muted);">
+          Your AI-powered career companion for Pakistani graduates.
+        </p>
+        <p style="font-size:0.75rem; color:var(--text-1);">
+          Built with ❤️ in Pakistan
+        </p>
+      </div>
+
+      <!-- Column 2: Platform -->
+      <div>
+        <h3 style="font-size:0.875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-primary); margin-bottom:16px;">Platform</h3>
+        <ul style="list-style:none; display:flex; flex-direction:column; gap:8px;">
+          <li><a href="{% url 'dashboard' %}" class="footer-link" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none;">Dashboard</a></li>
+          <li><a href="{% url 'upload_cv_analysis' %}" class="footer-link" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none;">CV Analyzer</a></li>
+          <li><a href="{% url 'job_search_with_scraper' %}" class="footer-link" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none;">Job Search</a></li>
+          <li><a href="{% url 'chat' %}" class="footer-link" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none;">AI Chatbot</a></li>
+          <li><a href="{% url 'browse_resources' %}" class="footer-link" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none;">Courses</a></li>
+          <li><a href="{% url 'community:home' %}" class="footer-link" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none;">Forum</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 3: Resources -->
+      <div>
+        <h3 style="font-size:0.875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-primary); margin-bottom:16px;">Resources</h3>
+        <ul style="list-style:none; display:flex; flex-direction:column; gap:8px;">
+          <li><a href="{% url 'browse_resources' %}" class="footer-link" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none;">Browse Resources</a></li>
+          <li><a href="{% url 'cv_analysis_list' %}" class="footer-link" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none;">My Analyses</a></li>
+          <li><a href="#" class="footer-link" role="link" aria-disabled="true" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none; opacity:0.6; cursor:not-allowed;">Career Tips</a></li>
+          <li><a href="#" class="footer-link" role="link" aria-disabled="true" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none; opacity:0.6; cursor:not-allowed;">Interview Prep</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 4: Connect -->
+      <div>
+        <h3 style="font-size:0.875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-primary); margin-bottom:16px;">Connect</h3>
+        <ul style="list-style:none; display:flex; flex-direction:column; gap:12px;">
+          <!-- GitHub -->
+          <li style="display:flex; align-items:center; gap:10px;">
+            <a href="https://github.com/RizwanAli-alt/ai-career-assistant-platform" target="_blank" rel="noopener noreferrer" class="footer-link" style="display:flex; align-items:center; gap:8px; font-size:0.875rem; color:var(--text-muted); text-decoration:none;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-3-1.5-3-1.5-3-1.5-.3 1.15-.3 2.35 0 3.5-1 1-1.3 2.25-1 3.5-2 2.65-2 5.4 0 5.5-.9.15-1.9-.08-2.5-1"/>
+                <path d="M9 19c-5 1.5-5-2.5-7-3"/>
+              </svg>
+              <span>GitHub</span>
+            </a>
+          </li>
+          <!-- Email -->
+          <li style="display:flex; align-items:center; gap:10px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);" aria-hidden="true">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+            <span style="font-size:0.875rem; color:var(--text-muted);">support@careerai.pk</span>
+          </li>
+          <!-- Location -->
+          <li style="display:flex; align-items:center; gap:10px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);" aria-hidden="true">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span style="font-size:0.875rem; color:var(--text-muted);">Pakistan 🇵🇰</span>
+          </li>
+        </ul>
+      </div>
     </div>
-    <p class="footer-copy">© 2026 CareerAI · Built for Pakistani graduates</p>
+
+    <!-- Bottom Bar -->
+    <div style="border-top:1px solid var(--border); padding-top:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; font-size:0.875rem; color:var(--text-1);">
+      <span>© 2026 CareerAI · All rights reserved.</span>
+      <span>Built for Pakistani graduates 🎓</span>
+    </div>
   </div>
 </footer>
 {% endblock footer %}
