@@ -124,20 +124,7 @@
 </main>
 
 {% block footer %}
-<footer class="site-footer">
-  <div class="footer-inner">
-    <div class="footer-row">
-      <a href="{% url 'home' %}" class="navbar-logo">
-        <svg class="logo-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M4 16C4 10.477 8.477 6 14 6C16.768 6 19.273 7.124 21.084 8.94" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M16 2L13 8H17L14 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Career<span class="logo-accent">AI</span></span>
-      </a>
-    </div>
-    <p class="footer-copy">© 2026 CareerAI · Built for Pakistani graduates</p>
-  </div>
-</footer>
+{% include 'footer.html' %}
 {% endblock footer %}
 
 </div>
