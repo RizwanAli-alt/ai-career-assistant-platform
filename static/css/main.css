@@ -143,7 +143,8 @@ html[data-theme="light"] .module-icon-box{background:rgba(203,213,225,0.64);bord
 html[data-theme="light"] .jobs-page-shell{background:linear-gradient(135deg,rgba(241,245,249,1) 0%,rgba(248,250,252,1) 52%,rgba(241,245,249,1) 100%);border-color:rgba(0,0,0,0.08)}
 html[data-theme="light"] .jobs-title{color:var(--text-0)}
 html[data-theme="light"] .jobs-subtitle{color:var(--text-1)}
-html[data-theme="light"] .jobs-sidebar-panel,html[data-theme="light"] .jobs-results-panel{background:#fff;border-color:#e5e7eb;box-shadow:0 14px 30px rgba(0,0,0,0.05)}
+html[data-theme="light"] .jobs-sidebar-panel{background:#fff;border-color:#e5e7eb;box-shadow:0 14px 30px rgba(0,0,0,0.05)}
+html[data-theme="light"] .jobs-results-panel{background:#fff;border-color:#e5e7eb;box-shadow:0 14px 30px rgba(0,0,0,0.05)}
 html[data-theme="light"] .jobs-bg-glow-blue{background:rgba(59,130,246,0.1)}
 html[data-theme="light"] .jobs-bg-glow-purple{background:rgba(124,58,237,0.08)}
 .hamburger{display:grid;gap:4px;background:none;border:0;width:30px;height:30px;place-content:center;cursor:pointer}
@@ -582,12 +583,6 @@ html[data-theme="light"] .jobs-pagination a,html[data-theme="light"] .jobs-pagin
 @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 
 /* Light mode support for CV analysis filters and empty state */
-.dash-card{
-  background:var(--bg-2);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:28px;
-}
 html[data-theme="light"] .dash-card{
   background:#fff;
   border-color:#e5e7eb;
