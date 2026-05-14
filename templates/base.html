@@ -29,8 +29,13 @@
     .footer-link {
       transition: color 0.2s ease;
     }
-    .footer-link:hover {
+    .footer-link:hover:not([aria-disabled="true"]) {
       color: var(--accent);
+    }
+
+    /* Disabled links should not respond to hover */
+    .footer-link[aria-disabled="true"] {
+      pointer-events: none;
     }
 
     /* Footer responsive layout */
@@ -194,8 +199,8 @@
         <ul style="list-style:none; display:flex; flex-direction:column; gap:8px;">
           <li><a href="{% url 'browse_resources' %}" class="footer-link" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none;">Browse Resources</a></li>
           <li><a href="{% url 'upload_cv_analysis' %}" class="footer-link" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none;">My Analyses</a></li>
-          <li><a href="javascript:void(0);" class="footer-link" role="link" aria-disabled="true" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none; opacity:0.6; cursor:not-allowed;">Career Tips</a></li>
-          <li><a href="javascript:void(0);" class="footer-link" role="link" aria-disabled="true" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none; opacity:0.6; cursor:not-allowed;">Interview Prep</a></li>
+          <li><a href="#" class="footer-link" role="link" aria-disabled="true" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none; opacity:0.6; cursor:not-allowed;">Career Tips</a></li>
+          <li><a href="#" class="footer-link" role="link" aria-disabled="true" style="font-size:0.875rem; color:var(--text-muted); text-decoration:none; opacity:0.6; cursor:not-allowed;">Interview Prep</a></li>
         </ul>
       </div>
 
