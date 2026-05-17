@@ -42,7 +42,7 @@ mpmath==1.3.0
 networkx==3.4.2
 nltk==3.9.4
 numba==0.65.1
-numpy==2.2.6
+numpy==1.26.4
 openai-whisper==20250625
 packaging==26.2
 pdfminer.six==20251230
@@ -85,3 +85,4 @@ tzdata==2026.2
 urllib3==2.6.3
 vine==5.1.0
 wcwidth==0.7.0
+psycopg2-binary
