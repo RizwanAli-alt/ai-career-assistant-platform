@@ -14,7 +14,13 @@
   const rippleTimeoutIds = new Set();
 
   // Theme Toggle Logic
+  const isLandingPage = () =>
+    window.location.pathname === '/' ||
+    window.location.pathname === '/index' ||
+    document.body.classList.contains('landing-page');
+
   const initializeTheme = () => {
+    if (isLandingPage()) return;
     const savedTheme = localStorage.getItem('theme');
     const theme = savedTheme || 'dark'; // Default to dark
     document.documentElement.setAttribute('data-theme', theme);
@@ -22,7 +28,7 @@
 
   const toggleTheme = () => {
     const html = document.documentElement;
-    const currentTheme = html.getAttribute('data-theme');
+    const currentTheme = html.getAttribute('data-theme') || 'dark';
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
