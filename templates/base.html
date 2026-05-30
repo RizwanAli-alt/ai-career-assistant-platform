@@ -7,6 +7,16 @@
   <title>{% block title %}CareerAI — AI Career Assistant{% endblock %}</title>
   <meta name="description" content="AI-powered CV analysis, skill gap detection, and smart job matching for Pakistani graduates.">
 
+  <script>
+    (function() {
+      var isLanding = window.location.pathname === '/' ||
+                      window.location.pathname === '/index';
+      if (isLanding) return;
+      var theme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -25,132 +35,158 @@
     <link rel="stylesheet" href="{% static 'resource_hub/style.css' %}">
   {% endif %}
   <style>
-    /* Footer link hover styling */
-    .footer-link {
-      transition: color 0.2s ease;
-    }
-    .footer-link:hover:not([aria-disabled="true"]) {
-      color: var(--accent);
-    }
-
-    /* Disabled links should not respond to hover */
-    .footer-link[aria-disabled="true"] {
-      pointer-events: none;
-    }
-
-    /* Footer responsive layout */
+    .footer-link { transition: color 0.2s ease; }
+    .footer-link:hover:not([aria-disabled="true"]) { color: var(--accent); }
+    .footer-link[aria-disabled="true"] { pointer-events: none; }
     .footer-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 32px;
       margin-bottom: 32px;
     }
-
-    @media (max-width: 640px) {
-      .footer-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (min-width: 641px) and (max-width: 1024px) {
-      .footer-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
+    @media (max-width: 640px) { .footer-grid { grid-template-columns: 1fr; } }
+    @media (min-width: 641px) and (max-width: 1024px) { .footer-grid { grid-template-columns: repeat(2, 1fr); } }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
 
-<body>
+<body class="{% block body_class %}{% endblock %}">
 <div class="flex flex-col min-h-screen">
 
 {% block navbar %}
-<nav class="navbar" role="navigation" aria-label="Main navigation">
-  <a href="{% url 'home' %}" class="navbar-logo" aria-label="CareerAI home">
-    <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M4 16C4 10.477 8.477 6 14 6C16.768 6 19.273 7.124 21.084 8.94" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M16 2L13 8H17L14 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <span>Career<span class="logo-accent">AI</span></span>
-  </a>
+{% if request.path == '/' or request.path == '/index/' %}
 
-  <ul class="navbar-links" role="list">
-    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-    <li><a href="{% url 'upload_cv_analysis' %}">CV Analyzer</a></li>
-    <li><a href="{% url 'job_search_with_scraper' %}">Jobs</a></li>
-    <li><a href="{% url 'chat' %}">Chatbot</a></li>
-    <li><a href="{% url 'browse_resources' %}">Courses</a></li>
-    <li><a href="{% url 'community:home' %}">Forum</a></li>
-  </ul>
-
-  <div class="navbar-actions">
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" type="button" title="Toggle dark/light theme">
-      <svg class="theme-toggle-icon theme-toggle-icon--sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="5"></circle>
-        <line x1="12" y1="1" x2="12" y2="3"></line>
-        <line x1="12" y1="21" x2="12" y2="23"></line>
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-        <line x1="1" y1="12" x2="3" y2="12"></line>
-        <line x1="21" y1="12" x2="23" y2="12"></line>
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+  <!-- LANDING PAGE NAVBAR -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <a href="{% url 'home' %}" class="navbar-logo" aria-label="CareerAI home">
+      <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M4 16C4 10.477 8.477 6 14 6C16.768 6 19.273 7.124 21.084 8.94" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M16 2L13 8H17L14 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <svg class="theme-toggle-icon theme-toggle-icon--moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-      </svg>
-    </button>
+      <span>Career<span class="logo-accent">AI</span></span>
+    </a>
 
-    {% if user.is_authenticated %}
-      <a href="/auth/profile/" class="navbar-user" style="text-decoration:none;cursor:pointer">{{ user.username }}</a>
+    <ul class="navbar-links" role="list">
+      <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+      <li><a href="{% url 'upload_cv_analysis' %}">CV Analyzer</a></li>
+      <li><a href="{% url 'job_search_with_scraper' %}">Jobs</a></li>
+      <li><a href="{% url 'chat' %}">Chatbot</a></li>
+      <li><a href="{% url 'browse_resources' %}">Courses</a></li>
+      <li><a href="{% url 'community:home' %}">Forum</a></li>
+    </ul>
 
-      <!-- ✅ Notifications (bell + unread badge) -->
-      <a href="{% url 'notifications' %}"
-         class="navbar-notifications"
-         aria-label="Notifications"
-         style="position:relative; display:inline-flex; align-items:center; gap:6px; text-decoration:none; margin-right:10px;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Z" fill="currentColor"/>
-          <path d="M18 16v-5a6 6 0 1 0-12 0v5l-2 2v1h16v-1l-2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-        </svg>
-
-        <span id="notif-unread-badge"
-              style="position:absolute; top:-6px; right:-8px; min-width:18px; height:18px; padding:0 5px; border-radius:999px; background:#ef4444; color:#fff; font-size:12px; line-height:18px; text-align:center; display:{% if unread_count|default:0|add:0 > 0 %}inline-block{% else %}none{% endif %};">
-          {{ unread_count|default:0 }}
-        </span>
-      </a>
-
-      <a href="{% url 'logout' %}" class="btn-ghost btn-sm">Logout</a>
-    {% else %}
+    <div class="navbar-actions">
       <a href="{% url 'login' %}" class="btn-ghost btn-sm">Sign in</a>
       <a href="{% url 'register' %}" class="btn-primary btn-sm">Get Started</a>
-    {% endif %}
+      <button class="hamburger" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="mobileMenu" type="button">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
 
-    <button class="hamburger" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="mobileMenu" type="button">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-</nav>
-
-<div class="mobile-menu" id="mobileMenu" role="menu" aria-label="Mobile navigation">
-  <button class="mobile-menu-close" type="button" aria-label="Close menu">×</button>
-  <div class="mobile-menu-links">
-    <a href="{% url 'dashboard' %}">Dashboard</a>
-    <a href="{% url 'upload_cv_analysis' %}">CV Analyzer</a>
-    <a href="{% url 'job_search_with_scraper' %}">Jobs</a>
-    <a href="{% url 'chat' %}">Chatbot</a>
-    <a href="{% url 'browse_resources' %}">Courses</a>
-    <a href="{% url 'community:home' %}">Forum</a>
-    {% if user.is_authenticated %}
-      <a href="{% url 'notifications' %}">Notifications</a>
-      <a href="{% url 'logout' %}">Logout</a>
-    {% else %}
+  <div class="mobile-menu" id="mobileMenu" role="menu" aria-label="Mobile navigation">
+    <button class="mobile-menu-close" type="button" aria-label="Close menu">×</button>
+    <div class="mobile-menu-links">
+      <a href="{% url 'dashboard' %}">Dashboard</a>
+      <a href="{% url 'upload_cv_analysis' %}">CV Analyzer</a>
+      <a href="{% url 'job_search_with_scraper' %}">Jobs</a>
+      <a href="{% url 'chat' %}">Chatbot</a>
+      <a href="{% url 'browse_resources' %}">Courses</a>
+      <a href="{% url 'community:home' %}">Forum</a>
       <a href="{% url 'login' %}">Sign in</a>
       <a href="{% url 'register' %}">Get Started</a>
-    {% endif %}
+    </div>
   </div>
-</div>
+
+{% else %}
+
+  <!-- DASHBOARD / INNER PAGES NAVBAR -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <a href="{% url 'home' %}" class="navbar-logo" aria-label="CareerAI home">
+      <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M4 16C4 10.477 8.477 6 14 6C16.768 6 19.273 7.124 21.084 8.94" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M16 2L13 8H17L14 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Career<span class="logo-accent">AI</span></span>
+    </a>
+
+    <ul class="navbar-links" role="list">
+      <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+      <li><a href="{% url 'upload_cv_analysis' %}">CV Analyzer</a></li>
+      <li><a href="{% url 'job_search_with_scraper' %}">Jobs</a></li>
+      <li><a href="{% url 'chat' %}">Chatbot</a></li>
+      <li><a href="{% url 'browse_resources' %}">Courses</a></li>
+      <li><a href="{% url 'community:home' %}">Forum</a></li>
+    </ul>
+
+    <div class="navbar-actions">
+      {% if user.is_authenticated %}
+        <!-- Theme Toggle -->
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" type="button" title="Toggle dark/light theme">
+          <svg class="theme-toggle-icon theme-toggle-icon--sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="theme-toggle-icon theme-toggle-icon--moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <a href="/auth/profile/" class="navbar-user" style="text-decoration:none;cursor:pointer">{{ user.username }}</a>
+
+        <!-- Notifications -->
+        <a href="{% url 'notifications' %}" class="navbar-notifications" aria-label="Notifications"
+           style="position:relative; display:inline-flex; align-items:center; gap:6px; text-decoration:none; margin-right:10px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Z" fill="currentColor"/>
+            <path d="M18 16v-5a6 6 0 1 0-12 0v5l-2 2v1h16v-1l-2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+          <span id="notif-unread-badge"
+                style="position:absolute; top:-6px; right:-8px; min-width:18px; height:18px; padding:0 5px; border-radius:999px; background:#ef4444; color:#fff; font-size:12px; line-height:18px; text-align:center; display:{% if unread_count|default:0|add:0 > 0 %}inline-block{% else %}none{% endif %};">
+            {{ unread_count|default:0 }}
+          </span>
+        </a>
+
+        <a href="{% url 'logout' %}" class="btn-ghost btn-sm">Logout</a>
+
+      {% else %}
+        <a href="{% url 'login' %}" class="btn-ghost btn-sm">Sign in</a>
+        <a href="{% url 'register' %}" class="btn-primary btn-sm">Get Started</a>
+      {% endif %}
+
+      <button class="hamburger" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="mobileMenu" type="button">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu" role="menu" aria-label="Mobile navigation">
+    <button class="mobile-menu-close" type="button" aria-label="Close menu">×</button>
+    <div class="mobile-menu-links">
+      <a href="{% url 'dashboard' %}">Dashboard</a>
+      <a href="{% url 'upload_cv_analysis' %}">CV Analyzer</a>
+      <a href="{% url 'job_search_with_scraper' %}">Jobs</a>
+      <a href="{% url 'chat' %}">Chatbot</a>
+      <a href="{% url 'browse_resources' %}">Courses</a>
+      <a href="{% url 'community:home' %}">Forum</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'notifications' %}">Notifications</a>
+        <a href="{% url 'logout' %}">Logout</a>
+      {% else %}
+        <a href="{% url 'login' %}">Sign in</a>
+        <a href="{% url 'register' %}">Get Started</a>
+      {% endif %}
+    </div>
+  </div>
+
+{% endif %}
 {% endblock navbar %}
 
 <main class="flex-grow">
@@ -159,10 +195,9 @@
 
 {% block footer %}
 <footer style="background:var(--bg-1); border-top:1px solid var(--border); color:var(--text-muted); padding:48px 24px;">
-  <!-- Main Footer Content -->
   <div style="max-width:80rem; margin:0 auto;">
     <div class="footer-grid">
-      
+
       <!-- Column 1: Brand -->
       <div>
         <a href="{% url 'home' %}" class="navbar-logo" style="display:flex; align-items:center; gap:8px; margin-bottom:12px; text-decoration:none;">
@@ -174,9 +209,6 @@
         </a>
         <p style="font-size:0.875rem; line-height:1.5; margin-bottom:8px; color:var(--text-muted);">
           Your AI-powered career companion for Pakistani graduates.
-        </p>
-        <p style="font-size:0.75rem; color:var(--text-1);">
-          
         </p>
       </div>
 
@@ -208,7 +240,6 @@
       <div>
         <h3 style="font-size:0.875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-primary); margin-bottom:16px;">Connect</h3>
         <ul style="list-style:none; display:flex; flex-direction:column; gap:12px;">
-          <!-- GitHub -->
           <li style="display:flex; align-items:center; gap:10px;">
             <a href="https://github.com/RizwanAli-alt/ai-career-assistant-platform" target="_blank" rel="noopener noreferrer" class="footer-link" style="display:flex; align-items:center; gap:8px; font-size:0.875rem; color:var(--text-muted); text-decoration:none;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -218,7 +249,6 @@
               <span>GitHub</span>
             </a>
           </li>
-          <!-- Email -->
           <li style="display:flex; align-items:center; gap:10px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);" aria-hidden="true">
               <rect x="2" y="4" width="20" height="16" rx="2"/>
@@ -226,7 +256,6 @@
             </svg>
             <span style="font-size:0.875rem; color:var(--text-muted);">support@careerai.pk</span>
           </li>
-          <!-- Location -->
           <li style="display:flex; align-items:center; gap:10px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);" aria-hidden="true">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
@@ -249,12 +278,11 @@
 
 </div>
 
-<!-- ✅ Toast container for realtime notifications -->
+<!-- Toast container -->
 <div id="notif-toast-container"
      style="position:fixed; right:16px; bottom:16px; z-index:9999; display:flex; flex-direction:column; gap:10px;">
 </div>
 
-<!-- ✅ Pass Django values to static JS (main.js) -->
 <script>
   window.__NOTIF__ = {
     isAuthenticated: "{{ user.is_authenticated|yesno:'1,0' }}" === "1",

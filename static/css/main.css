@@ -68,6 +68,50 @@ html[data-theme="light"] {
   --jobs-blue-400:rgba(96,165,250,.36);
 }
 
+body.landing-page {
+  color-scheme: dark;
+  --bg-0:#080B14;
+  --bg-1:#0D1117;
+  --bg-2:#161B22;
+  --bg-3:#1C2128;
+  --bg-4:#21262D;
+  --text-0:#F0F6FC;
+  --text-1:#8B949E;
+  --text-2:#484F58;
+  --icon-color:#fff;
+  --btn-text:#fff;
+  --text-primary:#F0F6FC;
+  --text-muted:#8B949E;
+  --bg-card:#0D1117;
+  --accent-indigo:#5B5BD6;
+  --accent:#2F81F7;
+  --jobs-blue-200:#bfdbfe;
+  --jobs-blue-300:#93c5fd;
+  --jobs-blue-400:rgba(96,165,250,.36);
+  --z-modal-overlay:120;
+  --z-modal:121;
+  --btn-min-width:140px;
+  --modal-slide-distance:20px;
+  --modal-mobile-offset:1rem;
+  --goals-empty-icon-size:58px;
+  --goals-empty-icon-padding:14px;
+  --goals-empty-icon-radius:14px;
+  --focus-blue:#60A5FA;
+  --nav-border:rgba(240,246,252,.1);
+  --accent-glow:rgba(47,129,247,0.08);
+  --accent-dim:rgba(47,129,247,0.12);
+  --green:#3FB950;
+  --green-dim:rgba(63,185,80,0.12);
+  --green-glow:rgba(63,185,80,0.06);
+  --red:#F85149;
+  --amber:#D29922;
+  --border:rgba(240,246,252,0.08);
+  --border-strong:rgba(240,246,252,0.18);
+  --glass-bg:rgba(22,27,34,0.44);
+  --glass-bg-strong:rgba(10,12,15,0.62);
+  --glass-shadow:0 10px 30px rgba(3,8,20,0.35);
+}
+
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{overflow-x:hidden}
 body{background:var(--bg-1);color:var(--text-0);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55;padding-top:60px;transition:background 0.3s,color 0.3s}
