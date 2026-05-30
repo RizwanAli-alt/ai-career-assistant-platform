@@ -17,9 +17,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ================================
 # 🔐 SECURITY SETTINGS
 # ================================
-SECRET_KEY = "django-insecure-xd+eza)q%+zb+#3g16=p6l9wr0$2+an*1mmjr%myb6=c=0-7%%"
-DEBUG = True
-ALLOWED_HOSTS = ['*']  # ✅ CHANGED: Allow all for development
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',
+    'django-insecure-xd+eza)q%+zb+#3g16=p6l9wr0$2+an*1mmjr%myb6=c=0-7%%'
+)
+
+DEBUG = os.environ.get(
+    'DEBUG',
+    'True'
+) == 'True'
+
+ALLOWED_HOSTS = os.environ.get(
+    'ALLOWED_HOSTS',
+    '*'
+).split(',')
 
 
 # ================================
@@ -58,6 +69,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -178,7 +190,12 @@ USE_TZ = True
 # 📁 STATIC FILES
 # ================================
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_STORAGE = (
+    'whitenoise.storage.CompressedManifestStaticFilesStorage'
+)
+
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 
@@ -310,3 +327,17 @@ SCRAPER_CACHE_TTL = 6 * 60 * 60
 
 # Max jobs per scraper
 MAX_JOBS_PER_PORTAL = 20
+
+
+
+
+try:
+    import nltk
+
+    nltk.download('punkt', quiet=True)
+    nltk.download('stopwords', quiet=True)
+    nltk.download('wordnet', quiet=True)
+    nltk.download('averaged_perceptron_tagger', quiet=True)
+
+except Exception:
+    pass

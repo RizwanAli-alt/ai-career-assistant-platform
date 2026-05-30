@@ -86,3 +86,8 @@ urllib3==2.6.3
 vine==5.1.0
 wcwidth==0.7.0
 psycopg2-binary
+
+whitenoise
+daphne
+dj-database-url
+psycopg2-binary
