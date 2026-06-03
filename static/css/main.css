@@ -115,6 +115,7 @@ body.landing-page {
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{overflow-x:hidden}
 body{background:var(--bg-1);color:var(--text-0);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55;padding-top:60px;transition:background 0.3s,color 0.3s}
+body.auth-no-padding{padding-top:0 !important}
 body.modal-open{overflow:hidden}
 a{text-decoration:none;color:inherit}
 main{min-height:calc(100vh - 60px)}
